@@ -7,17 +7,11 @@
 
 import Foundation
 
-public struct UserDTO: Identifiable {
+public struct UserDTO: Identifiable, Codable {
     public let id: UUID
-    public let organization: Organization?
+    public let organization: OrganizationDTO?
     public let firstName: String
     public let lastName: String
     public let email: String
     public let isFoundingUser: Bool
 }
-
-#if os(Linux)
-extension UserDTO: Content {}
-#else
-extension UserDTO: Codable {}
-#endif

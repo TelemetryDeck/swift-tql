@@ -7,8 +7,61 @@
 
 import Foundation
 
+
+public struct InsightData {
+    public init(xAxisValue: String, yAxisValue: String?) {
+        self.xAxisValue = xAxisValue
+        self.yAxisValue = yAxisValue
+    }
+    
+    public var xAxisValue: String
+    public var yAxisValue: String?
+
+    public enum CodingKeys: String, CodingKey {
+        case xAxisValue
+        case yAxisValue
+    }
+
+    private let numberFormatter: NumberFormatter = {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.usesGroupingSeparator = true
+        return numberFormatter
+    }()
+
+    public var yAxisNumber: NSNumber? {
+        guard let yAxisValue = yAxisValue else { return NSNumber(value: 0) }
+        return numberFormatter.number(from: yAxisValue)
+    }
+
+    public var yAxisDouble: Double? {
+        yAxisNumber?.doubleValue
+    }
+
+    public var yAxisString: String {
+        guard let yAxisValue = yAxisValue else { return "0" }
+        guard let yAxisNumber = yAxisNumber else { return yAxisValue }
+        return numberFormatter.string(from: yAxisNumber) ?? yAxisValue
+    }
+
+    public var xAxisDate: Date? {
+        if #available(macOS 10.14, iOS 14.0, *) {
+            return Formatter.iso8601noFS.date(from: xAxisValue) ?? Formatter.iso8601.date(from: xAxisValue)
+        } else {
+            return nil
+        }
+    }
+}
+
+#if canImport(Vapor)
+import Vapor
+extension InsightData: Content {}
+#else
+extension InsightData: Codable {}
+#endif
+
 public struct InsightDTO {
-    public init(id: UUID, order: Double?, title: String, subtitle: String?, signalType: String?, uniqueUser: Bool, filters: [String : String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, data: [InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
+    public init(id: UUID, order: Double?, title: String, subtitle: String?, signalType: String?, uniqueUser: Bool, filters: [String : String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
         self.id = id
         self.order = order
         self.title = title
@@ -20,6 +73,7 @@ public struct InsightDTO {
         self.breakdownKey = breakdownKey
         self.groupBy = groupBy
         self.displayMode = displayMode
+        self.isExpanded = isExpanded
         self.data = data
         self.calculatedAt = calculatedAt
         self.calculationDuration = calculationDuration
@@ -52,6 +106,9 @@ public struct InsightDTO {
 
     /// How should this insight's data be displayed?
     public var displayMode: InsightDisplayMode
+    
+    /// If true, the insight will be displayed bigger
+        var isExpanded: Bool
 
     /// Current Live Calculated Data
     public let data: [InsightData]
@@ -70,7 +127,8 @@ public struct InsightDTO {
     }
 }
 
-#if os(Linux)
+#if canImport(Vapor)
+import Vapor
 extension InsightDTO: Content {}
 #else
 extension InsightDTO: Codable {}

@@ -7,18 +7,6 @@
 
 import Foundation
 
-public struct Organization: Codable, Hashable {
-    public init(id: UUID? = nil, name: String, isSuperOrg: Bool) {
-        self.id = id
-        self.name = name
-        self.isSuperOrg = isSuperOrg
-    }
-    
-    public var id: UUID?
-    public var name: String
-    public var isSuperOrg: Bool
-}
-
 public struct TelemetryApp: Codable, Hashable, Identifiable {
     public init(id: UUID, name: String, organization: [String : String]) {
         self.id = id
@@ -136,51 +124,6 @@ public struct Insight: Codable, Identifiable {
 
     /// Should use druid for calculating this insght
     public var shouldUseDruid: Bool
-}
-
-public struct InsightData: Codable {
-    public init(xAxisValue: String, yAxisValue: String?) {
-        self.xAxisValue = xAxisValue
-        self.yAxisValue = yAxisValue
-    }
-    
-    public let xAxisValue: String
-    public let yAxisValue: String?
-
-    public enum CodingKeys: String, CodingKey {
-        case xAxisValue
-        case yAxisValue
-    }
-
-    private let numberFormatter: NumberFormatter = {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        numberFormatter.usesGroupingSeparator = true
-        return numberFormatter
-    }()
-
-    public var yAxisNumber: NSNumber? {
-        guard let yAxisValue = yAxisValue else { return NSNumber(value: 0) }
-        return numberFormatter.number(from: yAxisValue)
-    }
-
-    public var yAxisDouble: Double? {
-        yAxisNumber?.doubleValue
-    }
-
-    public var yAxisString: String {
-        guard let yAxisValue = yAxisValue else { return "0" }
-        guard let yAxisNumber = yAxisNumber else { return yAxisValue }
-        return numberFormatter.string(from: yAxisNumber) ?? yAxisValue
-    }
-
-    public var xAxisDate: Date? {
-        if #available(macOS 10.14, iOS 14.0, *) {
-            return Formatter.iso8601noFS.date(from: xAxisValue) ?? Formatter.iso8601.date(from: xAxisValue)
-        } else {
-            return nil
-        }
-    }
 }
 
 public struct InsightDefinitionRequestBody: Codable {
@@ -374,23 +317,6 @@ public struct InsightDefinitionRequestBody: Codable {
     }
 }
 
-public struct ChartDataPoint: Hashable, Identifiable {
-    public var id: String { xAxisValue }
-
-    public let xAxisValue: String
-    public let yAxisValue: Double
-
-    public init(insightData: InsightData) throws {
-        xAxisValue = insightData.xAxisValue
-
-        if let yAxisValue = insightData.yAxisDouble {
-            self.yAxisValue = yAxisValue
-        } else {
-            throw ChartDataSet.DataError.insufficientData
-        }
-    }
-}
-
 public enum RegistrationStatus: String, Codable {
     case closed
     case tokenOnly
@@ -577,23 +503,6 @@ public struct BetaRequestUpdateBody: Codable {
     
     public let sentAt: Date?
     public let isFulfilled: Bool
-}
-
-public struct ChartDataSet {
-    public enum DataError: Error {
-        case insufficientData
-    }
-
-    public let data: [ChartDataPoint]
-    public let lowestValue: Double
-    public let highestValue: Double
-
-    public init(data: [InsightData]) throws {
-        self.data = try data.map { try ChartDataPoint(insightData: $0) }
-
-        highestValue = self.data.reduce(0) { max($0, $1.yAxisValue) }
-        lowestValue = 0
-    }
 }
 
 public struct OrganizationAdminListEntry: Codable, Identifiable {
