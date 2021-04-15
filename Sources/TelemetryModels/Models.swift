@@ -516,12 +516,6 @@ public struct OrganizationAdminListEntry: Codable, Identifiable {
     public let email: String
 }
 
-public struct AggregateDTO: Codable {
-    public let min: TimeInterval
-    public let avg: TimeInterval
-    public let max: TimeInterval
-}
-
 public enum AppRootViewSelection: Hashable {
     case insightGroup(group: InsightGroup)
     case lexicon
