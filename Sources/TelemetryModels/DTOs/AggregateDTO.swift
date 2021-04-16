@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct AggregateDTO: Codable {
-    let min: TimeInterval
-    let avg: TimeInterval
-    let max: TimeInterval
+public struct AggregateDTO: Codable {
+    public let min: TimeInterval
+    public let avg: TimeInterval
+    public let max: TimeInterval
 }
