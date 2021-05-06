@@ -38,12 +38,6 @@ public struct InsightData {
         yAxisNumber?.doubleValue
     }
 
-    public var yAxisString: String {
-        guard let yAxisValue = yAxisValue else { return "0" }
-        guard let yAxisNumber = yAxisNumber else { return yAxisValue }
-        return numberFormatter.string(from: yAxisNumber) ?? yAxisValue
-    }
-
     public var xAxisDate: Date? {
         if #available(macOS 10.14, iOS 14.0, *) {
             return Formatter.iso8601noFS.date(from: xAxisValue) ?? Formatter.iso8601.date(from: xAxisValue)

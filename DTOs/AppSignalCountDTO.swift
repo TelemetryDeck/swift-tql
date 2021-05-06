@@ -13,4 +13,5 @@ public struct AppSignalCountDTO: Codable, Identifiable {
     public let organisationName: String?
     public let organisationID: UUID?
     public let signalCount: Int
+    public let userCount: Int
 }
