@@ -1,19 +1,18 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Daniel Jilg on 09.04.21.
 //
 
 import Foundation
 
-
 public struct InsightData {
     public init(xAxisValue: String, yAxisValue: String?) {
         self.xAxisValue = xAxisValue
         self.yAxisValue = yAxisValue
     }
-    
+
     public var xAxisValue: String
     public var yAxisValue: String?
 
@@ -48,14 +47,14 @@ public struct InsightData {
 }
 
 #if canImport(Vapor)
-import Vapor
-extension InsightData: Content {}
+    import Vapor
+    extension InsightData: Content {}
 #else
-extension InsightData: Codable {}
+    extension InsightData: Codable {}
 #endif
 
 public struct InsightDTO {
-    public init(id: UUID, order: Double?, title: String, subtitle: String?, signalType: String?, uniqueUser: Bool, filters: [String : String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
+    public init(id: UUID, order: Double?, title: String, subtitle: String?, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
         self.id = id
         self.order = order
         self.title = title
@@ -73,7 +72,7 @@ public struct InsightDTO {
         self.calculationDuration = calculationDuration
         self.shouldUseDruid = shouldUseDruid
     }
-    
+
     public let id: UUID
 
     public let order: Double?
@@ -100,9 +99,9 @@ public struct InsightDTO {
 
     /// How should this insight's data be displayed?
     public var displayMode: InsightDisplayMode
-    
+
     /// If true, the insight will be displayed bigger
-        var isExpanded: Bool
+    var isExpanded: Bool
 
     /// Current Live Calculated Data
     public let data: [InsightData]
@@ -122,8 +121,8 @@ public struct InsightDTO {
 }
 
 #if canImport(Vapor)
-import Vapor
-extension InsightDTO: Content {}
+    import Vapor
+    extension InsightDTO: Content {}
 #else
-extension InsightDTO: Codable {}
+    extension InsightDTO: Codable {}
 #endif

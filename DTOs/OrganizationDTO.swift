@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Daniel Jilg on 09.04.21.
 //
@@ -13,7 +13,7 @@ public struct OrganizationDTO: Codable, Hashable, Identifiable {
         self.name = name
         self.isSuperOrg = isSuperOrg
     }
-    
+
     public var id: UUID
     public var name: String
     public var isSuperOrg: Bool

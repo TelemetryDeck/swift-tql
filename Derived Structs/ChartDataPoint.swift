@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Daniel Jilg on 09.04.21.
 //
@@ -22,7 +22,7 @@ public struct ChartDataPoint: Hashable, Identifiable {
             throw ChartDataSet.DataError.insufficientData
         }
     }
-    
+
     public init(xAxisValue: String, yAxisValue: Double) {
         self.xAxisValue = xAxisValue
         self.yAxisValue = yAxisValue

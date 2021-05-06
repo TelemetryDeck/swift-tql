@@ -8,26 +8,26 @@
 import Foundation
 
 public struct TelemetryApp: Codable, Hashable, Identifiable {
-    public init(id: UUID, name: String, organization: [String : String]) {
+    public init(id: UUID, name: String, organization: [String: String]) {
         self.id = id
         self.name = name
         self.organization = organization
     }
-    
+
     public var id: UUID
     public var name: String
     public var organization: [String: String]
 }
 
 public struct Signal: Codable, Hashable {
-    public init(id: UUID? = nil, receivedAt: Date, clientUser: String, type: String, payload: [String : String]? = nil) {
+    public init(id: UUID? = nil, receivedAt: Date, clientUser: String, type: String, payload: [String: String]? = nil) {
         self.id = id
         self.receivedAt = receivedAt
         self.clientUser = clientUser
         self.type = type
         self.payload = payload
     }
-    
+
     public var id: UUID?
     public var receivedAt: Date
     public var clientUser: String
@@ -60,7 +60,7 @@ public struct InsightGroupDTO: Codable, Identifiable {
         self.title = title
         self.order = order
     }
-    
+
     public var id: UUID
     public var title: String
     public var order: Double?
@@ -127,7 +127,7 @@ public struct Insight: Codable, Identifiable {
 }
 
 public struct InsightDefinitionRequestBody: Codable {
-    public init(order: Double? = nil, title: String, subtitle: String? = nil, signalType: String? = nil, uniqueUser: Bool, filters: [String : String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, groupID: UUID? = nil, id: UUID? = nil, isExpanded: Bool, shouldUseDruid: Bool) {
+    public init(order: Double? = nil, title: String, subtitle: String? = nil, signalType: String? = nil, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, groupID: UUID? = nil, id: UUID? = nil, isExpanded: Bool, shouldUseDruid: Bool) {
         self.order = order
         self.title = title
         self.subtitle = subtitle
@@ -143,7 +143,7 @@ public struct InsightDefinitionRequestBody: Codable {
         self.isExpanded = isExpanded
         self.shouldUseDruid = shouldUseDruid
     }
-    
+
     public var order: Double?
     public var title: String
     public var subtitle: String?
@@ -354,7 +354,7 @@ public struct PasswordChangeRequestBody: Codable {
         self.newPassword = newPassword
         self.newPasswordConfirm = newPasswordConfirm
     }
-    
+
     public var oldPassword: String
     public var newPassword: String
     public var newPasswordConfirm: String
@@ -376,7 +376,7 @@ public struct LexiconSignalType: Codable, Identifiable {
         self.isHidden = isHidden
         self.type = type
     }
-    
+
     public let id: UUID
     public let firstSeenAt: Date
 
@@ -392,7 +392,7 @@ public struct LexiconPayloadKey: Codable, Identifiable {
         self.isHidden = isHidden
         self.payloadKey = payloadKey
     }
-    
+
     public let id: UUID
     public let firstSeenAt: Date
 
@@ -419,7 +419,7 @@ public struct OrganizationJoinRequestURLObject: Codable {
         self.organizationID = organizationID
         self.registrationToken = registrationToken
     }
-    
+
     public var email: String
     public var firstName: String
     public var lastName: String
@@ -430,7 +430,7 @@ public struct OrganizationJoinRequestURLObject: Codable {
 
 public struct RegistrationRequestBody: Codable {
     public init() {}
-    
+
     public var registrationToken: String = ""
     public var organisationName: String = ""
     public var userFirstName: String = ""
@@ -449,7 +449,7 @@ public struct LoginRequestBody {
         self.userEmail = userEmail
         self.userPassword = userPassword
     }
-    
+
     public var userEmail: String = ""
     public var userPassword: String = ""
 
@@ -471,7 +471,7 @@ public struct RequestPasswordResetRequestBody: Codable {
         self.code = code
         self.newPassword = newPassword
     }
-    
+
     public var email: String = ""
     public var code: String = ""
     public var newPassword: String = ""
@@ -500,7 +500,7 @@ public struct BetaRequestUpdateBody: Codable {
         self.sentAt = sentAt
         self.isFulfilled = isFulfilled
     }
-    
+
     public let sentAt: Date?
     public let isFulfilled: Bool
 }
