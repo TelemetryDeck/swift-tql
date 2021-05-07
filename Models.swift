@@ -7,6 +7,77 @@
 
 import Foundation
 
+/// Data Transfer Objects
+public enum DTO {
+    public struct Signal: Codable, Hashable {
+        public init(id: UUID? = nil, receivedAt: Date, clientUser: String, type: String, payload: [String: String]? = nil) {
+            self.id = id
+            self.receivedAt = receivedAt
+            self.clientUser = clientUser
+            self.type = type
+            self.payload = payload
+        }
+
+        public var id: UUID?
+        public var receivedAt: Date
+        public var clientUser: String
+        public var type: String
+        public var payload: [String: String]?
+    }
+    
+    
+    
+    public struct InsightGroup: Codable, Identifiable, Hashable {
+        public var id: UUID
+        public var title: String
+        public var order: Double?
+        public var insights: [InsightDTO] = []
+
+        public func getDTO() -> Self {
+            Self(id: id, title: title, order: order)
+        }
+
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.id == rhs.id
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+        
+        public init(id: UUID, title: String, order: Double? = nil) {
+            self.id = id
+            self.title = title
+            self.order = order
+            self.insights = []
+        }
+    }
+    
+    public struct LexiconPayloadKey: Codable, Identifiable {
+        public init(id: UUID, firstSeenAt: Date, isHidden: Bool, payloadKey: String) {
+            self.id = id
+            self.firstSeenAt = firstSeenAt
+            self.isHidden = isHidden
+            self.payloadKey = payloadKey
+        }
+
+        public let id: UUID
+        public let firstSeenAt: Date
+
+        /// If true, don't include this lexicon item in autocomplete lists
+        public let isHidden: Bool
+        public let payloadKey: String
+    }
+
+    /// Represents a standing invitation to join an organization
+    public struct OrganizationJoinRequest: Codable, Identifiable, Equatable {
+        public let id: UUID
+        public let email: String
+        public let registrationToken: String
+        public let organization: [String: UUID]
+    }
+}
+
 public struct TelemetryApp: Codable, Hashable, Identifiable {
     public init(id: UUID, name: String, organization: [String: String]) {
         self.id = id
@@ -19,47 +90,7 @@ public struct TelemetryApp: Codable, Hashable, Identifiable {
     public var organization: [String: String]
 }
 
-public struct SignalDTO: Codable, Hashable {
-    public init(id: UUID? = nil, receivedAt: Date, clientUser: String, type: String, payload: [String: String]? = nil) {
-        self.id = id
-        self.receivedAt = receivedAt
-        self.clientUser = clientUser
-        self.type = type
-        self.payload = payload
-    }
 
-    public var id: UUID?
-    public var receivedAt: Date
-    public var clientUser: String
-    public var type: String
-    public var payload: [String: String]?
-}
-
-public struct InsightGroupDTO: Codable, Identifiable, Hashable {
-    public var id: UUID
-    public var title: String
-    public var order: Double?
-    public var insights: [InsightDTO] = []
-
-    public func getDTO() -> InsightGroupDTO {
-        InsightGroupDTO(id: id, title: title, order: order)
-    }
-
-    public static func == (lhs: InsightGroupDTO, rhs: InsightGroupDTO) -> Bool {
-        lhs.id == rhs.id
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
-    
-    public init(id: UUID, title: String, order: Double? = nil) {
-        self.id = id
-        self.title = title
-        self.order = order
-        self.insights = []
-    }
-}
 
 public enum InsightDisplayMode: String, Codable {
     case number // Deprecated, use Raw instead
@@ -336,29 +367,6 @@ public struct LexiconSignalTypeDTO: Codable, Identifiable {
     public let type: String
 }
 
-public struct LexiconPayloadKeyDTO: Codable, Identifiable {
-    public init(id: UUID, firstSeenAt: Date, isHidden: Bool, payloadKey: String) {
-        self.id = id
-        self.firstSeenAt = firstSeenAt
-        self.isHidden = isHidden
-        self.payloadKey = payloadKey
-    }
-
-    public let id: UUID
-    public let firstSeenAt: Date
-
-    /// If true, don't include this lexicon item in autocomplete lists
-    public let isHidden: Bool
-    public let payloadKey: String
-}
-
-/// Represents a standing invitation to join an organization
-public struct OrganizationJoinRequestDTO: Codable, Identifiable, Equatable {
-    public let id: UUID
-    public let email: String
-    public let registrationToken: String
-    public let organization: [String: UUID]
-}
 
 /// Sent to the server to create a user belonging to the organization
 public struct OrganizationJoinRequestURLObject: Codable {
@@ -468,7 +476,7 @@ public struct OrganizationAdminListEntry: Codable, Identifiable {
 }
 
 public enum AppRootViewSelection: Hashable {
-    case insightGroup(group: InsightGroupDTO)
+    case insightGroup(group: DTO.InsightGroup)
     case lexicon
     case rawSignals
     case noSelection

@@ -7,11 +7,13 @@
 
 import Foundation
 
-public struct UserDTO: Identifiable, Codable {
-    public let id: UUID
-    public let organization: OrganizationDTO?
-    public let firstName: String
-    public let lastName: String
-    public let email: String
-    public let isFoundingUser: Bool
+public extension DTO {
+    struct UserDTO: Identifiable, Codable {
+        public let id: UUID
+        public let organization: DTO.Organization?
+        public let firstName: String
+        public let lastName: String
+        public let email: String
+        public let isFoundingUser: Bool
+    }
 }
