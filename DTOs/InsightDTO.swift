@@ -56,6 +56,7 @@ public struct InsightData {
 public struct InsightDTO {
     public init(id: UUID, order: Double?, title: String, subtitle: String?, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
         self.id = id
+        self.group = [:]
         self.order = order
         self.title = title
         self.subtitle = subtitle
@@ -74,6 +75,7 @@ public struct InsightDTO {
     }
 
     public let id: UUID
+    public var group: [String: UUID]
 
     public let order: Double?
     public let title: String

@@ -15,3 +15,9 @@ public struct AppSignalCountDTO: Codable, Identifiable {
     public let signalCount: Int
     public let userCount: Int
 }
+
+#if canImport(Vapor)
+import Vapor
+
+extension AppSignalCountDTO: Content {}
+#endif

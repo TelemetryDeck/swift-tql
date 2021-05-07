@@ -19,7 +19,7 @@ public struct TelemetryApp: Codable, Hashable, Identifiable {
     public var organization: [String: String]
 }
 
-public struct Signal: Codable, Hashable {
+public struct SignalDTO: Codable, Hashable {
     public init(id: UUID? = nil, receivedAt: Date, clientUser: String, type: String, payload: [String: String]? = nil) {
         self.id = id
         self.receivedAt = receivedAt
@@ -35,35 +35,30 @@ public struct Signal: Codable, Hashable {
     public var payload: [String: String]?
 }
 
-public struct InsightGroup: Codable, Identifiable, Hashable {
+public struct InsightGroupDTO: Codable, Identifiable, Hashable {
     public var id: UUID
     public var title: String
     public var order: Double?
-    public var insights: [Insight] = []
+    public var insights: [InsightDTO] = []
 
     public func getDTO() -> InsightGroupDTO {
         InsightGroupDTO(id: id, title: title, order: order)
     }
 
-    public static func == (lhs: InsightGroup, rhs: InsightGroup) -> Bool {
+    public static func == (lhs: InsightGroupDTO, rhs: InsightGroupDTO) -> Bool {
         lhs.id == rhs.id
     }
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-}
-
-public struct InsightGroupDTO: Codable, Identifiable {
+    
     public init(id: UUID, title: String, order: Double? = nil) {
         self.id = id
         self.title = title
         self.order = order
+        self.insights = []
     }
-
-    public var id: UUID
-    public var title: String
-    public var order: Double?
 }
 
 public enum InsightDisplayMode: String, Codable {
@@ -81,50 +76,6 @@ public enum InsightGroupByInterval: String, Codable {
     case month
 }
 
-public struct Insight: Codable, Identifiable {
-    public var id: UUID
-    public var group: [String: UUID]
-
-    public var order: Double?
-    public var title: String
-    public var subtitle: String?
-
-    /// Which signal types are we interested in? If nil, do not filter by signal type
-    public var signalType: String?
-
-    /// If true, only include at the newest signal from each user
-    public var uniqueUser: Bool
-
-    /// Only include signals that match all of these key-values in the payload
-    public var filters: [String: String]
-
-    /// How far to go back to aggregate signals
-    public var rollingWindowSize: TimeInterval
-
-    /// If set, break down the values in this key
-    public var breakdownKey: String?
-
-    /// If set, group and count found signals by this time interval. Incompatible with breakdownKey
-    public var groupBy: InsightGroupByInterval?
-
-    /// How should this insight's data be displayed?
-    public var displayMode: InsightDisplayMode
-
-    /// If true, the insight will be displayed bigger
-    public var isExpanded: Bool
-
-    /// The amount of time (in seconds) this query took to calculate last time
-    public var lastRunTime: TimeInterval?
-
-    /// The query that was last used to run this query
-    public var lastQuery: String?
-
-    /// The date this query was last run
-    public var lastRunAt: Date?
-
-    /// Should use druid for calculating this insght
-    public var shouldUseDruid: Bool
-}
 
 public struct InsightDefinitionRequestBody: Codable {
     public init(order: Double? = nil, title: String, subtitle: String? = nil, signalType: String? = nil, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, groupID: UUID? = nil, id: UUID? = nil, isExpanded: Bool, shouldUseDruid: Bool) {
@@ -181,7 +132,7 @@ public struct InsightDefinitionRequestBody: Codable {
     /// Should use druid for calculating this insght
     public var shouldUseDruid: Bool
 
-    public static func from(insight: Insight) -> InsightDefinitionRequestBody {
+    public static func from(insight: InsightDTO) -> InsightDefinitionRequestBody {
         let requestBody = Self(
             order: insight.order,
             title: insight.title,
@@ -196,7 +147,7 @@ public struct InsightDefinitionRequestBody: Codable {
             groupID: insight.group["id"],
             id: insight.id,
             isExpanded: insight.isExpanded,
-            shouldUseDruid: insight.shouldUseDruid
+            shouldUseDruid: insight.shouldUseDruid ?? true
         )
 
         return requestBody
@@ -360,7 +311,7 @@ public struct PasswordChangeRequestBody: Codable {
     public var newPasswordConfirm: String
 }
 
-public struct BetaRequestEmail: Codable, Identifiable, Equatable {
+public struct BetaRequestEmailDTO: Codable, Identifiable, Equatable {
     public let id: UUID
     public let email: String
     public let registrationToken: String
@@ -369,7 +320,7 @@ public struct BetaRequestEmail: Codable, Identifiable, Equatable {
     public let isFulfilled: Bool
 }
 
-public struct LexiconSignalType: Codable, Identifiable {
+public struct LexiconSignalTypeDTO: Codable, Identifiable {
     public init(id: UUID, firstSeenAt: Date, isHidden: Bool, type: String) {
         self.id = id
         self.firstSeenAt = firstSeenAt
@@ -385,7 +336,7 @@ public struct LexiconSignalType: Codable, Identifiable {
     public let type: String
 }
 
-public struct LexiconPayloadKey: Codable, Identifiable {
+public struct LexiconPayloadKeyDTO: Codable, Identifiable {
     public init(id: UUID, firstSeenAt: Date, isHidden: Bool, payloadKey: String) {
         self.id = id
         self.firstSeenAt = firstSeenAt
@@ -402,7 +353,7 @@ public struct LexiconPayloadKey: Codable, Identifiable {
 }
 
 /// Represents a standing invitation to join an organization
-public struct OrganizationJoinRequest: Codable, Identifiable, Equatable {
+public struct OrganizationJoinRequestDTO: Codable, Identifiable, Equatable {
     public let id: UUID
     public let email: String
     public let registrationToken: String
@@ -485,7 +436,7 @@ public struct RequestPasswordResetRequestBody: Codable {
     }
 }
 
-public struct UserToken: Codable {
+public struct UserTokenDTO: Codable {
     public var id: UUID?
     public var value: String
     public var user: [String: String]
@@ -517,7 +468,7 @@ public struct OrganizationAdminListEntry: Codable, Identifiable {
 }
 
 public enum AppRootViewSelection: Hashable {
-    case insightGroup(group: InsightGroup)
+    case insightGroup(group: InsightGroupDTO)
     case lexicon
     case rawSignals
     case noSelection

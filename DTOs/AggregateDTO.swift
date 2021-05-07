@@ -12,3 +12,9 @@ public struct AggregateDTO: Codable {
     public let avg: TimeInterval
     public let max: TimeInterval
 }
+
+#if canImport(Vapor)
+import Vapor
+
+extension AggregateDTO: Content {}
+#endif
