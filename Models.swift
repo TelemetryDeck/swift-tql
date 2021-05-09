@@ -178,7 +178,7 @@ public struct InsightDefinitionRequestBody: Codable {
             groupID: insight.group["id"],
             id: insight.id,
             isExpanded: insight.isExpanded,
-            shouldUseDruid: insight.shouldUseDruid ?? true
+            shouldUseDruid: insight.shouldUseDruid
         )
 
         return requestBody
