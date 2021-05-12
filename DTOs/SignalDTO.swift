@@ -58,7 +58,7 @@ public extension DTO {
                     }
                 }
             }
-            return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: [:])
+            return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: actualPayload)
         }
     }
 }
