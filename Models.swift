@@ -9,24 +9,6 @@ import Foundation
 
 /// Data Transfer Objects
 public enum DTO {
-    public struct Signal: Codable, Hashable {
-        public init(id: UUID? = nil, receivedAt: Date, clientUser: String, type: String, payload: [String: String]? = nil) {
-            self.id = id
-            self.receivedAt = receivedAt
-            self.clientUser = clientUser
-            self.type = type
-            self.payload = payload
-        }
-
-        public var id: UUID?
-        public var receivedAt: Date
-        public var clientUser: String
-        public var type: String
-        public var payload: [String: String]?
-    }
-    
-    
-    
     public struct InsightGroup: Codable, Identifiable, Hashable {
         public var id: UUID
         public var title: String
