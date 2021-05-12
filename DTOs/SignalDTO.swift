@@ -8,8 +8,8 @@
 import Foundation
 
 public extension DTO {
-    struct Signal: Codable, Hashable {
-        public var id: UUID?
+    struct IdentifiableSignal: Codable, Hashable, Identifiable {
+        public var id = UUID()
         public var appID: UUID?
         public var count: Int?
         public var receivedAt: Date
@@ -17,10 +17,27 @@ public extension DTO {
         public var sessionID: String?
         public var type: String
         public var payload: [String: String]?
+        
+        var signal: Signal {
+            return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: payload)
+        }
+    }
+    
+    struct Signal: Codable, Hashable {
+        public var appID: UUID?
+        public var count: Int?
+        public var receivedAt: Date
+        public var clientUser: String
+        public var sessionID: String?
+        public var type: String
+        public var payload: [String: String]?
+        
+        func toIdentifiableSignal() -> IdentifiableSignal {
+            return IdentifiableSignal(id: UUID(), appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: payload)
+        }
     }
 
     struct SignalDruidStructure: Codable, Hashable {
-        public var id: UUID?
         public var appID: UUID?
         public var count: Int?
         public var receivedAt: Date
@@ -41,7 +58,7 @@ public extension DTO {
                     }
                 }
             }
-            return Signal(id: id, appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: [:])
+            return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: [:])
         }
     }
 }
