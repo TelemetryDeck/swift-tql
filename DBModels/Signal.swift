@@ -39,7 +39,7 @@ struct SignalPostBody: Content {
 
     func getResolvedPayload() -> [String: String] {
         let resolvedPayload = payload ?? [:]
-        return resolvedPayload.merging(["signalType": type, "signalClientUser": clientUser], uniquingKeysWith: { _, last in last })
+        return resolvedPayload.merging(["signalType": type], uniquingKeysWith: { _, last in last })
     }
 
     func getSignalPostBodyWithResolvedPayload() -> SignalPostBody {
