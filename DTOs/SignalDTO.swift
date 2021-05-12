@@ -14,7 +14,7 @@ public extension DTO {
         public var count: Int?
         public var receivedAt: Date
         public var clientUser: String
-        public var sessionID: String
+        public var sessionID: String?
         public var type: String
         public var payload: [String: String]?
     }
