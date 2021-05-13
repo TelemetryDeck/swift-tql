@@ -13,6 +13,7 @@ public extension DTO {
         public var type: String
         public var signalCount: Int
         public var userCount: Int
+        public var sessionCount: Int
     }
 }
 

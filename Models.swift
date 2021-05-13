@@ -333,22 +333,6 @@ public struct BetaRequestEmailDTO: Codable, Identifiable, Equatable {
     public let isFulfilled: Bool
 }
 
-public struct LexiconSignalTypeDTO: Codable, Identifiable {
-    public init(id: UUID, firstSeenAt: Date, isHidden: Bool, type: String) {
-        self.id = id
-        self.firstSeenAt = firstSeenAt
-        self.isHidden = isHidden
-        self.type = type
-    }
-
-    public let id: UUID
-    public let firstSeenAt: Date
-
-    /// If true, don't include this lexicon item in autocomplete lists
-    public let isHidden: Bool
-    public let type: String
-}
-
 
 /// Sent to the server to create a user belonging to the organization
 public struct OrganizationJoinRequestURLObject: Codable {
