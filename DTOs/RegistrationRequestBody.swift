@@ -8,8 +8,6 @@
 import Foundation
 public extension DTO {
     struct RegistrationRequestBody: Codable {
-        public init() {}
-
         public var registrationToken: String = ""
         public var organisationName: String = ""
         public var userFirstName: String = ""
@@ -17,6 +15,7 @@ public extension DTO {
         public var userEmail: String = ""
         public var userPassword: String = ""
         public var userPasswordConfirm: String = ""
+        public var receiveMarketingEmails: Bool
 
         public var isValid: Bool {
             !organisationName.isEmpty && !userFirstName.isEmpty && !userEmail.isEmpty && !userPassword.isEmpty && !userPasswordConfirm.isEmpty && !userPassword.contains(":")
@@ -46,7 +45,7 @@ extension DTO.RegistrationRequestBody: Validatable {
             lastName: userLastName,
             isFoundingUser: true,
             email: userEmail,
-            receiveMarketingEmails: false, // TODO: Ask user
+            receiveMarketingEmails: receiveMarketingEmails,
             passwordHash: hashedPassword,
             organizationID: organizationID
         )
