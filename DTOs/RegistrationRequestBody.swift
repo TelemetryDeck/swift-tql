@@ -8,6 +8,8 @@
 import Foundation
 public extension DTO {
     struct RegistrationRequestBody: Codable {
+        public init() {}
+
         public var registrationToken: String = ""
         public var organisationName: String = ""
         public var userFirstName: String = ""
@@ -15,11 +17,40 @@ public extension DTO {
         public var userEmail: String = ""
         public var userPassword: String = ""
         public var userPasswordConfirm: String = ""
-        public var receiveMarketingEmails: Bool
+        public var receiveMarketingEmails: Bool = false
 
-        public var isValid: Bool {
-            !organisationName.isEmpty && !userFirstName.isEmpty && !userEmail.isEmpty && !userPassword.isEmpty && !userPasswordConfirm.isEmpty && !userPassword.contains(":")
+        public var isValid: ValidationState {
+            if organisationName.isEmpty || userFirstName.isEmpty || userEmail.isEmpty || userPassword.isEmpty {
+                return .fieldsMissing
+            }
+            
+            if userPassword != userPasswordConfirm {
+                return .passwordsNotEqual
+            }
+            
+            if userPassword.count < 8 {
+                return .passwordTooShort
+            }
+            
+            if userPassword.contains(":") {
+                return .passwordContainsColon
+            }
+            
+            if !userEmail.contains("@") {
+                return .noAtInEmail
+            }
+            
+            return .valid
         }
+    }
+
+    enum ValidationState {
+        case valid
+        case fieldsMissing
+        case passwordsNotEqual
+        case passwordTooShort
+        case passwordContainsColon
+        case noAtInEmail
     }
 }
 

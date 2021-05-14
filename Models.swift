@@ -330,25 +330,6 @@ public struct BetaRequestEmailDTO: Codable, Identifiable, Equatable {
     public let isFulfilled: Bool
 }
 
-/// Sent to the server to create a user belonging to the organization
-public struct OrganizationJoinRequestURLObject: Codable {
-    public init(email: String, firstName: String, lastName: String, password: String, organizationID: UUID, registrationToken: String) {
-        self.email = email
-        self.firstName = firstName
-        self.lastName = lastName
-        self.password = password
-        self.organizationID = organizationID
-        self.registrationToken = registrationToken
-    }
-
-    public var email: String
-    public var firstName: String
-    public var lastName: String
-    public var password: String
-    public let organizationID: UUID
-    public var registrationToken: String
-}
-
 public struct LoginRequestBody {
     public init(userEmail: String = "", userPassword: String = "") {
         self.userEmail = userEmail
