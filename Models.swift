@@ -26,7 +26,7 @@ public enum DTO {
         public func hash(into hasher: inout Hasher) {
             hasher.combine(id)
         }
-        
+
         public init(id: UUID, title: String, order: Double? = nil) {
             self.id = id
             self.title = title
@@ -34,7 +34,7 @@ public enum DTO {
             self.insights = []
         }
     }
-    
+
     public struct LexiconPayloadKey: Codable, Identifiable {
         public init(id: UUID, firstSeenAt: Date, isHidden: Bool, payloadKey: String) {
             self.id = id
@@ -72,8 +72,6 @@ public struct TelemetryApp: Codable, Hashable, Identifiable {
     public var organization: [String: String]
 }
 
-
-
 public enum InsightDisplayMode: String, Codable {
     case number // Deprecated, use Raw instead
     case raw
@@ -88,7 +86,6 @@ public enum InsightGroupByInterval: String, Codable {
     case week
     case month
 }
-
 
 public struct InsightDefinitionRequestBody: Codable {
     public init(order: Double? = nil, title: String, subtitle: String? = nil, signalType: String? = nil, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, groupID: UUID? = nil, id: UUID? = nil, isExpanded: Bool, shouldUseDruid: Bool) {
@@ -333,7 +330,6 @@ public struct BetaRequestEmailDTO: Codable, Identifiable, Equatable {
     public let isFulfilled: Bool
 }
 
-
 /// Sent to the server to create a user belonging to the organization
 public struct OrganizationJoinRequestURLObject: Codable {
     public init(email: String, firstName: String, lastName: String, password: String, organizationID: UUID, registrationToken: String) {
@@ -351,22 +347,6 @@ public struct OrganizationJoinRequestURLObject: Codable {
     public var password: String
     public let organizationID: UUID
     public var registrationToken: String
-}
-
-public struct RegistrationRequestBody: Codable {
-    public init() {}
-
-    public var registrationToken: String = ""
-    public var organisationName: String = ""
-    public var userFirstName: String = ""
-    public var userLastName: String = ""
-    public var userEmail: String = ""
-    public var userPassword: String = ""
-    public var userPasswordConfirm: String = ""
-
-    public var isValid: Bool {
-        !organisationName.isEmpty && !userFirstName.isEmpty && !userEmail.isEmpty && !userPassword.isEmpty && !userPasswordConfirm.isEmpty && !userPassword.contains(":")
-    }
 }
 
 public struct LoginRequestBody {

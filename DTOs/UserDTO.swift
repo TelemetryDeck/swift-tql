@@ -17,3 +17,20 @@ public extension DTO {
         public let isFoundingUser: Bool
     }
 }
+
+#if canImport(Vapor)
+import Vapor
+
+extension DTO.UserDTO: Content {}
+
+extension DTO.UserDTO {
+    init(user: User) {
+        id = user.id!
+        organization = DTO.Organization(id: user.$organization.id, name: user.organization.name, isSuperOrg: user.organization.isSuperOrg)
+        firstName = user.firstName
+        lastName = user.lastName
+        email = user.email
+        isFoundingUser = user.isFoundingUser
+    }
+}
+#endif

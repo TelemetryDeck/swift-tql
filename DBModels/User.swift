@@ -48,24 +48,6 @@ final class User: Model, Content {
     }
 }
 
-struct UserDataTransferObject: Content {
-    let id: UUID
-    let organization: Organization?
-    let isFoundingUser: Bool
-    let firstName: String
-    let lastName: String
-    let email: String
-
-    init(user: User) {
-        id = user.id!
-        organization = user.$organization.value
-        firstName = user.firstName
-        lastName = user.lastName
-        email = user.email
-        isFoundingUser = user.isFoundingUser
-    }
-}
-
 extension User: CaseInsensitiveModelAuthenticatable {
     static let usernameKey = \User.$email
     static let passwordHashKey = \User.$passwordHash
