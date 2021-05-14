@@ -20,6 +20,9 @@ final class User: Model, Content {
     @Field(key: "email")
     var email: String
 
+    @Field(key: "receive_marketing_emails")
+    var receiveMarketingEmails: Bool
+
     @Field(key: "password_hash")
     var passwordHash: String
 
@@ -28,12 +31,13 @@ final class User: Model, Content {
 
     init() {}
 
-    init(id: UUID? = nil, firstName: String, lastName: String, isFoundingUser: Bool, email: String, passwordHash: String, organizationID: UUID) {
+    init(id: UUID? = nil, firstName: String, lastName: String, isFoundingUser: Bool, email: String, receiveMarketingEmails: Bool, passwordHash: String, organizationID: UUID) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.isFoundingUser = isFoundingUser
         self.email = email
+        self.receiveMarketingEmails = receiveMarketingEmails
         self.passwordHash = passwordHash
         $organization.id = organizationID
     }
