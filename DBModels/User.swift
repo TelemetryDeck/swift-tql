@@ -22,7 +22,7 @@ final class User: Model, Content {
 
     /// If true, the user gave us permission to send them marketing emails, especially the newsletter
     @Field(key: "receive_marketing_emails")
-    var receiveMarketingEmails: Bool
+    var receiveMarketingEmails: Bool?
     
     /// If true, the user has verified their email address by clicking a link
     @Field(key: "email_is_verified")

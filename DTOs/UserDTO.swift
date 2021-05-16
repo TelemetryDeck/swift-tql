@@ -14,7 +14,8 @@ public extension DTO {
         public let firstName: String
         public let lastName: String
         public let email: String
-        public let receiveMarketingEmails: Bool
+        public let emailIsVerified: Bool
+        public let receiveMarketingEmails: Bool?
         public let isFoundingUser: Bool
     }
 }
@@ -38,6 +39,7 @@ extension DTO.UserDTO {
         email = user.email
         isFoundingUser = user.isFoundingUser
         receiveMarketingEmails = user.receiveMarketingEmails
+        emailIsVerified = user.emailIsVerified
     }
 }
 #endif
