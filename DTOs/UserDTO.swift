@@ -11,11 +11,11 @@ public extension DTO {
     struct UserDTO: Identifiable, Codable {
         public let id: UUID
         public let organization: DTO.Organization?
-        public let firstName: String
-        public let lastName: String
-        public let email: String
+        public var firstName: String
+        public var lastName: String
+        public var email: String
         public let emailIsVerified: Bool
-        public let receiveMarketingEmails: Bool?
+        public var receiveMarketingEmails: Bool?
         public let isFoundingUser: Bool
     }
 }
