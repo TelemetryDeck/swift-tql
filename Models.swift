@@ -142,7 +142,7 @@ public struct InsightDefinitionRequestBody: Codable {
     /// Should use druid for calculating this insght
     public var shouldUseDruid: Bool
 
-    public static func from(insight: InsightDTO) -> InsightDefinitionRequestBody {
+    public static func from(insight: DTO.InsightDTO) -> InsightDefinitionRequestBody {
         let requestBody = Self(
             order: insight.order,
             title: insight.title,
