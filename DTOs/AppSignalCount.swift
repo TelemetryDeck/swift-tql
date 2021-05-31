@@ -1,14 +1,7 @@
-//
-//  File.swift
-//
-//
-//  Created by Daniel Jilg on 16.04.21.
-//
-
 import Foundation
 
 public extension DTO {
-    struct AppSignalCount: Codable, Identifiable {
+    struct AppAdminEntry: Codable, Identifiable {
         public let id: UUID
         public let appName: String?
         public let organisationName: String?
@@ -21,5 +14,5 @@ public extension DTO {
 #if canImport(Vapor)
 import Vapor
 
-extension DTO.AppSignalCount: Content {}
+extension DTO.AppAdminEntry: Content {}
 #endif
