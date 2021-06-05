@@ -16,7 +16,7 @@ public struct ChartDataSet {
     public let lowestValue: Double
     public let highestValue: Double
 
-    public init(data: [InsightData]) throws {
+    public init(data: [DTO.InsightData]) throws {
         self.data = try data.map { try ChartDataPoint(insightData: $0) }
 
         highestValue = self.data.reduce(0) { max($0, $1.yAxisValue) }

@@ -13,7 +13,7 @@ public struct ChartDataPoint: Hashable, Identifiable {
     public let xAxisValue: String
     public let yAxisValue: Double
 
-    public init(insightData: InsightData) throws {
+    public init(insightData: DTO.InsightData) throws {
         xAxisValue = insightData.xAxisValue
 
         if let yAxisValue = insightData.yAxisDouble {
