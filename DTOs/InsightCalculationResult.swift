@@ -8,7 +8,7 @@
 import Foundation
 
 public extension DTO {
-    /// Actual row of data inside an InisghtCalculationResult
+    /// Actual row of data inside an InsightCalculationResult
     struct InsightData {
         public init(xAxisValue: String, yAxisValue: String?) {
             self.xAxisValue = xAxisValue
