@@ -52,7 +52,7 @@ public extension DTO {
             if let payloadJSON = payloadJSON,
                let payloadArray = try? JSONDecoder().decode([String].self, from: payloadJSON) {
                 for entry in payloadArray {
-                    let subsequence = entry.split(separator: ":")
+                    let subsequence = entry.split(separator: ":", maxSplits: 1)
                     if let key = subsequence.first, let value = subsequence.last {
                         actualPayload[String(key)] = String(value)
                     }
