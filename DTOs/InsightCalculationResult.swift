@@ -9,7 +9,7 @@ import Foundation
 
 public extension DTO {
     /// Actual row of data inside an InsightCalculationResult
-    struct InsightData {
+    struct InsightData: Hashable {
         public init(xAxisValue: String, yAxisValue: String?) {
             self.xAxisValue = xAxisValue
             self.yAxisValue = yAxisValue
@@ -165,6 +165,11 @@ public extension DTO {
 
         public var isEmpty: Bool {
             data.compactMap(\.yAxisValue).count == 0
+        }
+        
+        var highestValue: Double {
+            let values = data.compactMap { $0.yAxisDouble }
+            return values.reduce(0) { max($0, $1) }
         }
     }
 }
