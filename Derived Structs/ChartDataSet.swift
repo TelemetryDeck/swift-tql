@@ -1,25 +1,27 @@
-//
-//  File.swift
-//
-//
-//  Created by Daniel Jilg on 09.04.21.
-//
-
 import Foundation
 
+/// Collection of data that can be displayed as a Chart
 public struct ChartDataSet {
-    public enum DataError: Error {
-        case insufficientData
+    public let data: [ChartDataPoint]
+    public let highestValue: Double
+    public let lowestValue: Double
+    public let groupBy: InsightGroupByInterval?
+    
+    public var isEmpty: Bool { data.isEmpty }
+
+    public init(data: [DTO.InsightData], groupBy: InsightGroupByInterval? = nil) {
+        self.data = data.map { ChartDataPoint(insightData: $0) }
+        self.groupBy = groupBy
+
+        highestValue = self.data.reduce(0) { max($0, $1.yAxisDouble ?? 0) }
+        lowestValue = 0
     }
 
-    public let data: [ChartDataPoint]
-    public let lowestValue: Double
-    public let highestValue: Double
+    public init(data: [ChartDataPoint], groupBy: InsightGroupByInterval? = nil) {
+        self.data = data
+        self.groupBy = groupBy
 
-    public init(data: [DTO.InsightData]) throws {
-        self.data = try data.map { try ChartDataPoint(insightData: $0) }
-
-        highestValue = self.data.reduce(0) { max($0, $1.yAxisValue) }
+        highestValue = self.data.reduce(0) { max($0, $1.yAxisDouble ?? 0) }
         lowestValue = 0
     }
 }

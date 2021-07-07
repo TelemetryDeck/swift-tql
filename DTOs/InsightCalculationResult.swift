@@ -10,42 +10,8 @@ import Foundation
 public extension DTO {
     /// Actual row of data inside an InsightCalculationResult
     struct InsightData: Hashable {
-        public init(xAxisValue: String, yAxisValue: String?) {
-            self.xAxisValue = xAxisValue
-            self.yAxisValue = yAxisValue
-        }
-
         public var xAxisValue: String
         public var yAxisValue: String?
-
-        public enum CodingKeys: String, CodingKey {
-            case xAxisValue
-            case yAxisValue
-        }
-
-        private let numberFormatter: NumberFormatter = {
-            let numberFormatter = NumberFormatter()
-            numberFormatter.numberStyle = .decimal
-            numberFormatter.usesGroupingSeparator = true
-            return numberFormatter
-        }()
-
-        public var yAxisNumber: NSNumber? {
-            guard let yAxisValue = yAxisValue else { return NSNumber(value: 0) }
-            return numberFormatter.number(from: yAxisValue)
-        }
-
-        public var yAxisDouble: Double? {
-            yAxisNumber?.doubleValue
-        }
-
-        public var xAxisDate: Date? {
-            if #available(macOS 10.14, iOS 14.0, *) {
-                return Formatter.iso8601noFS.date(from: xAxisValue) ?? Formatter.iso8601.date(from: xAxisValue)
-            } else {
-                return nil
-            }
-        }
     }
 }
 
@@ -162,15 +128,6 @@ public extension DTO {
 
         /// How long did this DTO take to calculate?
         public let calculationDuration: TimeInterval
-
-        public var isEmpty: Bool {
-            data.compactMap(\.yAxisValue).count == 0
-        }
-        
-        var highestValue: Double {
-            let values = data.compactMap { $0.yAxisDouble }
-            return values.reduce(0) { max($0, $1) }
-        }
     }
 }
 
