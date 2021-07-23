@@ -11,10 +11,10 @@ public extension DTO {
     struct IdentifiableSignal: Codable, Hashable, Identifiable {
         public var id = UUID()
         public var appID: UUID?
-        public var count: Int?
+        public var count: Int
         public var receivedAt: Date
         public var clientUser: String
-        public var sessionID: String?
+        public var sessionID: String
         public var type: String
         public var payload: [String: String]?
         
@@ -33,7 +33,7 @@ public extension DTO {
         public var payload: [String: String]?
         
         func toIdentifiableSignal() -> IdentifiableSignal {
-            return IdentifiableSignal(id: UUID(), appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: payload)
+            return IdentifiableSignal(id: UUID(), appID: appID, count: count ?? 1, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID ?? "–", type: type, payload: payload)
         }
     }
 
