@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 public extension DTO {
     struct AppAdminEntry: Codable, Identifiable {
@@ -33,6 +34,15 @@ public extension DTO {
                     case .free: return "Free Tier"
                     case .tier1: return "Tier 1"
                     case .tier2: return "Tier 2"
+                }
+            }
+
+            var tierColor: Color {
+                switch self {
+                case .explorers: return Color.secondary.opacity(0.9)
+                case .free: return Color.mint.opacity(0.7)
+                case .tier1: return Color.indigo.opacity(0.9)
+                case .tier2: return Color.telemetryOrange.opacity(0.7)
                 }
             }
         }
