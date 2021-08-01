@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 public extension DTO {
-    struct AppAdminEntry: Codable, Identifiable {
+    struct AppAdminEntry: Codable, Identifiable, Equatable {
         public let id: UUID
         public let appName: String?
         public let organisationName: String?
