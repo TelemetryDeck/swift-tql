@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -19,3 +20,4 @@ final class PasswordResetRequest: Model, Content {
     @Field(key: "fulfilled_at")
     var fulfilledAt: Date?
 }
+#endif

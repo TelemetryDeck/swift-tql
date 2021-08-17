@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -19,3 +20,4 @@ final class InsightGroup: Model, Content {
     @Children(for: \.$group)
     var insights: [Insight]
 }
+#endif

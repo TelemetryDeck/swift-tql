@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -60,3 +61,4 @@ final class Plan: Model, Content {
     @Field(key: "has_phone_support")
     var hasPhoneSupport: Bool
 }
+#endif

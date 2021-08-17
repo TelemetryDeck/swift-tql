@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -74,3 +75,4 @@ extension User: CaseInsensitiveModelAuthenticatable {
         )
     }
 }
+#endif

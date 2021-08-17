@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -26,3 +27,4 @@ final class Subscription: Model, Content {
     @Field(key: "amount_paid")
     var amountPaid: Int
 }
+#endif

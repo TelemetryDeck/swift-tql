@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -16,3 +17,4 @@ final class UserCount: Model, Content {
     @Parent(key: "usercount_group_id")
     var userCountGroup: UserCountGroup
 }
+#endif

@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -51,3 +52,4 @@ final class LexiconPayloadKey: Model, Content, Hashable {
         hasher.combine(payloadKey)
     }
 }
+#endif

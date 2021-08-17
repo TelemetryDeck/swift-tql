@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -37,3 +38,4 @@ extension UserToken: ModelTokenAuthenticatable {
         true
     }
 }
+#endif

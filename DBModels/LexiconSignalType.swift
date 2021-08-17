@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -47,3 +48,4 @@ final class LexiconSignalType: Model, Content, Hashable {
 struct LexiconItemUpdateBody: Content {
     let isHidden: Bool
 }
+#endif

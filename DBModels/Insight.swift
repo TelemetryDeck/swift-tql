@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -202,3 +203,4 @@ struct InsightUpdateRequestBody: Content {
     /// Should use druid for calculating this insght
     let shouldUseDruid: Bool?
 }
+#endif

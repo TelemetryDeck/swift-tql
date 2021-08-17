@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -53,3 +54,4 @@ struct SignalPostBody: Content {
         )
     }
 }
+#endif

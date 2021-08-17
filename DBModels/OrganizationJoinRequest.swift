@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -16,3 +17,4 @@ final class OrganizationJoinRequest: Model, Content {
     @Field(key: "registration_token")
     var registrationToken: String
 }
+#endif

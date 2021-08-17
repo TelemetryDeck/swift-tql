@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -13,3 +14,4 @@ final class App: Model, Content {
     @Parent(key: "organization_id")
     var organization: Organization
 }
+#endif

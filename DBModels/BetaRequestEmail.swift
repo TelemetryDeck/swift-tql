@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -22,3 +23,4 @@ final class BetaRequestEmail: Model, Content {
     @Field(key: "is_fulfilled")
     var isFulfilled: Bool
 }
+#endif

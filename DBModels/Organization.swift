@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -25,3 +26,4 @@ final class Organization: Model, Content {
         self.name = name
     }
 }
+#endif

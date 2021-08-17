@@ -1,3 +1,4 @@
+#if canImport(Vapor)
 import Fluent
 import Vapor
 
@@ -30,3 +31,4 @@ struct UserCountGroupDataTransferObject: Content {
     // This is not a field, and should be calculated at retrieval time
     var rollingCurrentCount: Int
 }
+#endif
