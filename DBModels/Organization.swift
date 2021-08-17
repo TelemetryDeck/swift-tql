@@ -18,6 +18,9 @@ final class Organization: Model, Content {
 
     @Children(for: \.$organization)
     var users: [User]
+    
+    @Children(for: \.$organization)
+    var apps: [App]
 
     init() {}
 

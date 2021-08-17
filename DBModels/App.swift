@@ -13,5 +13,8 @@ final class App: Model, Content {
 
     @Parent(key: "organization_id")
     var organization: Organization
+    
+    @Children(for: \.$app)
+    var insightGroups: [InsightGroup]
 }
 #endif
