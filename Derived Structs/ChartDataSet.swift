@@ -25,6 +25,8 @@ public struct ChartDataSet {
         lowestValue = 0
     }
     
+    #if canImport(Vapor)
+    #else
     /// `true` if the point represents the current day/week/month/etc, and therefore contains
     /// incomplete data.
     public func isCurrentPeriod(_ chartDataPoint: ChartDataPoint) -> Bool {
@@ -43,4 +45,5 @@ public struct ChartDataSet {
             return date.isInCurrentMonth
         }
     }
+    #endif
 }

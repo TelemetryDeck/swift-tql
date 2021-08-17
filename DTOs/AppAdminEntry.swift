@@ -28,6 +28,8 @@ public extension DTO {
             case tier1
             case tier2
             
+            #if canImport(Vapor)
+            #else
             var stringDescription: String {
                 switch self {
                     case .explorers: return "Explorers"
@@ -45,6 +47,7 @@ public extension DTO {
                 case .tier2: return Color.telemetryOrange.opacity(0.7)
                 }
             }
+            #endif
         }
     }
 }
