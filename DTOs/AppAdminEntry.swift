@@ -39,6 +39,7 @@ public extension DTO {
                 }
             }
 
+            @available(macOS 12, iOS 15, *)
             var tierColor: Color {
                 switch self {
                 case .explorers: return Color.secondary.opacity(0.9)
