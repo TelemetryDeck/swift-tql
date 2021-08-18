@@ -67,7 +67,7 @@ public enum DTOsWithIdentifiers {
     }
     
     /// Defines the result of an insight calculation
-    public struct InsightCalculationResult: Identifiable {
+    public struct InsightCalculationResult: Codable, Hashable, Identifiable {
         /// The ID of the insight that was calculated
         public let id: UUID
 
@@ -85,7 +85,7 @@ public enum DTOsWithIdentifiers {
     }
     
     /// Actual row of data inside an InsightCalculationResult
-    public struct InsightCalculationResultRow: Hashable {
+    public struct InsightCalculationResultRow: Codable, Hashable {
         public var xAxisValue: String
         public var yAxisValue: Int64
     }
