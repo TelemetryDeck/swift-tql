@@ -7,18 +7,11 @@ public struct ChartDataPoint: Hashable, Identifiable {
     public let xAxisValue: String
     public let xAxisDate: Date?
     
-    public let yAxisValue: String?
-    public let yAxisDouble: Double?
+    public let yAxisValue: Int64?
     
-    public init(xAxisValue: String, yAxisValue: String?) {
+    public init(xAxisValue: String, yAxisValue: Int64?) {
         self.xAxisValue = xAxisValue
         self.yAxisValue = yAxisValue
-        
-        if let yAxisValue = yAxisValue {
-            yAxisDouble = Double(yAxisValue)
-        } else {
-            yAxisDouble = nil
-        }
         
         if #available(macOS 10.14, iOS 14.0, *) {
             xAxisDate = Formatter.iso8601noFS.date(from: xAxisValue) ?? Formatter.iso8601.date(from: xAxisValue)
@@ -27,7 +20,15 @@ public struct ChartDataPoint: Hashable, Identifiable {
         }
     }
     
+    init(insightCalculationResultRow: DTOsWithIdentifiers.InsightCalculationResultRow) {
+        self.init(xAxisValue: insightCalculationResultRow.xAxisValue, yAxisValue: insightCalculationResultRow.yAxisValue)
+    }
+    
     init(insightData: DTO.InsightData) {
-        self.init(xAxisValue: insightData.xAxisValue, yAxisValue: insightData.yAxisValue)
+        if let stringValue = insightData.yAxisValue {
+            self.init(xAxisValue: insightData.xAxisValue, yAxisValue: Int64(stringValue))
+        } else {
+            self.init(xAxisValue: insightData.xAxisValue, yAxisValue: nil)
+        }
     }
 }
