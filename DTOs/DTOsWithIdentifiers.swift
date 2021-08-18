@@ -87,7 +87,7 @@ public enum DTOsWithIdentifiers {
     /// Actual row of data inside an InsightCalculationResult
     public struct InsightCalculationResultRow: Hashable {
         public var xAxisValue: String
-        public var yAxisValue: Double
+        public var yAxisValue: Int64
     }
 }
 
