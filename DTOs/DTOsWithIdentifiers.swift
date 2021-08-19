@@ -19,10 +19,10 @@ public enum DTOsWithIdentifiers {
         public var id: UUID
         public var name: String
         public var organizationID: Organization.ID
-        public var insightGroupIDs: [InsightGroup.ID]
+        public var insightGroupIDs: [Group.ID]
     }
     
-    public struct InsightGroup: Codable, Hashable, Identifiable {
+    public struct Group: Codable, Hashable, Identifiable {
         public var id: UUID
         public var title: String
         public var order: Double?
@@ -65,6 +65,30 @@ public enum DTOsWithIdentifiers {
         /// The date this query was last run
         public var lastRunAt: Date?
     }
+    
+    /// Defines the result of an insight calculation
+    public struct InsightCalculationResult: Codable, Hashable, Identifiable {
+        /// The ID of the insight that was calculated
+        public let id: UUID
+
+        /// The insight that was calculated
+        public let insight: DTOsWithIdentifiers.Insight
+
+        /// Current Live Calculated Data
+        public let data: [DTOsWithIdentifiers.InsightCalculationResultRow]
+
+        /// When was this DTO calculated?
+        public let calculatedAt: Date
+
+        /// How long did this DTO take to calculate?
+        public let calculationDuration: TimeInterval
+    }
+    
+    /// Actual row of data inside an InsightCalculationResult
+    public struct InsightCalculationResultRow: Codable, Hashable {
+        public var xAxisValue: String
+        public var yAxisValue: Int64
+    }
 }
 
 
@@ -73,6 +97,8 @@ import Vapor
 
 extension DTOsWithIdentifiers.Organization: Content {}
 extension DTOsWithIdentifiers.App: Content {}
-extension DTOsWithIdentifiers.InsightGroup: Content {}
+extension DTOsWithIdentifiers.Group: Content {}
 extension DTOsWithIdentifiers.Insight: Content {}
+extension DTOsWithIdentifiers.InsightCalculationResult: Content {}
+extension DTOsWithIdentifiers.InsightCalculationResultRow: Content {}
 #endif

@@ -408,3 +408,10 @@ public enum AppRootViewSelection: Hashable {
     case rawSignals
     case noSelection
 }
+
+public enum LoadingState: Equatable {
+    case idle
+    case loading
+    case finished(Date)
+    case error(String, Date)
+}
