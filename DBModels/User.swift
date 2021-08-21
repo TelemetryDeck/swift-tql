@@ -25,6 +25,14 @@ final class User: Model, Content {
     @Field(key: "receive_marketing_emails")
     var receiveMarketingEmails: Bool?
     
+    /// How often does the user want an update on their signal and user numbers per mail? nil is never
+    @Field(key: "receive_reports")
+    var receiveReports: ReportSendingRate?
+    
+    /// When was the last report sent?
+    @Field(key: "last_report_sent_at")
+    var lastReportSentAt: Date?
+    
     /// If true, the user has verified their email address by clicking a link
     @Field(key: "email_is_verified")
     var emailIsVerified: Bool
@@ -47,6 +55,12 @@ final class User: Model, Content {
         self.passwordHash = passwordHash
         $organization.id = organizationID
     }
+}
+
+public enum ReportSendingRate: String, Codable {
+    case daily
+    case weekly
+    case monthly
 }
 
 extension User: CaseInsensitiveModelAuthenticatable {
