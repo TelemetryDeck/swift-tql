@@ -12,6 +12,7 @@ public extension DTO {
         public let min: TimeInterval
         public let avg: TimeInterval
         public let max: TimeInterval
+        public let median: TimeInterval
     }
 }
 
