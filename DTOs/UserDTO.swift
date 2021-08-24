@@ -17,6 +17,7 @@ public extension DTO {
         public let emailIsVerified: Bool
         public var receiveMarketingEmails: Bool?
         public let isFoundingUser: Bool
+        public var receiveReports: ReportSendingRate
     }
 }
 
@@ -40,6 +41,7 @@ extension DTO.UserDTO {
         isFoundingUser = user.isFoundingUser
         receiveMarketingEmails = user.receiveMarketingEmails
         emailIsVerified = user.emailIsVerified
+        receiveReports = user.receiveReports ?? .never
     }
 }
 #endif

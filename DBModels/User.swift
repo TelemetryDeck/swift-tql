@@ -25,7 +25,7 @@ final class User: Model, Content {
     @Field(key: "receive_marketing_emails")
     var receiveMarketingEmails: Bool?
     
-    /// How often does the user want an update on their signal and user numbers per mail? nil is never
+    /// How often does the user want an update on their signal and user numbers per mail? nil is never, "never" is never
     @Field(key: "receive_reports")
     var receiveReports: ReportSendingRate?
     
@@ -61,6 +61,7 @@ public enum ReportSendingRate: String, Codable {
     case daily
     case weekly
     case monthly
+    case never
 }
 
 extension User: CaseInsensitiveModelAuthenticatable {
