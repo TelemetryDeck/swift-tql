@@ -415,3 +415,15 @@ public enum LoadingState: Equatable {
     case finished(Date)
     case error(String, Date)
 }
+
+public enum RelativeDateDescription {
+    case end(of: CurrentOrPrevious)
+    case beginning(of: CurrentOrPrevious)
+    case goBack(days: Int)
+    case absolute(date: Date)
+}
+
+public enum CurrentOrPrevious {
+    case current(_ value: Calendar.Component)
+    case previous(_ value: Calendar.Component)
+}
