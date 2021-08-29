@@ -427,3 +427,10 @@ public enum CurrentOrPrevious {
     case current(_ value: Calendar.Component)
     case previous(_ value: Calendar.Component)
 }
+
+public enum ReportSendingRate: String, Codable {
+    case daily
+    case weekly
+    case monthly
+    case never
+}

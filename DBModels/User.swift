@@ -57,13 +57,6 @@ final class User: Model, Content {
     }
 }
 
-public enum ReportSendingRate: String, Codable {
-    case daily
-    case weekly
-    case monthly
-    case never
-}
-
 extension User: CaseInsensitiveModelAuthenticatable {
     static let usernameKey = \User.$email
     static let passwordHashKey = \User.$passwordHash
