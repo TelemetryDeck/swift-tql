@@ -2,7 +2,8 @@
 import Fluent
 import Vapor
 
-final class Insight: Model, Content {
+final class Insight: Model, Content, Hashable {
+    
     static let schema = "insights"
 
     @ID(key: .id)
@@ -88,6 +89,22 @@ final class Insight: Model, Content {
             calculatedAt: calculatedAt,
             calculationDuration: calculationDuration
         )
+    }
+    
+    static func == (lhs: Insight, rhs: Insight) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    // Hashing used for caching
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+        hasher.combine(order)
+        hasher.combine(uniqueUser)
+        hasher.combine(filters)
+        hasher.combine(breakdownKey)
+        hasher.combine(groupBy)
+        hasher.combine(displayMode)
+        hasher.combine(isExpanded)
     }
 }
 
