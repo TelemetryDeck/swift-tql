@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - druid query types
 
-struct DruidNativeTimeseries: Encodable {
+struct DruidNativeTimeseries: Encodable, Hashable {
     let queryType: String = "timeseries"
     let dataSource: String = "telemetry-signals-tagged" // might change later if we have multiple datasources
     var descending: Bool? = nil
@@ -22,7 +22,7 @@ struct DruidNativeTimeseries: Encodable {
 
 // MARK: - objects used in druid queries
 
-struct DruidInterval: Codable {
+struct DruidInterval: Codable, Hashable {
     let beginningDate: Date
     let endDate: Date
 
@@ -41,13 +41,13 @@ struct DruidInterval: Codable {
     }
 }
 
-struct DruidAggregator: Codable {
+struct DruidAggregator: Codable, Hashable {
     let type: druidAggregatorType
     let name: String
     var fieldName: String? = nil // should be nil for type count, maybe that should be enforced in code?
 }
 
-enum druidAggregatorType: String, Codable {
+enum druidAggregatorType: String, Codable, Hashable {
     case count = "count"
     
     case longSum = "longSum"
@@ -80,7 +80,7 @@ enum druidAggregatorType: String, Codable {
     // JavaScript aggregator missing
 }
 
-enum druidGranularity: String, Codable {
+enum druidGranularity: String, Codable, Hashable {
     case all = "all"
     case none = "none"
     case second = "second"
@@ -95,7 +95,7 @@ enum druidGranularity: String, Codable {
     case year = "year"
 }
 
-struct DruidContext: Codable {
+struct DruidContext: Codable, Hashable {
     var timeout: String? = nil
     var priority: Int? = nil
     var timestampResultField: String? = nil
@@ -107,3 +107,14 @@ struct DruidContext: Codable {
     var grandTotal: Bool? = nil
     var skipEmptyBuckets: Bool? = nil
 }
+
+// MARK: - Vapor Extensions
+#if canImport(Vapor)
+import Vapor
+
+extension DruidNativeTimeseries: Content {}
+extension DruidInterval: Content {}
+extension DruidAggregator: Content {}
+extension druidAggregatorType: Content {}
+extension DruidContext: Content {}
+#endif
