@@ -77,6 +77,7 @@ extension DTO.RegistrationRequestBody: Validatable {
             isFoundingUser: true,
             email: userEmail,
             receiveMarketingEmails: receiveMarketingEmails,
+            receiveReports: .monthly,
             passwordHash: hashedPassword,
             organizationID: organizationID
         )

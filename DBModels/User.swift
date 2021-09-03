@@ -45,13 +45,14 @@ final class User: Model, Content {
 
     init() {}
 
-    init(id: UUID? = nil, firstName: String, lastName: String, isFoundingUser: Bool, email: String, receiveMarketingEmails: Bool, passwordHash: String, organizationID: UUID) {
+    init(id: UUID? = nil, firstName: String, lastName: String, isFoundingUser: Bool, email: String, receiveMarketingEmails: Bool, receiveReports: ReportSendingRate, passwordHash: String, organizationID: UUID) {
         self.id = id
         self.firstName = firstName
         self.lastName = lastName
         self.isFoundingUser = isFoundingUser
         self.email = email
         self.receiveMarketingEmails = receiveMarketingEmails
+        self.receiveReports = receiveReports
         self.passwordHash = passwordHash
         $organization.id = organizationID
     }
