@@ -11,7 +11,7 @@ import Foundation
 
 struct DruidNativeTimeseries: Encodable {
     let queryType: String = "timeseries"
-    let dataSource: String = "telemetry-signals-tagged" // might change later if we have multiple datasources
+    let dataSource: String = "telemetry-signals" // might change later if we have multiple datasources
     var descending: Bool? = nil
     var filter: druidFilter? = nil
     let intervals: [DruidInterval] // not really? or needs special encoding
