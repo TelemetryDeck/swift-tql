@@ -29,9 +29,9 @@ extension DTO.UserDTO: Content {}
 extension DTO.UserDTO {
     init(user: User) {
         if let org = user.$organization.value {
-            organization = DTO.Organization(id: user.$organization.id, name: org.name, isSuperOrg: org.isSuperOrg)
+            organization = DTO.Organization(id: user.$organization.id, name: org.name, isSuperOrg: org.isSuperOrg, createdAt: org.createdAt, updatedAt: org.updatedAt)
         } else {
-            organization = DTO.Organization(id: user.$organization.id, name: "", isSuperOrg: false)
+            organization = DTO.Organization(id: user.$organization.id, name: "", isSuperOrg: false, createdAt: nil, updatedAt: nil)
         }
         
         id = user.id!

@@ -11,6 +11,8 @@ public extension DTO {
     struct OrgAdminEntry: Codable, Identifiable {
         public var id: UUID
         public var organisationName: String?
+        public var createdAt: Date?
+        public var updatedAt: Date?
         public var appAdminEntries: [DTO.AppAdminEntry]
         public var signalCount: Int = 0
     }

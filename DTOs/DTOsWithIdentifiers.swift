@@ -11,6 +11,8 @@ public enum DTOsWithIdentifiers {
     public struct Organization: Codable, Hashable, Identifiable {
         public var id: UUID
         public var name: String
+        public var createdAt: Date?
+        public var updatedAt: Date?
         public var isSuperOrg: Bool
         public var appIDs: [App.ID]
     }
