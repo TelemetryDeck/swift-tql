@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - druid query types
 
-struct DruidNativeTimeseries: Encodable {
+struct DruidNativeTimeseries: Codable, Hashable {
     let queryType: String = "timeseries"
     let dataSource: String = "telemetry-signals" // might change later if we have multiple datasources
     var descending: Bool? = nil
@@ -19,6 +19,18 @@ struct DruidNativeTimeseries: Encodable {
     var aggregations: [DruidAggregator]? = nil
     var limit: Int? = nil
     var context: DruidContext? = nil
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(queryType)
+        hasher.combine(dataSource)
+        hasher.combine(descending)
+        
+        // TODO: add filters, intervals, etc to hasher
+    }
+    
+    static func == (lhs: DruidNativeTimeseries, rhs: DruidNativeTimeseries) -> Bool {
+        return lhs.hashValue == rhs.hashValue
+    }
 }
 
 // MARK: - objects used in druid queries
@@ -40,15 +52,15 @@ struct DruidFilterRegex: Codable {
 }
 
 // logical expression filters
-struct DruidFilterExpression: Encodable {
+struct DruidFilterExpression: Codable {
     let fields: [druidFilter]
 }
 
-struct DruidFilterNot: Encodable {
+struct DruidFilterNot: Codable {
     let field: druidFilter
 }
 
-indirect enum druidFilter: Encodable {
+indirect enum druidFilter: Codable {
     case selector(DruidFilterSelector)
     case columnComparison(DruidFilterColumnComparison)
     case regex(DruidFilterRegex)
@@ -59,6 +71,29 @@ indirect enum druidFilter: Encodable {
 
     enum CodingKeys: String, CodingKey {
         case type
+    }
+
+    // TODO: This is untested and I just added it so it compiles. Needs some tests.
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try values.decode(String.self, forKey: .type)
+
+        switch type {
+        case "selector":
+            self = .selector(try DruidFilterSelector(from: decoder))
+        case "columnComparison":
+            self = .columnComparison(try DruidFilterColumnComparison(from: decoder))
+        case "regex":
+            self = .regex(try DruidFilterRegex(from: decoder))
+        case "and":
+            self = .and(try DruidFilterExpression(from: decoder))
+        case "or":
+            self = .or(try DruidFilterExpression(from: decoder))
+        case "not":
+            self = .not(try DruidFilterNot(from: decoder))
+        default:
+            fatalError()
+        }
     }
 
     func encode(to encoder: Encoder) throws {
