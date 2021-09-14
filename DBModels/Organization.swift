@@ -27,6 +27,9 @@ final class Organization: Model, Content {
     
     @Children(for: \.$organization)
     var apps: [App]
+    
+    @Children(for: \.$organization)
+    var badgeAwards: [BadgeAward]
 
     init() {}
 

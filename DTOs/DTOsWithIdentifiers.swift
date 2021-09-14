@@ -15,6 +15,22 @@ public enum DTOsWithIdentifiers {
         public var updatedAt: Date?
         public var isSuperOrg: Bool
         public var appIDs: [App.ID]
+        public var badgeAwardIDs: [BadgeAward.ID]
+    }
+    
+    public struct BadgeAward: Codable, Hashable, Identifiable {
+        public var id: UUID
+        public var badgeID: UUID
+        public var organizationID: UUID
+        public var awardedAt: Date
+    }
+    
+    public struct Badge: Codable, Hashable, Identifiable {
+        public var id: UUID
+        public var title: String
+        public var description: String
+        public var imageURL: URL?
+        public var signalCountMultiplier: Double?
     }
     
     public struct App: Codable, Hashable, Identifiable {
@@ -98,6 +114,8 @@ public enum DTOsWithIdentifiers {
 import Vapor
 
 extension DTOsWithIdentifiers.Organization: Content {}
+extension DTOsWithIdentifiers.BadgeAward: Content {}
+extension DTOsWithIdentifiers.Badge: Content {}
 extension DTOsWithIdentifiers.App: Content {}
 extension DTOsWithIdentifiers.Group: Content {}
 extension DTOsWithIdentifiers.Insight: Content {}
