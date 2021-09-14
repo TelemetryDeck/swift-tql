@@ -11,6 +11,12 @@ final class Organization: Model, Content {
 
     @Field(key: "name")
     var name: String
+    
+    @Timestamp(key: "created_at", on: .create)
+    var createdAt: Date?
+    
+    @Timestamp(key: "updated_at", on: .update)
+    var updatedAt: Date?
 
     /// If `true`, this organization should display additional admin capabilities in the viewer app
     @Field(key: "is_super_org")
