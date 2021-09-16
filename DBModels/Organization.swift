@@ -12,6 +12,18 @@ final class Organization: Model, Content {
     @Field(key: "name")
     var name: String
     
+    @Field(key: "stripe_customer_id")
+    var stripeCustomerID: String?
+    
+    @Field(key: "stripe_price_lookup_key")
+    var stripePriceLookupKey: String?
+    
+    @Field(key: "stripe_max_signals")
+    var stripeMaxSignals: Int64?
+    
+    @Field(key: "max_signals_multiplier")
+    var maxSignalsMultiplier: Double?
+    
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
     
