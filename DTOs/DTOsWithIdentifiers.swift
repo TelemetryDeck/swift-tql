@@ -14,6 +14,7 @@ public enum DTOsWithIdentifiers {
         public var createdAt: Date?
         public var updatedAt: Date?
         public var isSuperOrg: Bool
+        public var stripeMaxSignals: Int64?
         public var appIDs: [App.ID]
         public var badgeAwardIDs: [BadgeAward.ID]
     }
@@ -106,6 +107,14 @@ public enum DTOsWithIdentifiers {
     public struct InsightCalculationResultRow: Codable, Hashable {
         public var xAxisValue: String
         public var yAxisValue: Int64
+    }
+    
+    struct PriceStructure: Identifiable, Codable {
+        let id: String
+        let order: Int
+        let title: String
+        let description: String
+        let price: String
     }
 }
 
