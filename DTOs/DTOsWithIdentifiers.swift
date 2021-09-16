@@ -15,6 +15,7 @@ public enum DTOsWithIdentifiers {
         public var updatedAt: Date?
         public var isSuperOrg: Bool
         public var stripeMaxSignals: Int64?
+        public var maxSignalsMultiplier: Double?
         public var appIDs: [App.ID]
         public var badgeAwardIDs: [BadgeAward.ID]
     }
@@ -130,4 +131,5 @@ extension DTOsWithIdentifiers.Group: Content {}
 extension DTOsWithIdentifiers.Insight: Content {}
 extension DTOsWithIdentifiers.InsightCalculationResult: Content {}
 extension DTOsWithIdentifiers.InsightCalculationResultRow: Content {}
+extension DTOsWithIdentifiers.PriceStructure: Content {}
 #endif
