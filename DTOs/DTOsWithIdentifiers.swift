@@ -117,6 +117,7 @@ public enum DTOsWithIdentifiers {
         public let order: Int
         public let title: String
         public let description: String
+        public let includedSignals: Int64
         public let price: String
     }
     
