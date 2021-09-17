@@ -16,6 +16,7 @@ public enum DTOsWithIdentifiers {
         public var isSuperOrg: Bool
         public var stripeMaxSignals: Int64?
         public var maxSignalsMultiplier: Double?
+        public var isInRestrictedMode: Bool
         public var appIDs: [App.ID]
         public var badgeAwardIDs: [BadgeAward.ID]
     }
@@ -110,12 +111,22 @@ public enum DTOsWithIdentifiers {
         public var yAxisValue: Int64
     }
     
-    struct PriceStructure: Identifiable, Codable {
-        let id: String
-        let order: Int
-        let title: String
-        let description: String
-        let price: String
+    public struct PriceStructure: Identifiable, Codable {
+        public let id: String
+        public let order: Int
+        public let title: String
+        public let description: String
+        public let price: String
+    }
+    
+    /// A short message that goes out to  users and is usually displayed in the app UI
+    public struct StatusMessage: Identifiable, Codable {
+        public let id: String
+        public let validFrom: Date
+        public let validUntil: Date?
+        public let title: String
+        public let description: String?
+        public let systemImageName: String?
     }
 }
 
@@ -132,4 +143,5 @@ extension DTOsWithIdentifiers.Insight: Content {}
 extension DTOsWithIdentifiers.InsightCalculationResult: Content {}
 extension DTOsWithIdentifiers.InsightCalculationResultRow: Content {}
 extension DTOsWithIdentifiers.PriceStructure: Content {}
+extension DTOsWithIdentifiers.StatusMessage: Content {}
 #endif

@@ -24,6 +24,9 @@ final class Organization: Model, Content {
     @Field(key: "max_signals_multiplier")
     var maxSignalsMultiplier: Double?
     
+    @Field(key: "restricted_mode")
+    var isInRestrictedMode: Bool
+    
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
     
