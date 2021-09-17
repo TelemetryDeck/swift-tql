@@ -16,6 +16,7 @@ public enum DTOsWithIdentifiers {
         public var isSuperOrg: Bool
         public var stripeMaxSignals: Int64?
         public var maxSignalsMultiplier: Double?
+        public var resolvedMaxSignals: Int64
         public var isInRestrictedMode: Bool
         public var appIDs: [App.ID]
         public var badgeAwardIDs: [BadgeAward.ID]
