@@ -19,15 +19,15 @@ struct DruidNativeTimeseries: Codable, Hashable {
     var aggregations: [DruidAggregator]? = nil
     var limit: Int? = nil
     var context: DruidContext? = nil
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(queryType)
         hasher.combine(dataSource)
         hasher.combine(descending)
-        
+
         // TODO: add filters, intervals, etc to hasher
     }
-    
+
     static func == (lhs: DruidNativeTimeseries, rhs: DruidNativeTimeseries) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
@@ -126,18 +126,48 @@ struct DruidInterval: Codable, Hashable {
     let beginningDate: Date
     let endDate: Date
 
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-
+    static var dateFormatter: DateFormatter {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         dateFormatter.locale = Locale(identifier: "en_US")
         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return dateFormatter
+    }
 
-        let date1 = dateFormatter.string(from: self.beginningDate)
-        let date2 = dateFormatter.string(from: self.endDate)
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+
+        let date1 = Self.dateFormatter.string(from: beginningDate)
+        let date2 = Self.dateFormatter.string(from: endDate)
 
         try container.encode(date1 + "/" + date2)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let intervalString = try container.decode(String.self)
+
+        let intervalArray = intervalString.split(separator: "/").map { String($0) }
+
+        guard let beginningString = intervalArray.first,
+              let endString = intervalArray.last,
+              let beginningDate = Self.dateFormatter.date(from: beginningString),
+              let endDate = Self.dateFormatter.date(from: endString)
+        else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: [],
+                debugDescription: "Could not find two dates!",
+                underlyingError: nil
+            ))
+        }
+
+        self.beginningDate = beginningDate
+        self.endDate = endDate
+    }
+    
+    init(beginningDate: Date, endDate: Date) {
+        self.beginningDate = beginningDate
+        self.endDate = endDate
     }
 }
 
