@@ -32,6 +32,10 @@ final class Organization: Model, Content {
     
     @Timestamp(key: "updated_at", on: .update)
     var updatedAt: Date?
+    
+    /// The last time this organization's signal number have been checked against their plan
+    @Field(key: "signal_numbers_checked_at")
+    var signalNumbersCheckedAt: Date?
 
     /// If `true`, this organization should display additional admin capabilities in the viewer app
     @Field(key: "is_super_org")
@@ -51,6 +55,13 @@ final class Organization: Model, Content {
     init(id: UUID? = nil, name: String) {
         self.id = id
         self.name = name
+    }
+    
+    func getMaxSignals() -> Int64 {
+        let resolvedMaxSignals = self.stripeMaxSignals ?? MAX_SIGNALS_FREE_PLAN
+        let resolvedMultiplier = self.maxSignalsMultiplier ?? 1.0
+        
+        return Int64(Double(resolvedMaxSignals) * resolvedMultiplier)
     }
 }
 #endif
