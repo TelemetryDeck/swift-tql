@@ -79,7 +79,7 @@ final class Organization: Model, Content {
             max_signals = Int64.max
         }
         
-        return actualSignalNumber <= max_signals
+        return actualSignalNumber > max_signals
     }
 }
 #endif
