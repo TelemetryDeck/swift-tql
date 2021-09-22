@@ -92,6 +92,7 @@ indirect enum druidFilter: Codable {
         case "not":
             self = .not(try DruidFilterNot(from: decoder))
         default:
+            #warning("This should throw an exception instead. Fatalerror will actually crash the whole server process, which is not very cool.")
             fatalError()
         }
     }
