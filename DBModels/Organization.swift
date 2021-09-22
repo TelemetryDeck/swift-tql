@@ -70,5 +70,16 @@ final class Organization: Model, Content {
         
         return Int64(Double(resolvedMaxSignals) * resolvedMultiplier)
     }
+    
+    /// Return true if the organization should be in restricted mode, false otherwise
+    func shouldBeRestricted(withActualSignalNumber actualSignalNumber: Int64) -> Bool {
+        var max_signals = self.getMaxSignals()
+        if max_signals == -1 {
+            // -1 means infinite signals
+            max_signals = Int64.max
+        }
+        
+        return actualSignalNumber <= max_signals
+    }
 }
 #endif
