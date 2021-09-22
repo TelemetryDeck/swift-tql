@@ -57,7 +57,14 @@ final class Organization: Model, Content {
         self.name = name
     }
     
+    /// The maximum number of signals this organization can receive without being marked as restricted.
+    ///
+    /// Special case: `-1` should be treated as infinite signals.
     func getMaxSignals() -> Int64 {
+        guard self.stripeMaxSignals != -1 else {
+            return -1
+        }
+        
         let resolvedMaxSignals = self.stripeMaxSignals ?? MAX_SIGNALS_FREE_PLAN
         let resolvedMultiplier = self.maxSignalsMultiplier ?? 1.0
         
