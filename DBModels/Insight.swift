@@ -18,9 +18,6 @@ final class Insight: Model, Content, Hashable {
 
     @Field(key: "title")
     var title: String
-
-    @Field(key: "subtitle")
-    var subtitle: String?
     
     /// If set, use the custom query in this property instead of constructing a query out of the options below
     @Field(key: "druid_custom_query")
@@ -70,16 +67,11 @@ final class Insight: Model, Content, Hashable {
     @Field(key: "last_run_at")
     var lastRunAt: Date?
 
-    /// Should use druid for calculating this insght
-    @Field(key: "should_use_druid")
-    var shouldUseDruid: Bool
-
     func insightDataTransferObject(withData data: [[String: String]], calculatedAt: Date, calculationDuration: TimeInterval) -> InsightDataTransferObject {
         InsightDataTransferObject(
             id: id!,
             order: order,
             title: title,
-            subtitle: subtitle,
             signalType: signalType,
             uniqueUser: uniqueUser,
             filters: filters,
@@ -88,7 +80,6 @@ final class Insight: Model, Content, Hashable {
             groupBy: groupBy,
             displayMode: displayMode,
             isExpanded: isExpanded,
-            shouldUseDruid: shouldUseDruid,
             data: data,
             calculatedAt: calculatedAt,
             calculationDuration: calculationDuration
@@ -117,7 +108,6 @@ struct InsightDataTransferObject: Content {
 
     let order: Double?
     let title: String
-    let subtitle: String?
 
     /// Which signal types are we interested in? If nil, do not filter by signal type
     let signalType: String?
@@ -142,9 +132,6 @@ struct InsightDataTransferObject: Content {
 
     /// If true, the insight will be displayed bigger
     var isExpanded: Bool
-
-    /// Should use druid for calculating this insght
-    let shouldUseDruid: Bool
 
     /// Current Live Calculated Data
     let data: [[String: String]]
@@ -195,7 +182,6 @@ struct InsightUpdateRequestBody: Content {
     let groupID: UUID
     let order: Double?
     let title: String
-    let subtitle: String?
 
     /// Which signal types are we interested in? If nil, do not filter by signal type
     let signalType: String?
@@ -220,8 +206,5 @@ struct InsightUpdateRequestBody: Content {
 
     /// If true, the insight will be displayed bigger
     let isExpanded: Bool
-
-    /// Should use druid for calculating this insght
-    let shouldUseDruid: Bool?
 }
 #endif
