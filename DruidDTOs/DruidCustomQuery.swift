@@ -9,12 +9,12 @@ import Foundation
 
 // MARK: - druid query types
 
-struct DruidNativeQuery: Codable, Hashable {
-    let queryType: String = "timeseries"
-    let dataSource: String = "telemetry-signals" // might change later if we have multiple datasources
+struct DruidCustomQuery: Codable, Hashable {
+    var queryType: String = "timeseries"
+    var dataSource: String = "telemetry-signals"
     var descending: Bool? = nil
     var filter: druidFilter? = nil
-    let intervals: [DruidInterval] // not really? or needs special encoding
+    var intervals: [DruidInterval]
     let granularity: druidGranularity
     var aggregations: [DruidAggregator]? = nil
     var limit: Int? = nil
@@ -28,7 +28,7 @@ struct DruidNativeQuery: Codable, Hashable {
         // TODO: add filters, intervals, etc to hasher
     }
 
-    static func == (lhs: DruidNativeQuery, rhs: DruidNativeQuery) -> Bool {
+    static func == (lhs: DruidCustomQuery, rhs: DruidCustomQuery) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 }
@@ -244,7 +244,7 @@ struct DruidContext: Codable, Hashable {
 #if canImport(Vapor)
 import Vapor
 
-extension DruidNativeQuery: Content {}
+extension DruidCustomQuery: Content {}
 extension DruidInterval: Content {}
 extension DruidAggregator: Content {}
 extension druidAggregatorType: Content {}
