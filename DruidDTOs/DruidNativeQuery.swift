@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - druid query types
 
-struct DruidNativeTimeseries: Codable, Hashable {
+struct DruidNativeQuery: Codable, Hashable {
     let queryType: String = "timeseries"
     let dataSource: String = "telemetry-signals" // might change later if we have multiple datasources
     var descending: Bool? = nil
@@ -28,7 +28,7 @@ struct DruidNativeTimeseries: Codable, Hashable {
         // TODO: add filters, intervals, etc to hasher
     }
 
-    static func == (lhs: DruidNativeTimeseries, rhs: DruidNativeTimeseries) -> Bool {
+    static func == (lhs: DruidNativeQuery, rhs: DruidNativeQuery) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 }
@@ -244,7 +244,7 @@ struct DruidContext: Codable, Hashable {
 #if canImport(Vapor)
 import Vapor
 
-extension DruidNativeTimeseries: Content {}
+extension DruidNativeQuery: Content {}
 extension DruidInterval: Content {}
 extension DruidAggregator: Content {}
 extension druidAggregatorType: Content {}

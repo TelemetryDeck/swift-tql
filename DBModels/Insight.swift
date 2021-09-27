@@ -21,6 +21,10 @@ final class Insight: Model, Content, Hashable {
 
     @Field(key: "subtitle")
     var subtitle: String?
+    
+    /// If set, use the custom query in this property instead of constructing a query out of the options below
+    @Field(key: "druid_custom_query")
+    var druidCustomQuery: DruidNativeQuery?
 
     /// If not nil, only count signals with this type
     @Field(key: "signal_type")
