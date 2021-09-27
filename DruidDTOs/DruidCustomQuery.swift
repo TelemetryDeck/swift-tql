@@ -21,11 +21,8 @@ struct DruidCustomQuery: Codable, Hashable {
     var context: DruidContext? = nil
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(queryType)
-        hasher.combine(dataSource)
-        hasher.combine(descending)
-
-        // TODO: add filters, intervals, etc to hasher
+        let jsonValue = try! JSONEncoder.druidEncoder.encode(self)
+        hasher.combine(jsonValue)
     }
 
     static func == (lhs: DruidCustomQuery, rhs: DruidCustomQuery) -> Bool {
@@ -207,6 +204,8 @@ enum druidAggregatorType: String, Codable, Hashable {
     case floatAny
     case longAny
     case stringAny
+    
+    case thetaSketch
 
     // JavaScript aggregator missing
 }
@@ -234,9 +233,14 @@ struct DruidContext: Codable, Hashable {
 
     // topN specific context
     var minTopNThreshold: Int? = nil
-    // timeseries specific contexts
+    // time series specific contexts
     var grandTotal: Bool? = nil
     var skipEmptyBuckets: Bool? = nil
+}
+
+struct DruidTimeSeriesResult: Codable {
+    let timestamp: Date
+    let result: [String: Double]
 }
 
 // MARK: - Vapor Extensions
@@ -249,4 +253,5 @@ extension DruidInterval: Content {}
 extension DruidAggregator: Content {}
 extension druidAggregatorType: Content {}
 extension DruidContext: Content {}
+extension DruidTimeSeriesResult: Content {}
 #endif
