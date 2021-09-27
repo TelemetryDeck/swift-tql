@@ -15,7 +15,6 @@ public extension DTO {
 
         public var order: Double?
         public var title: String
-        public var subtitle: String?
 
         /// Which signal types are we interested in? If nil, do not filter by signal type
         public var signalType: String?
@@ -49,9 +48,6 @@ public extension DTO {
 
         /// The date this query was last run
         public var lastRunAt: Date?
-
-        /// Should use druid for calculating this insght
-        public var shouldUseDruid: Bool
     }
 }
 
@@ -63,7 +59,7 @@ public extension DTO {
 public extension DTO {
     /// Defines the result of an insight calculation
     struct InsightCalculationResult: Identifiable {
-        public init(id: UUID, order: Double?, title: String, subtitle: String?, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [DTO.InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
+        public init(id: UUID, order: Double?, title: String, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [DTO.InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
             self.id = id
             self.order = order
             self.title = title

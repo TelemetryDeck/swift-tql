@@ -88,10 +88,9 @@ public enum InsightGroupByInterval: String, Codable {
 }
 
 public struct InsightDefinitionRequestBody: Codable {
-    public init(order: Double? = nil, title: String, subtitle: String? = nil, signalType: String? = nil, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, groupID: UUID? = nil, id: UUID? = nil, isExpanded: Bool, shouldUseDruid: Bool) {
+    public init(order: Double? = nil, title: String, signalType: String? = nil, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, groupID: UUID? = nil, id: UUID? = nil, isExpanded: Bool) {
         self.order = order
         self.title = title
-        self.subtitle = subtitle
         self.signalType = signalType
         self.uniqueUser = uniqueUser
         self.filters = filters
@@ -102,12 +101,10 @@ public struct InsightDefinitionRequestBody: Codable {
         self.groupID = groupID
         self.id = id
         self.isExpanded = isExpanded
-        self.shouldUseDruid = shouldUseDruid
     }
 
     public var order: Double?
     public var title: String
-    public var subtitle: String?
 
     /// Which signal types are we interested in? If nil, do not filter by signal type
     public var signalType: String?
@@ -139,14 +136,10 @@ public struct InsightDefinitionRequestBody: Codable {
     /// If true, the insight will be displayed bigger
     public var isExpanded: Bool
 
-    /// Should use druid for calculating this insght
-    public var shouldUseDruid: Bool
-
     public static func from(insight: DTO.InsightDTO) -> InsightDefinitionRequestBody {
         let requestBody = Self(
             order: insight.order,
             title: insight.title,
-            subtitle: insight.subtitle,
             signalType: insight.signalType,
             uniqueUser: insight.uniqueUser,
             filters: insight.filters,
@@ -156,8 +149,7 @@ public struct InsightDefinitionRequestBody: Codable {
             displayMode: insight.displayMode,
             groupID: insight.group["id"],
             id: insight.id,
-            isExpanded: insight.isExpanded,
-            shouldUseDruid: insight.shouldUseDruid
+            isExpanded: insight.isExpanded
         )
 
         return requestBody
@@ -167,7 +159,6 @@ public struct InsightDefinitionRequestBody: Codable {
         InsightDefinitionRequestBody(
             order: nil,
             title: "New Time Series Insight",
-            subtitle: nil,
             signalType: nil,
             uniqueUser: false,
             filters: [:],
@@ -177,8 +168,7 @@ public struct InsightDefinitionRequestBody: Codable {
             displayMode: .lineChart,
             groupID: groupID,
             id: nil,
-            isExpanded: false,
-            shouldUseDruid: false
+            isExpanded: false
         )
     }
 
@@ -186,7 +176,6 @@ public struct InsightDefinitionRequestBody: Codable {
         InsightDefinitionRequestBody(
             order: nil,
             title: title ?? "New Breakdown Insight",
-            subtitle: nil,
             signalType: nil,
             uniqueUser: false,
             filters: [:],
@@ -196,8 +185,7 @@ public struct InsightDefinitionRequestBody: Codable {
             displayMode: .pieChart,
             groupID: groupID,
             id: nil,
-            isExpanded: false,
-            shouldUseDruid: false
+            isExpanded: false
         )
     }
 
@@ -205,7 +193,6 @@ public struct InsightDefinitionRequestBody: Codable {
         InsightDefinitionRequestBody(
             order: nil,
             title: "Daily Active Users",
-            subtitle: nil,
             signalType: nil,
             uniqueUser: true,
             filters: [:],
@@ -215,8 +202,7 @@ public struct InsightDefinitionRequestBody: Codable {
             displayMode: .lineChart,
             groupID: groupID,
             id: nil,
-            isExpanded: false,
-            shouldUseDruid: false
+            isExpanded: false
         )
     }
 
@@ -224,7 +210,6 @@ public struct InsightDefinitionRequestBody: Codable {
         InsightDefinitionRequestBody(
             order: nil,
             title: "Weekly Active Users",
-            subtitle: nil,
             signalType: nil,
             uniqueUser: true,
             filters: [:],
@@ -234,8 +219,7 @@ public struct InsightDefinitionRequestBody: Codable {
             displayMode: .barChart,
             groupID: groupID,
             id: nil,
-            isExpanded: false,
-            shouldUseDruid: false
+            isExpanded: false
         )
     }
 
@@ -243,7 +227,6 @@ public struct InsightDefinitionRequestBody: Codable {
         InsightDefinitionRequestBody(
             order: nil,
             title: "Active Users this Month",
-            subtitle: nil,
             signalType: nil,
             uniqueUser: true,
             filters: [:],
@@ -253,8 +236,7 @@ public struct InsightDefinitionRequestBody: Codable {
             displayMode: .raw,
             groupID: groupID,
             id: nil,
-            isExpanded: false,
-            shouldUseDruid: false
+            isExpanded: false
         )
     }
 
@@ -262,7 +244,6 @@ public struct InsightDefinitionRequestBody: Codable {
         InsightDefinitionRequestBody(
             order: nil,
             title: "Signals by Day",
-            subtitle: nil,
             signalType: nil,
             uniqueUser: false,
             filters: [:],
@@ -272,8 +253,7 @@ public struct InsightDefinitionRequestBody: Codable {
             displayMode: .lineChart,
             groupID: groupID,
             id: nil,
-            isExpanded: false,
-            shouldUseDruid: false
+            isExpanded: false
         )
     }
 }
