@@ -265,4 +265,33 @@ extension DTOsWithIdentifiers.Insight {
             lastRunAt: nil
         )
     }
+    
+    public static func newCustomQueryInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
+        let customQuery = DruidCustomQuery(
+            queryType: .groupBy,
+            dataSource: "telemetry-signals",
+            intervals: [],
+            granularity: .all,
+            aggregations: [
+                .init(type: .longSum, name: "total_usage", fieldName: "count")
+            ]
+        )
+        
+        return DTOsWithIdentifiers.Insight(
+            id: UUID.empty,
+            groupID: groupID,
+            order: nil,
+            title: "Custom Query",
+            druidCustomQuery: customQuery,
+            signalType: nil,
+            uniqueUser: false,
+            filters: [:],
+            breakdownKey: nil,
+            groupBy: .day,
+            displayMode: .lineChart,
+            isExpanded: false,
+            lastRunTime: nil,
+            lastRunAt: nil
+        )
+    }
 }

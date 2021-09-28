@@ -9,11 +9,16 @@ import Foundation
 
 // MARK: - druid query types
 
+enum DruidQueryType: String, Codable {
+    case timeseries
+    case groupBy
+}
+
 /// Custom JSON based Druid query
 ///
 /// @see https://druid.apache.org/docs/latest/querying/querying.html
 struct DruidCustomQuery: Codable, Hashable {
-    var queryType: String = "timeseries"
+    var queryType: DruidQueryType
     var dataSource: String = "telemetry-signals"
     var descending: Bool? = nil
     var filter: DruidFilter? = nil
