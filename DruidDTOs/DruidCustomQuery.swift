@@ -9,11 +9,14 @@ import Foundation
 
 // MARK: - druid query types
 
+/// Custom JSON based Druid query
+///
+/// @see https://druid.apache.org/docs/latest/querying/querying.html
 struct DruidCustomQuery: Codable, Hashable {
     var queryType: String = "timeseries"
     var dataSource: String = "telemetry-signals"
     var descending: Bool? = nil
-    var filter: druidFilter? = nil
+    var filter: DruidFilter? = nil
     var intervals: [DruidInterval]
     let granularity: druidGranularity
     var aggregations: [DruidAggregator]? = nil
@@ -34,15 +37,25 @@ struct DruidCustomQuery: Codable, Hashable {
 
 // query filters
 
+/// The selector filter will match a specific dimension with a specific value.
+/// Selector filters can be used as the base filters for more complex Boolean
+/// expressions of filters.
 struct DruidFilterSelector: Codable {
     let dimension: String
     let value: String
 }
 
+/// The column comparison filter is similar to the selector filter, but instead
+/// compares dimensions to each other.
 struct DruidFilterColumnComparison: Codable {
     let dimensions: [String]
 }
 
+/// The regular expression filter is similar to the selector filter, but using regular
+/// expressions. It matches the specified dimension with the given pattern. The
+/// pattern can be any standard Java regular expression.
+///
+/// @see http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html
 struct DruidFilterRegex: Codable {
     let dimension: String
     let pattern: String
@@ -50,17 +63,31 @@ struct DruidFilterRegex: Codable {
 
 // logical expression filters
 struct DruidFilterExpression: Codable {
-    let fields: [druidFilter]
+    let fields: [DruidFilter]
 }
 
 struct DruidFilterNot: Codable {
-    let field: druidFilter
+    let field: DruidFilter
 }
 
-indirect enum druidFilter: Codable {
+/// A filter is a JSON object indicating which rows of data should be included in the computation
+/// for a query. It’s essentially the equivalent of the WHERE clause in SQL.
+indirect enum DruidFilter: Codable {
+    
+    /// The selector filter will match a specific dimension with a specific value.
+    /// Selector filters can be used as the base filters for more complex Boolean
+    /// expressions of filters.
     case selector(DruidFilterSelector)
+    
+    /// The column comparison filter is similar to the selector filter, but instead
+    /// compares dimensions to each other.
     case columnComparison(DruidFilterColumnComparison)
+    
+    /// The regular expression filter is similar to the selector filter, but using regular
+    /// expressions. It matches the specified dimension with the given pattern. The
+    /// pattern can be any standard Java regular expression.
     case regex(DruidFilterRegex)
+    
     // logical expression filters
     case and(DruidFilterExpression)
     case or(DruidFilterExpression)
@@ -70,7 +97,7 @@ indirect enum druidFilter: Codable {
         case type
     }
 
-    // TODO: This is untested and I just added it so it compiles. Needs some tests.
+    #warning("TODO: This is untested and I just added it so it compiles. Needs some tests.")
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let type = try values.decode(String.self, forKey: .type)
