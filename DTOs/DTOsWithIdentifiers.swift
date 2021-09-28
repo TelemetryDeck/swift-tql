@@ -150,3 +150,119 @@ extension DTOsWithIdentifiers.InsightCalculationResultRow: Content {}
 extension DTOsWithIdentifiers.PriceStructure: Content {}
 extension DTOsWithIdentifiers.StatusMessage: Content {}
 #endif
+
+extension DTOsWithIdentifiers.Insight {
+    public static func newTimeSeriesInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {      
+        DTOsWithIdentifiers.Insight(
+            id: UUID.empty,
+            groupID: groupID,
+            order: nil,
+            title: "New Time Series Insight",
+            druidCustomQuery: nil,
+            signalType: nil,
+            uniqueUser: false,
+            filters: [:],
+            breakdownKey: nil,
+            groupBy: .day,
+            displayMode: .lineChart,
+            isExpanded: false,
+            lastRunTime: nil,
+            lastRunAt: nil
+        )
+    }
+
+    public static func newBreakdownInsight(groupID: UUID, title: String? = nil, breakdownKey: String? = nil) -> DTOsWithIdentifiers.Insight {
+        DTOsWithIdentifiers.Insight(
+            id: UUID.empty,
+            groupID: groupID,
+            order: nil,
+            title: title ?? "New Breakdown Insight",
+            druidCustomQuery: nil,
+            signalType: nil,
+            uniqueUser: false,
+            filters: [:],
+            breakdownKey: breakdownKey ?? "systemVersion",
+            groupBy: .day,
+            displayMode: .pieChart,
+            isExpanded: false,
+            lastRunTime: nil,
+            lastRunAt: nil
+        )
+    }
+
+    public static func newDailyUserCountInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
+        DTOsWithIdentifiers.Insight(
+            id: UUID.empty,
+            groupID: groupID,
+            order: nil,
+            title: "Daily Active Users",
+            druidCustomQuery: nil,
+            signalType: nil,
+            uniqueUser: true,
+            filters: [:],
+            breakdownKey: nil,
+            groupBy: .day,
+            displayMode: .lineChart,
+            isExpanded: false,
+            lastRunTime: nil,
+            lastRunAt: nil
+        )
+    }
+
+    public static func newWeeklyUserCountInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
+        DTOsWithIdentifiers.Insight(
+            id: UUID.empty,
+            groupID: groupID,
+            order: nil,
+            title: "Weekly Active Users",
+            druidCustomQuery: nil,
+            signalType: nil,
+            uniqueUser: true,
+            filters: [:],
+            breakdownKey: nil,
+            groupBy: .week,
+            displayMode: .barChart,
+            isExpanded: false,
+            lastRunTime: nil,
+            lastRunAt: nil
+        )
+    }
+
+    public static func newMonthlyUserCountInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
+        DTOsWithIdentifiers.Insight(
+            id: UUID.empty,
+            groupID: groupID,
+            order: nil,
+            title: "Active Users this Month",
+            druidCustomQuery: nil,
+            signalType: nil,
+            uniqueUser: true,
+            filters: [:],
+            breakdownKey: nil,
+            groupBy: .month,
+            displayMode: .raw,
+            isExpanded: false,
+            lastRunTime: nil,
+            lastRunAt: nil
+        )
+    }
+
+    public static func newSignalInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
+        DTOsWithIdentifiers.Insight(
+            id: UUID.empty,
+            groupID: groupID,
+            order: nil,
+            title: "Signals by Day",
+            druidCustomQuery: nil,
+            signalType: nil,
+            uniqueUser: false,
+            filters: [:],
+            breakdownKey: nil,
+            groupBy: .day,
+            displayMode: .lineChart,
+            isExpanded: false,
+            lastRunTime: nil,
+            lastRunAt: nil
+        )
+    }
+}
