@@ -59,6 +59,9 @@ public enum DTOsWithIdentifiers {
 
         public var order: Double?
         public var title: String
+        
+        /// If set, use the custom query in this property instead of constructing a query out of the options below
+        var druidCustomQuery: DruidCustomQuery?
 
         /// Which signal types are we interested in? If nil, do not filter by signal type
         public var signalType: String?
