@@ -59,7 +59,7 @@ public extension DTO {
 public extension DTO {
     /// Defines the result of an insight calculation
     struct InsightCalculationResult: Identifiable {
-        public init(id: UUID, order: Double?, title: String, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [DTO.InsightData], calculatedAt: Date, calculationDuration: TimeInterval, shouldUseDruid: Bool?) {
+        public init(id: UUID, order: Double?, title: String, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [DTO.InsightData], calculatedAt: Date, calculationDuration: TimeInterval) {
             self.id = id
             self.order = order
             self.title = title
