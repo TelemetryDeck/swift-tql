@@ -63,6 +63,9 @@ public enum DTOsWithIdentifiers {
         /// If set, display the chart with this accent color, otherwise fall back to default color
         public var accentColor: String?
         
+        /// Should this Insight be available as a Widget?
+        public var widgetable: Bool?
+        
         /// If set, use the custom query in this property instead of constructing a query out of the options below
         var druidCustomQuery: DruidCustomQuery?
 
