@@ -35,14 +35,9 @@ extension JSONDecoder.DateDecodingStrategy {
 }
 
 extension JSONDecoder {
+    @available(*, deprecated, renamed: "druidDecoder")
     static var telemetryDecoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        dateFormatter.locale = Locale(identifier: "en_US")
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-        decoder.dateDecodingStrategy = .formatted(dateFormatter)
-        return decoder
+        return druidDecoder
     }()
 
     static var druidDecoder: JSONDecoder = {
@@ -53,14 +48,9 @@ extension JSONDecoder {
 }
 
 extension JSONEncoder {
+    @available(*, deprecated, renamed: "druidEncoder")
     static var telemetryEncoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        dateFormatter.locale = Locale(identifier: "en_US")
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-        encoder.dateEncodingStrategy = .formatted(dateFormatter)
-        return encoder
+        return druidEncoder
     }()
     
     static var druidEncoder: JSONEncoder = {
