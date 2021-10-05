@@ -72,21 +72,6 @@ public struct TelemetryApp: Codable, Hashable, Identifiable {
     public var organization: [String: String]
 }
 
-public enum InsightDisplayMode: String, Codable {
-    case number // Deprecated, use Raw instead
-    case raw
-    case barChart
-    case lineChart
-    case pieChart
-}
-
-public enum InsightGroupByInterval: String, Codable {
-    case hour
-    case day
-    case week
-    case month
-}
-
 public struct InsightDefinitionRequestBody: Codable {
     public init(order: Double? = nil, title: String, signalType: String? = nil, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, groupID: UUID? = nil, id: UUID? = nil, isExpanded: Bool) {
         self.order = order

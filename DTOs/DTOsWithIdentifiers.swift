@@ -141,6 +141,20 @@ public enum DTOsWithIdentifiers {
     }
 }
 
+public enum InsightDisplayMode: String, Codable {
+    case number // Deprecated, use Raw instead
+    case raw
+    case barChart
+    case lineChart
+    case pieChart
+}
+
+public enum InsightGroupByInterval: String, Codable {
+    case hour
+    case day
+    case week
+    case month
+}
 
 #if canImport(Vapor)
 import Vapor
