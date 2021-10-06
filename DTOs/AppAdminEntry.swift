@@ -8,6 +8,24 @@ public extension DTO {
         public let organisationID: UUID?
         public let signalCount: Int
         public let userCount: Int
+        
+        func resolvedAppName() -> String {
+            guard let appName = appName else { return "–" }
+            
+            if appName == "w" && organisationName == "XAN Software GmbH & Co. KG" {
+                return "DouWatch"
+            }
+            
+            if appName == "WristW" && organisationName == "XAN Software GmbH & Co. KG" {
+                return "WristWeb"
+            }
+            
+            if appName == "ww" && organisationName == "XAN Software GmbH & Co. KG" {
+                return "WristWeb"
+            }
+            
+            return appName
+        }
     }
 }
 
