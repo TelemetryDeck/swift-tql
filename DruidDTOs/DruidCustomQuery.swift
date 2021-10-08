@@ -275,7 +275,7 @@ struct DruidTimeSeriesResult: Codable {
     let result: [String: Double]
 }
 
-enum DruidResultType: Codable {
+enum DruidResultType: String, Codable {
     case timeSeries
 }
 
