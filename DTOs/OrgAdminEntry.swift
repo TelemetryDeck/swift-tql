@@ -7,13 +7,13 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     struct OrgAdminEntry: Codable, Identifiable {
         public var id: UUID
         public var organisationName: String?
         public var createdAt: Date?
         public var updatedAt: Date?
-        public var appAdminEntries: [DTO.AppAdminEntry]
+        public var appAdminEntries: [DTOv1.AppAdminEntry]
         public var signalCount: Int = 0
     }
 }
@@ -21,6 +21,6 @@ public extension DTO {
 #if canImport(Vapor)
 import Vapor
 
-extension DTO.OrgAdminEntry: Content {}
+extension DTOv1.OrgAdminEntry: Content {}
 #endif
 
