@@ -258,10 +258,13 @@ enum druidGranularity: String, Codable, Hashable {
 }
 
 struct DruidContext: Codable, Hashable {
+    /// Query timeout in millis, beyond which unfinished queries will be cancelled. 0 timeout means no timeout.
     var timeout: String? = nil
+    
+    /// Query Priority. Queries with higher priority get precedence for computational resources. Default: 0
     var priority: Int? = nil
+    
     var timestampResultField: String? = nil
-    /// there are a lot of other possible entries? I don't know if we need all? maybe this should just be [String:String]
 
     // topN specific context
     var minTopNThreshold: Int? = nil
