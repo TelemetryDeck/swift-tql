@@ -202,12 +202,12 @@ struct DruidInterval: Codable, Hashable {
 }
 
 struct DruidAggregator: Codable, Hashable {
-    let type: druidAggregatorType
+    let type: DruidAggregatorType
     let name: String
     var fieldName: String? = nil // should be nil for type count, maybe that should be enforced in code?
 }
 
-enum druidAggregatorType: String, Codable, Hashable {
+enum DruidAggregatorType: String, Codable, Hashable {
     case count
 
     case longSum
@@ -275,6 +275,15 @@ struct DruidTimeSeriesResult: Codable {
     let result: [String: Double]
 }
 
+enum DruidResultType: Codable {
+    case timeSeries
+}
+
+struct DruidResultWrapper: Codable {
+    let resultType: DruidResultType
+    let timeSeriesResults: [DruidTimeSeriesResult]
+}
+
 // MARK: - Vapor Extensions
 
 #if canImport(Vapor)
@@ -283,7 +292,8 @@ import Vapor
 extension DruidCustomQuery: Content {}
 extension DruidInterval: Content {}
 extension DruidAggregator: Content {}
-extension druidAggregatorType: Content {}
+extension DruidAggregatorType: Content {}
 extension DruidContext: Content {}
 extension DruidTimeSeriesResult: Content {}
+extension DruidResultWrapper: Content {}
 #endif

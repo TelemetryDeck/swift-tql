@@ -10,7 +10,6 @@ import Foundation
 
 
 /// Data Transfer Objects
-// @available(*, deprecated)
 public enum DTOv1 {
     public struct InsightGroup: Codable, Identifiable, Hashable {
         public var id: UUID
