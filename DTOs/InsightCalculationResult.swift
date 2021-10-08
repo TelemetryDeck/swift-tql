@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     /// Defines an insight as saved to the database, no calculation results
     struct InsightDTO: Codable, Identifiable {
         public var id: UUID
@@ -53,13 +53,13 @@ public extension DTO {
 
 #if canImport(Vapor)
     import Vapor
-    extension DTO.InsightDTO: Content {}
+    extension DTOv1.InsightDTO: Content {}
 #endif
 
-public extension DTO {
+public extension DTOv1 {
     /// Defines the result of an insight calculation
     struct InsightCalculationResult: Identifiable {
-        public init(id: UUID, order: Double?, title: String, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [DTO.InsightData], calculatedAt: Date, calculationDuration: TimeInterval) {
+        public init(id: UUID, order: Double?, title: String, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [DTOv1.InsightData], calculatedAt: Date, calculationDuration: TimeInterval) {
             self.id = id
             self.order = order
             self.title = title
@@ -102,7 +102,7 @@ public extension DTO {
         var isExpanded: Bool
 
         /// Current Live Calculated Data
-        public let data: [DTO.InsightData]
+        public let data: [DTOv1.InsightData]
 
         /// When was this DTO calculated?
         public let calculatedAt: Date
@@ -114,7 +114,7 @@ public extension DTO {
 
 #if canImport(Vapor)
     import Vapor
-    extension DTO.InsightCalculationResult: Content {}
+    extension DTOv1.InsightCalculationResult: Content {}
 #else
-    extension DTO.InsightCalculationResult: Codable {}
+    extension DTOv1.InsightCalculationResult: Codable {}
 #endif

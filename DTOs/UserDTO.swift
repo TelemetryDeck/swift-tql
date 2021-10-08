@@ -7,10 +7,10 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     struct UserDTO: Identifiable, Codable {
         public let id: UUID
-        public let organization: DTO.Organization?
+        public let organization: DTOv1.Organization?
         public var firstName: String
         public var lastName: String
         public var email: String
@@ -24,14 +24,14 @@ public extension DTO {
 #if canImport(Vapor)
 import Vapor
 
-extension DTO.UserDTO: Content {}
+extension DTOv1.UserDTO: Content {}
 
-extension DTO.UserDTO {
+extension DTOv1.UserDTO {
     init(user: User) {
         if let org = user.$organization.value {
-            organization = DTO.Organization(id: user.$organization.id, name: org.name, isSuperOrg: org.isSuperOrg, createdAt: org.createdAt, updatedAt: org.updatedAt)
+            organization = DTOv1.Organization(id: user.$organization.id, name: org.name, isSuperOrg: org.isSuperOrg, createdAt: org.createdAt, updatedAt: org.updatedAt)
         } else {
-            organization = DTO.Organization(id: user.$organization.id, name: "", isSuperOrg: false, createdAt: nil, updatedAt: nil)
+            organization = DTOv1.Organization(id: user.$organization.id, name: "", isSuperOrg: false, createdAt: nil, updatedAt: nil)
         }
         
         id = user.id!

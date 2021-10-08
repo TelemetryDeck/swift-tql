@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     /// Actual row of data inside an InsightCalculationResult
     struct InsightData: Hashable {
         public var xAxisValue: String
@@ -17,7 +17,7 @@ public extension DTO {
 
 #if canImport(Vapor)
 import Vapor
-extension DTO.InsightData: Content {}
+extension DTOv1.InsightData: Content {}
 #else
-extension DTO.InsightData: Codable {}
+extension DTOv1.InsightData: Codable {}
 #endif

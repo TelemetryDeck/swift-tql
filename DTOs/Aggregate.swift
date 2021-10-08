@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     struct Aggregate: Codable {
         public let min: TimeInterval
         public let avg: TimeInterval
@@ -19,5 +19,5 @@ public extension DTO {
 #if canImport(Vapor)
 import Vapor
 
-extension DTO.Aggregate: Content {}
+extension DTOv1.Aggregate: Content {}
 #endif

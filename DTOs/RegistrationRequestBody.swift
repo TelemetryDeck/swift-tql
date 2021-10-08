@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public extension DTO {
+public extension DTOv1 {
     struct RegistrationRequestBody: Codable {
         public init() {}
 
@@ -57,7 +57,7 @@ public extension DTO {
 #if canImport(Vapor)
 import Vapor
 
-extension DTO.RegistrationRequestBody: Validatable {
+extension DTOv1.RegistrationRequestBody: Validatable {
     public static func validations(_ validations: inout Validations) {
         validations.add("userFirstName", as: String.self, is: !.empty)
         validations.add("userEmail", as: String.self, is: .email)

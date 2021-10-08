@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     struct LexiconSignalDTO: Codable, Hashable, Identifiable {
         public var id: String { return type }
         public var type: String
@@ -19,5 +19,5 @@ public extension DTO {
 
 #if canImport(Vapor)
     import Vapor
-    extension DTO.LexiconSignalDTO: Content {}
+    extension DTOv1.LexiconSignalDTO: Content {}
 #endif

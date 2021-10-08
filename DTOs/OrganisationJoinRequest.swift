@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     /// Sent to the server to create a user belonging to the organization
     struct OrganizationJoinRequestDTO: Codable {
         public init(email: String, receiveMarketingEmails: Bool, firstName: String, lastName: String, password: String, organizationID: UUID, registrationToken: String) {

@@ -9,7 +9,7 @@ public struct ChartDataSet {
     
     public var isEmpty: Bool { data.isEmpty }
     
-    public init(data: [DTOsWithIdentifiers.InsightCalculationResultRow], groupBy: InsightGroupByInterval? = nil) {
+    public init(data: [DTOv2.InsightCalculationResultRow], groupBy: InsightGroupByInterval? = nil) {
         self.data = data.map { ChartDataPoint(insightCalculationResultRow: $0) }
         self.groupBy = groupBy
 
@@ -17,7 +17,7 @@ public struct ChartDataSet {
         lowestValue = 0
     }
 
-    public init(data: [DTO.InsightData], groupBy: InsightGroupByInterval? = nil) {
+    public init(data: [DTOv1.InsightData], groupBy: InsightGroupByInterval? = nil) {
         self.data = data.map { ChartDataPoint(insightData: $0) }
         self.groupBy = groupBy
 

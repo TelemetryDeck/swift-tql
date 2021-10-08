@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     struct Organization: Codable, Hashable, Identifiable {
         public init(id: UUID, name: String, isSuperOrg: Bool, createdAt: Date?, updatedAt: Date?) {
             self.id = id

@@ -20,11 +20,11 @@ public struct ChartDataPoint: Hashable, Identifiable {
         }
     }
     
-    init(insightCalculationResultRow: DTOsWithIdentifiers.InsightCalculationResultRow) {
+    init(insightCalculationResultRow: DTOv2.InsightCalculationResultRow) {
         self.init(xAxisValue: insightCalculationResultRow.xAxisValue, yAxisValue: insightCalculationResultRow.yAxisValue)
     }
     
-    init(insightData: DTO.InsightData) {
+    init(insightData: DTOv1.InsightData) {
         if let stringValue = insightData.yAxisValue {
             self.init(xAxisValue: insightData.xAxisValue, yAxisValue: Int64(stringValue))
         } else {

@@ -7,8 +7,11 @@
 
 import Foundation
 
+
+
 /// Data Transfer Objects
-public enum DTO {
+// @available(*, deprecated)
+public enum DTOv1 {
     public struct InsightGroup: Codable, Identifiable, Hashable {
         public var id: UUID
         public var title: String
@@ -121,7 +124,7 @@ public struct InsightDefinitionRequestBody: Codable {
     /// If true, the insight will be displayed bigger
     public var isExpanded: Bool
 
-    public static func from(insight: DTO.InsightDTO) -> InsightDefinitionRequestBody {
+    public static func from(insight: DTOv1.InsightDTO) -> InsightDefinitionRequestBody {
         let requestBody = Self(
             order: insight.order,
             title: insight.title,
@@ -266,7 +269,7 @@ public struct OrganizationAdminListEntry: Codable, Identifiable {
 }
 
 public enum AppRootViewSelection: Hashable {
-    case insightGroup(group: DTO.InsightGroup)
+    case insightGroup(group: DTOv1.InsightGroup)
     case lexicon
     case rawSignals
     case noSelection

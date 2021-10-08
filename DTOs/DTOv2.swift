@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum DTOsWithIdentifiers {
+public enum DTOv2 {
     public struct Organization: Codable, Hashable, Identifiable {
         public var id: UUID
         public var name: String
@@ -103,10 +103,10 @@ public enum DTOsWithIdentifiers {
         public let id: UUID
 
         /// The insight that was calculated
-        public let insight: DTOsWithIdentifiers.Insight
+        public let insight: DTOv2.Insight
 
         /// Current Live Calculated Data
-        public let data: [DTOsWithIdentifiers.InsightCalculationResultRow]
+        public let data: [DTOv2.InsightCalculationResultRow]
 
         /// When was this DTO calculated?
         public let calculatedAt: Date
@@ -139,6 +139,14 @@ public enum DTOsWithIdentifiers {
         public let description: String?
         public let systemImageName: String?
     }
+    
+    struct LexiconSignal: Codable, Hashable, Identifiable {
+        public var id: String { return type }
+        public var type: String
+        public var signalCount: Int
+        public var userCount: Int
+        public var sessionCount: Int
+    }
 }
 
 public enum InsightDisplayMode: String, Codable {
@@ -159,21 +167,21 @@ public enum InsightGroupByInterval: String, Codable {
 #if canImport(Vapor)
 import Vapor
 
-extension DTOsWithIdentifiers.Organization: Content {}
-extension DTOsWithIdentifiers.BadgeAward: Content {}
-extension DTOsWithIdentifiers.Badge: Content {}
-extension DTOsWithIdentifiers.App: Content {}
-extension DTOsWithIdentifiers.Group: Content {}
-extension DTOsWithIdentifiers.Insight: Content {}
-extension DTOsWithIdentifiers.InsightCalculationResult: Content {}
-extension DTOsWithIdentifiers.InsightCalculationResultRow: Content {}
-extension DTOsWithIdentifiers.PriceStructure: Content {}
-extension DTOsWithIdentifiers.StatusMessage: Content {}
+extension DTOv2.Organization: Content {}
+extension DTOv2.BadgeAward: Content {}
+extension DTOv2.Badge: Content {}
+extension DTOv2.App: Content {}
+extension DTOv2.Group: Content {}
+extension DTOv2.Insight: Content {}
+extension DTOv2.InsightCalculationResult: Content {}
+extension DTOv2.InsightCalculationResultRow: Content {}
+extension DTOv2.PriceStructure: Content {}
+extension DTOv2.StatusMessage: Content {}
 #endif
 
-extension DTOsWithIdentifiers.Insight {
-    public static func newTimeSeriesInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {      
-        DTOsWithIdentifiers.Insight(
+extension DTOv2.Insight {
+    public static func newTimeSeriesInsight(groupID: UUID) -> DTOv2.Insight {      
+        DTOv2.Insight(
             id: UUID.empty,
             groupID: groupID,
             order: nil,
@@ -191,8 +199,8 @@ extension DTOsWithIdentifiers.Insight {
         )
     }
 
-    public static func newBreakdownInsight(groupID: UUID, title: String? = nil, breakdownKey: String? = nil) -> DTOsWithIdentifiers.Insight {
-        DTOsWithIdentifiers.Insight(
+    public static func newBreakdownInsight(groupID: UUID, title: String? = nil, breakdownKey: String? = nil) -> DTOv2.Insight {
+        DTOv2.Insight(
             id: UUID.empty,
             groupID: groupID,
             order: nil,
@@ -210,8 +218,8 @@ extension DTOsWithIdentifiers.Insight {
         )
     }
 
-    public static func newDailyUserCountInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
-        DTOsWithIdentifiers.Insight(
+    public static func newDailyUserCountInsight(groupID: UUID) -> DTOv2.Insight {
+        DTOv2.Insight(
             id: UUID.empty,
             groupID: groupID,
             order: nil,
@@ -229,8 +237,8 @@ extension DTOsWithIdentifiers.Insight {
         )
     }
 
-    public static func newWeeklyUserCountInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
-        DTOsWithIdentifiers.Insight(
+    public static func newWeeklyUserCountInsight(groupID: UUID) -> DTOv2.Insight {
+        DTOv2.Insight(
             id: UUID.empty,
             groupID: groupID,
             order: nil,
@@ -248,8 +256,8 @@ extension DTOsWithIdentifiers.Insight {
         )
     }
 
-    public static func newMonthlyUserCountInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
-        DTOsWithIdentifiers.Insight(
+    public static func newMonthlyUserCountInsight(groupID: UUID) -> DTOv2.Insight {
+        DTOv2.Insight(
             id: UUID.empty,
             groupID: groupID,
             order: nil,
@@ -267,8 +275,8 @@ extension DTOsWithIdentifiers.Insight {
         )
     }
 
-    public static func newSignalInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
-        DTOsWithIdentifiers.Insight(
+    public static func newSignalInsight(groupID: UUID) -> DTOv2.Insight {
+        DTOv2.Insight(
             id: UUID.empty,
             groupID: groupID,
             order: nil,
@@ -286,7 +294,7 @@ extension DTOsWithIdentifiers.Insight {
         )
     }
     
-    public static func newCustomQueryInsight(groupID: UUID) -> DTOsWithIdentifiers.Insight {
+    public static func newCustomQueryInsight(groupID: UUID) -> DTOv2.Insight {
         let customQuery = DruidCustomQuery(
             queryType: .groupBy,
             dataSource: "telemetry-signals",
@@ -297,7 +305,7 @@ extension DTOsWithIdentifiers.Insight {
             ]
         )
         
-        return DTOsWithIdentifiers.Insight(
+        return DTOv2.Insight(
             id: UUID.empty,
             groupID: groupID,
             order: nil,

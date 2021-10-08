@@ -7,7 +7,9 @@
 
 import Foundation
 
-public extension DTO {
+#warning("These structs need to be checked, if they are needed. If yes, they need cleanup and be integrated into DTOv2")
+
+public extension DTOv1 {
     struct IdentifiableSignal: Codable, Hashable, Identifiable {
         public var id = UUID()
         public var appID: UUID?
@@ -65,6 +67,6 @@ public extension DTO {
 
 #if canImport(Vapor)
     import Vapor
-    extension DTO.Signal: Content {}
-    extension DTO.SignalDruidStructure: Content {}
+    extension DTOv1.Signal: Content {}
+    extension DTOv1.SignalDruidStructure: Content {}
 #endif

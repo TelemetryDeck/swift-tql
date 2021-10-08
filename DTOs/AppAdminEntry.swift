@@ -1,6 +1,6 @@
 import Foundation
 
-public extension DTO {
+public extension DTOv1 {
     struct AppAdminEntry: Codable, Identifiable, Equatable {
         public let id: UUID
         public let appName: String?
@@ -32,5 +32,5 @@ public extension DTO {
 #if canImport(Vapor)
 import Vapor
 
-extension DTO.AppAdminEntry: Content {}
+extension DTOv1.AppAdminEntry: Content {}
 #endif
