@@ -10,6 +10,7 @@ import Foundation
 /// Signal with a dictionary-like payload, as received from the Ingester
 struct KafkaSignalStructureWithDict: Codable {
     let receivedAt: Date
+    let isTestMode: String
     let appID: UUID
     let clientUser: String
     let sessionID: String
@@ -19,6 +20,7 @@ struct KafkaSignalStructureWithDict: Codable {
     func toTagStructure() -> KafkaSignalStructureWithTags {
         KafkaSignalStructureWithTags(
             receivedAt: receivedAt,
+            isTestMode: isTestMode,
             appID: appID,
             clientUser: clientUser,
             sessionID: sessionID,
@@ -43,6 +45,7 @@ struct KafkaSignalStructureWithDict: Codable {
 /// @see convertToMultivalueDimension
 struct KafkaSignalStructureWithTags: Codable {
     let receivedAt: Date
+    let isTestMode: String
     let appID: UUID
     let clientUser: String
     let sessionID: String
