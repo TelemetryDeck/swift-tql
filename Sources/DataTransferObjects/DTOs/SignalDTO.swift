@@ -20,12 +20,22 @@ public extension DTOv1 {
         public var type: String
         public var payload: [String: String]?
         
-        var signal: Signal {
+        public var signal: Signal {
             return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: payload)
         }
     }
     
     struct Signal: Codable, Hashable {
+        public init(appID: UUID? = nil, count: Int? = nil, receivedAt: Date, clientUser: String, sessionID: String? = nil, type: String, payload: [String : String]? = nil) {
+            self.appID = appID
+            self.count = count
+            self.receivedAt = receivedAt
+            self.clientUser = clientUser
+            self.sessionID = sessionID
+            self.type = type
+            self.payload = payload
+        }
+        
         public var appID: UUID?
         public var count: Int?
         public var receivedAt: Date
@@ -34,7 +44,7 @@ public extension DTOv1 {
         public var type: String
         public var payload: [String: String]?
         
-        func toIdentifiableSignal() -> IdentifiableSignal {
+        public func toIdentifiableSignal() -> IdentifiableSignal {
             return IdentifiableSignal(id: UUID(), appID: appID, count: count ?? 1, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID ?? "–", type: type, payload: payload)
         }
     }

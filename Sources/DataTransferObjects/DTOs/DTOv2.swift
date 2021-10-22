@@ -166,7 +166,7 @@ public enum DTOv2 {
             title: String,
             accentColor: String? = nil,
             widgetable: Bool? = false,
-            druidCustomQuery: DruidCustomQuery?,
+            druidCustomQuery: DruidCustomQuery? = nil,
             signalType: String?,
             uniqueUser: Bool,
             filters: [String: String],

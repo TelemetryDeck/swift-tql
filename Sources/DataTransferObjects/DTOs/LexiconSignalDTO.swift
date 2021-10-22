@@ -9,6 +9,13 @@ import Foundation
 
 public extension DTOv1 {
     struct LexiconSignalDTO: Codable, Hashable, Identifiable {
+        public init(type: String, signalCount: Int, userCount: Int, sessionCount: Int) {
+            self.type = type
+            self.signalCount = signalCount
+            self.userCount = userCount
+            self.sessionCount = sessionCount
+        }
+        
         public var id: String { return type }
         public var type: String
         public var signalCount: Int
