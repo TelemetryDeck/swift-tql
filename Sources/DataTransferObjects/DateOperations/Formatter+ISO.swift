@@ -7,24 +7,24 @@
 
 import Foundation
 
-extension Formatter {
-    public static let iso8601: ISO8601DateFormatter = {
+public extension Formatter {
+    static let iso8601: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
     }()
 
-    public static let iso8601noFS = ISO8601DateFormatter()
+    static let iso8601noFS = ISO8601DateFormatter()
 
-    public static let iso8601dateOnly: ISO8601DateFormatter = {
+    static let iso8601dateOnly: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withFullDate]
         return formatter
     }()
 }
 
-extension JSONDecoder.DateDecodingStrategy {
-    public static let customISO8601 = custom {
+public extension JSONDecoder.DateDecodingStrategy {
+    static let customISO8601 = custom {
         let container = try $0.singleValueContainer()
         let string = try container.decode(String.self)
         if let date = Formatter.iso8601.date(from: string) ?? Formatter.iso8601noFS.date(from: string) {
@@ -34,26 +34,26 @@ extension JSONDecoder.DateDecodingStrategy {
     }
 }
 
-extension JSONDecoder {
+public extension JSONDecoder {
     @available(*, deprecated, renamed: "druidDecoder")
-    public static var telemetryDecoder: JSONDecoder = {
+    static var telemetryDecoder: JSONDecoder = {
         return druidDecoder
     }()
 
-    public static var druidDecoder: JSONDecoder = {
+    static var druidDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .customISO8601
         return decoder
     }()
 }
 
-extension JSONEncoder {
+public extension JSONEncoder {
     @available(*, deprecated, renamed: "druidEncoder")
-    public static var telemetryEncoder: JSONEncoder = {
+    static var telemetryEncoder: JSONEncoder = {
         return druidEncoder
     }()
     
-    public static var druidEncoder: JSONEncoder = {
+    static var druidEncoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .withoutEscapingSlashes
         let dateFormatter = DateFormatter()
