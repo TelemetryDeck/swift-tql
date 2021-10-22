@@ -41,17 +41,19 @@ public struct ChartDataSet {
         let groupByPeriod = groupBy ?? .day
 
         guard let date = chartDataPoint.xAxisDate else { return false }
+        
+        return true
 
-        switch groupByPeriod {
-        case .hour:
-            return date.isInCurrent(.hour)
-        case .day:
-            return date.isInToday
-        case .week:
-            return date.isInCurrentWeek
-        case .month:
-            return date.isInCurrentMonth
-        }
+//        switch groupByPeriod {
+//        case .hour:
+//            return date.isInCurrent(.hour)
+//        case .day:
+//            return date.isInToday
+//        case .week:
+//            return date.isInCurrentWeek
+//        case .month:
+//            return date.isInCurrentMonth
+//        }
     }
     #endif
 }

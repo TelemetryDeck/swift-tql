@@ -53,34 +53,3 @@ public extension DTOv1 {
         case noAtInEmail
     }
 }
-
-#if canImport(Vapor)
-import Vapor
-
-extension DTOv1.RegistrationRequestBody: Validatable {
-    public static func validations(_ validations: inout Validations) {
-        validations.add("userFirstName", as: String.self, is: !.empty)
-        validations.add("userEmail", as: String.self, is: .email)
-        validations.add("userPassword", as: String.self, is: .count(8...))
-    }
-
-    func makeOrganisation() -> Organization {
-        Organization(name: organisationName)
-    }
-
-    func makeUser(organizationID: UUID) -> User {
-        let hashedPassword = User.hash(from: userPassword)
-
-        return User(
-            firstName: userFirstName,
-            lastName: userLastName,
-            isFoundingUser: true,
-            email: userEmail,
-            receiveMarketingEmails: receiveMarketingEmails,
-            receiveReports: .monthly,
-            passwordHash: hashedPassword,
-            organizationID: organizationID
-        )
-    }
-}
-#endif

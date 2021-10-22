@@ -16,8 +16,3 @@ public extension DTOv1 {
         public var sessionCount: Int
     }
 }
-
-#if canImport(Vapor)
-    import Vapor
-    extension DTOv1.LexiconSignalDTO: Content {}
-#endif

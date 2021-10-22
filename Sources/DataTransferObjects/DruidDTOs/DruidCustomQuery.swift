@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - druid query types
 
-enum DruidQueryType: String, Codable {
+public enum DruidQueryType: String, Codable {
     case timeseries
     case groupBy
 }
@@ -17,23 +17,35 @@ enum DruidQueryType: String, Codable {
 /// Custom JSON based Druid query
 ///
 /// @see https://druid.apache.org/docs/latest/querying/querying.html
-struct DruidCustomQuery: Codable, Hashable {
-    var queryType: DruidQueryType
-    var dataSource: String = "telemetry-signals"
-    var descending: Bool? = nil
-    var filter: DruidFilter? = nil
-    var intervals: [DruidInterval]
-    let granularity: druidGranularity
-    var aggregations: [DruidAggregator]? = nil
-    var limit: Int? = nil
-    var context: DruidContext? = nil
+public struct DruidCustomQuery: Codable, Hashable {
+    public init(queryType: DruidQueryType, dataSource: String = "telemetry-signals", descending: Bool? = nil, filter: DruidFilter? = nil, intervals: [DruidInterval], granularity: druidGranularity, aggregations: [DruidAggregator]? = nil, limit: Int? = nil, context: DruidContext? = nil) {
+        self.queryType = queryType
+        self.dataSource = dataSource
+        self.descending = descending
+        self.filter = filter
+        self.intervals = intervals
+        self.granularity = granularity
+        self.aggregations = aggregations
+        self.limit = limit
+        self.context = context
+    }
+    
+    public var queryType: DruidQueryType
+    public var dataSource: String = "telemetry-signals"
+    public var descending: Bool? = nil
+    public var filter: DruidFilter? = nil
+    public var intervals: [DruidInterval]
+    public let granularity: druidGranularity
+    public var aggregations: [DruidAggregator]? = nil
+    public var limit: Int? = nil
+    public var context: DruidContext? = nil
 
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         let jsonValue = try! JSONEncoder.druidEncoder.encode(self)
         hasher.combine(jsonValue)
     }
 
-    static func == (lhs: DruidCustomQuery, rhs: DruidCustomQuery) -> Bool {
+    public static func == (lhs: DruidCustomQuery, rhs: DruidCustomQuery) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 }
@@ -45,15 +57,24 @@ struct DruidCustomQuery: Codable, Hashable {
 /// The selector filter will match a specific dimension with a specific value.
 /// Selector filters can be used as the base filters for more complex Boolean
 /// expressions of filters.
-struct DruidFilterSelector: Codable {
-    let dimension: String
-    let value: String
+public struct DruidFilterSelector: Codable {
+    public init(dimension: String, value: String) {
+        self.dimension = dimension
+        self.value = value
+    }
+    
+    public let dimension: String
+    public let value: String
 }
 
 /// The column comparison filter is similar to the selector filter, but instead
 /// compares dimensions to each other.
-struct DruidFilterColumnComparison: Codable {
-    let dimensions: [String]
+public struct DruidFilterColumnComparison: Codable {
+    public init(dimensions: [String]) {
+        self.dimensions = dimensions
+    }
+    
+    public let dimensions: [String]
 }
 
 /// The regular expression filter is similar to the selector filter, but using regular
@@ -61,38 +82,50 @@ struct DruidFilterColumnComparison: Codable {
 /// pattern can be any standard Java regular expression.
 ///
 /// @see http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html
-struct DruidFilterRegex: Codable {
-    let dimension: String
-    let pattern: String
+public struct DruidFilterRegex: Codable {
+    public init(dimension: String, pattern: String) {
+        self.dimension = dimension
+        self.pattern = pattern
+    }
+    
+    public let dimension: String
+    public let pattern: String
 }
 
 // logical expression filters
-struct DruidFilterExpression: Codable {
-    let fields: [DruidFilter]
+public struct DruidFilterExpression: Codable {
+    public init(fields: [DruidFilter]) {
+        self.fields = fields
+    }
+    
+    public let fields: [DruidFilter]
 }
 
-struct DruidFilterNot: Codable {
-    let field: DruidFilter
+public struct DruidFilterNot: Codable {
+    public init(field: DruidFilter) {
+        self.field = field
+    }
+    
+    public let field: DruidFilter
 }
 
 /// A filter is a JSON object indicating which rows of data should be included in the computation
 /// for a query. It’s essentially the equivalent of the WHERE clause in SQL.
-indirect enum DruidFilter: Codable {
-    
+public indirect enum DruidFilter: Codable {
     /// The selector filter will match a specific dimension with a specific value.
     /// Selector filters can be used as the base filters for more complex Boolean
     /// expressions of filters.
     case selector(DruidFilterSelector)
-    
+
     /// The column comparison filter is similar to the selector filter, but instead
     /// compares dimensions to each other.
     case columnComparison(DruidFilterColumnComparison)
-    
+
     /// The regular expression filter is similar to the selector filter, but using regular
     /// expressions. It matches the specified dimension with the given pattern. The
     /// pattern can be any standard Java regular expression.
     case regex(DruidFilterRegex)
-    
+
     // logical expression filters
     case and(DruidFilterExpression)
     case or(DruidFilterExpression)
@@ -103,7 +136,7 @@ indirect enum DruidFilter: Codable {
     }
 
     #warning("TODO: This is untested and I just added it so it compiles. Needs some tests.")
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let type = try values.decode(String.self, forKey: .type)
 
@@ -126,7 +159,7 @@ indirect enum DruidFilter: Codable {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         switch self {
@@ -152,9 +185,9 @@ indirect enum DruidFilter: Codable {
     }
 }
 
-struct DruidInterval: Codable, Hashable {
-    let beginningDate: Date
-    let endDate: Date
+public struct DruidInterval: Codable, Hashable {
+    public let beginningDate: Date
+    public let endDate: Date
 
     static var dateFormatter: DateFormatter {
         let dateFormatter = DateFormatter()
@@ -164,7 +197,7 @@ struct DruidInterval: Codable, Hashable {
         return dateFormatter
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
         let date1 = Self.dateFormatter.string(from: beginningDate)
@@ -173,7 +206,7 @@ struct DruidInterval: Codable, Hashable {
         try container.encode(date1 + "/" + date2)
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let intervalString = try container.decode(String.self)
 
@@ -194,20 +227,26 @@ struct DruidInterval: Codable, Hashable {
         self.beginningDate = beginningDate
         self.endDate = endDate
     }
-    
-    init(beginningDate: Date, endDate: Date) {
+
+    public init(beginningDate: Date, endDate: Date) {
         self.beginningDate = beginningDate
         self.endDate = endDate
     }
 }
 
-struct DruidAggregator: Codable, Hashable {
-    let type: DruidAggregatorType
-    let name: String
-    var fieldName: String? = nil // should be nil for type count, maybe that should be enforced in code?
+public struct DruidAggregator: Codable, Hashable {
+    public init(type: DruidAggregatorType, name: String, fieldName: String? = nil) {
+        self.type = type
+        self.name = name
+        self.fieldName = fieldName
+    }
+    
+    public let type: DruidAggregatorType
+    public let name: String
+    public var fieldName: String? = nil // should be nil for type count, maybe that should be enforced in code?
 }
 
-enum DruidAggregatorType: String, Codable, Hashable {
+public enum DruidAggregatorType: String, Codable, Hashable {
     case count
 
     case longSum
@@ -236,13 +275,13 @@ enum DruidAggregatorType: String, Codable, Hashable {
     case floatAny
     case longAny
     case stringAny
-    
+
     case thetaSketch
 
     // JavaScript aggregator missing
 }
 
-enum druidGranularity: String, Codable, Hashable {
+public enum druidGranularity: String, Codable, Hashable {
     case all
     case none
     case second
@@ -257,46 +296,51 @@ enum druidGranularity: String, Codable, Hashable {
     case year
 }
 
-struct DruidContext: Codable, Hashable {
+public struct DruidContext: Codable, Hashable {
     /// Query timeout in millis, beyond which unfinished queries will be cancelled. 0 timeout means no timeout.
-    var timeout: String? = nil
-    
+    public var timeout: String? = nil
+
     /// Query Priority. Queries with higher priority get precedence for computational resources. Default: 0
-    var priority: Int? = nil
-    
-    var timestampResultField: String? = nil
+    public var priority: Int? = nil
+
+    public var timestampResultField: String? = nil
 
     // topN specific context
-    var minTopNThreshold: Int? = nil
+    public var minTopNThreshold: Int? = nil
     // time series specific contexts
-    var grandTotal: Bool? = nil
-    var skipEmptyBuckets: Bool? = nil
+    public var grandTotal: Bool? = nil
+    public var skipEmptyBuckets: Bool? = nil
+
+    public init(timeout: String? = nil, priority: Int? = nil, timestampResultField: String? = nil, minTopNThreshold: Int? = nil, grandTotal: Bool? = nil, skipEmptyBuckets: Bool? = nil) {
+        self.timeout = timeout
+        self.priority = priority
+        self.timestampResultField = timestampResultField
+        self.minTopNThreshold = minTopNThreshold
+        self.grandTotal = grandTotal
+        self.skipEmptyBuckets = skipEmptyBuckets
+    }
 }
 
-struct DruidTimeSeriesResult: Codable {
-    let timestamp: Date
-    let result: [String: Double]
+public struct DruidTimeSeriesResult: Codable {
+    public init(timestamp: Date, result: [String : Double]) {
+        self.timestamp = timestamp
+        self.result = result
+    }
+    
+    public let timestamp: Date
+    public let result: [String: Double]
 }
 
-enum DruidResultType: String, Codable {
+public enum DruidResultType: String, Codable {
     case timeSeries
 }
 
-struct DruidResultWrapper: Codable {
-    let resultType: DruidResultType
-    let timeSeriesResults: [DruidTimeSeriesResult]
+public struct DruidResultWrapper: Codable {
+    public let resultType: DruidResultType
+    public let timeSeriesResults: [DruidTimeSeriesResult]
+
+    public init(resultType: DruidResultType, timeSeriesResults: [DruidTimeSeriesResult]) {
+        self.resultType = resultType
+        self.timeSeriesResults = timeSeriesResults
+    }
 }
-
-// MARK: - Vapor Extensions
-
-#if canImport(Vapor)
-import Vapor
-
-extension DruidCustomQuery: Content {}
-extension DruidInterval: Content {}
-extension DruidAggregator: Content {}
-extension DruidAggregatorType: Content {}
-extension DruidContext: Content {}
-extension DruidTimeSeriesResult: Content {}
-extension DruidResultWrapper: Content {}
-#endif

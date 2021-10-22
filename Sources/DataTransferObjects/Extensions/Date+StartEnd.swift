@@ -1,6 +1,6 @@
 import Foundation
 
-extension Date {
+public extension Date {
     var utcCalendar: Calendar {
         var calendar = Calendar(identifier: .iso8601)
         calendar.timeZone = TimeZone(identifier: "UTC")!

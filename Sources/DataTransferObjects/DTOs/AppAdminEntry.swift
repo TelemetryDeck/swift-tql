@@ -2,6 +2,15 @@ import Foundation
 
 public extension DTOv1 {
     struct AppAdminEntry: Codable, Identifiable, Equatable {
+        public init(id: UUID, appName: String?, organisationName: String?, organisationID: UUID?, signalCount: Int, userCount: Int) {
+            self.id = id
+            self.appName = appName
+            self.organisationName = organisationName
+            self.organisationID = organisationID
+            self.signalCount = signalCount
+            self.userCount = userCount
+        }
+        
         public let id: UUID
         public let appName: String?
         public let organisationName: String?
@@ -28,9 +37,3 @@ public extension DTOv1 {
         }
     }
 }
-
-#if canImport(Vapor)
-import Vapor
-
-extension DTOv1.AppAdminEntry: Content {}
-#endif

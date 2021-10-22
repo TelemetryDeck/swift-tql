@@ -9,15 +9,13 @@ import Foundation
 
 public extension DTOv1 {
     /// Actual row of data inside an InsightCalculationResult
-    struct InsightData: Hashable {
+    struct InsightData: Hashable, Codable {
         public var xAxisValue: String
         public var yAxisValue: String?
+        
+        public init(xAxisValue: String, yAxisValue: String?) {
+            self.xAxisValue = xAxisValue
+            self.yAxisValue = yAxisValue
+        }
     }
 }
-
-#if canImport(Vapor)
-import Vapor
-extension DTOv1.InsightData: Content {}
-#else
-extension DTOv1.InsightData: Codable {}
-#endif

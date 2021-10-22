@@ -48,7 +48,7 @@ public extension DTOv1 {
         public var type: String
         public var payload: String
 
-        func toSignal() -> Signal {
+        public func toSignal() -> Signal {
             let payloadJSON = payload.replacingOccurrences(of: "\\", with: "").data(using: .utf8)
             var actualPayload = [String: String]()
             if let payloadJSON = payloadJSON,
@@ -64,9 +64,3 @@ public extension DTOv1 {
         }
     }
 }
-
-#if canImport(Vapor)
-    import Vapor
-    extension DTOv1.Signal: Content {}
-    extension DTOv1.SignalDruidStructure: Content {}
-#endif
