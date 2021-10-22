@@ -6,9 +6,9 @@ public struct ChartDataSet {
     public let highestValue: Int64
     public let lowestValue: Int64
     public let groupBy: InsightGroupByInterval?
-    
+
     public var isEmpty: Bool { data.isEmpty }
-    
+
     public init(data: [DTOv2.InsightCalculationResultRow], groupBy: InsightGroupByInterval? = nil) {
         self.data = data.map { ChartDataPoint(insightCalculationResultRow: $0) }
         self.groupBy = groupBy
@@ -32,7 +32,7 @@ public struct ChartDataSet {
         highestValue = self.data.reduce(0) { max($0, $1.yAxisValue ?? 0) }
         lowestValue = 0
     }
-    
+
     #if canImport(Vapor)
     #else
     /// `true` if the point represents the current day/week/month/etc, and therefore contains
@@ -41,19 +41,17 @@ public struct ChartDataSet {
         let groupByPeriod = groupBy ?? .day
 
         guard let date = chartDataPoint.xAxisDate else { return false }
-        
-        return true
 
-//        switch groupByPeriod {
-//        case .hour:
-//            return date.isInCurrent(.hour)
-//        case .day:
-//            return date.isInToday
-//        case .week:
-//            return date.isInCurrentWeek
-//        case .month:
-//            return date.isInCurrentMonth
-//        }
+        switch groupByPeriod {
+        case .hour:
+            return date.isInCurrent(.hour)
+        case .day:
+            return date.isInToday
+        case .week:
+            return date.isInCurrentWeek
+        case .month:
+            return date.isInCurrentMonth
+        }
     }
     #endif
 }
