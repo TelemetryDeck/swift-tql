@@ -281,14 +281,14 @@ public enum LoadingState: Equatable {
     case error(String, Date)
 }
 
-public enum RelativeDateDescription {
+public enum RelativeDateDescription: Equatable {
     case end(of: CurrentOrPrevious)
     case beginning(of: CurrentOrPrevious)
     case goBack(days: Int)
     case absolute(date: Date)
 }
 
-public enum CurrentOrPrevious {
+public enum CurrentOrPrevious: Equatable {
     case current(_ value: Calendar.Component)
     case previous(_ value: Calendar.Component)
 }
