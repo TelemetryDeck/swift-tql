@@ -62,6 +62,7 @@ public enum DTOv1 {
     }
 }
 
+@available(*, deprecated, message: "Use DTOv2.App instead")
 public struct TelemetryApp: Codable, Hashable, Identifiable {
     public init(id: UUID, name: String, organization: [String: String]) {
         self.id = id
