@@ -135,7 +135,6 @@ public indirect enum DruidFilter: Codable {
         case type
     }
 
-    #warning("TODO: This is untested and I just added it so it compiles. Needs some tests.")
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let type = try values.decode(String.self, forKey: .type)
@@ -154,8 +153,7 @@ public indirect enum DruidFilter: Codable {
         case "not":
             self = .not(try DruidFilterNot(from: decoder))
         default:
-            #warning("This should throw an exception instead. Fatalerror will actually crash the whole server process, which is not very cool.")
-            fatalError()
+            throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }
     }
 
