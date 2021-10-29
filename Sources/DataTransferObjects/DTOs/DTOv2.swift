@@ -114,6 +114,20 @@ public enum DTOv2 {
         public var appID: App.ID
         public var insightIDs: [Insight.ID]
     }
+    
+    public struct AppWithInsights: Codable, Hashable, Identifiable {
+        public var id: UUID
+        public var name: String
+        public var organizationID: Organization.ID
+        public var insights: [DTOv2.Insight]
+
+        public init(id: UUID, name: String, organizationID: Organization.ID, insights: [DTOv2.Insight]) {
+            self.id = id
+            self.name = name
+            self.organizationID = organizationID
+            self.insights = insights
+        }
+    }
 
     /// Defines an insight as saved to the database, no calculation results
     public struct Insight: Codable, Hashable, Identifiable {
