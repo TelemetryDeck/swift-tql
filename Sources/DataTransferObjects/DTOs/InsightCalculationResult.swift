@@ -51,11 +51,6 @@ public extension DTOv1 {
     }
 }
 
-#if canImport(Vapor)
-    import Vapor
-    extension DTOv1.InsightDTO: Content {}
-#endif
-
 public extension DTOv1 {
     /// Defines the result of an insight calculation
     struct InsightCalculationResult: Identifiable {
