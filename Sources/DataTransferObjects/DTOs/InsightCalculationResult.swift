@@ -53,7 +53,7 @@ public extension DTOv1 {
 
 public extension DTOv1 {
     /// Defines the result of an insight calculation
-    struct InsightCalculationResult: Identifiable {
+    struct InsightCalculationResult: Identifiable, Codable {
         public init(id: UUID, order: Double?, title: String, signalType: String?, uniqueUser: Bool, filters: [String: String], rollingWindowSize: TimeInterval, breakdownKey: String? = nil, groupBy: InsightGroupByInterval? = nil, displayMode: InsightDisplayMode, isExpanded: Bool, data: [DTOv1.InsightData], calculatedAt: Date, calculationDuration: TimeInterval) {
             self.id = id
             self.order = order
@@ -106,10 +106,3 @@ public extension DTOv1 {
         public let calculationDuration: TimeInterval
     }
 }
-
-#if canImport(Vapor)
-    import Vapor
-    extension DTOv1.InsightCalculationResult: Content {}
-#else
-    extension DTOv1.InsightCalculationResult: Codable {}
-#endif
