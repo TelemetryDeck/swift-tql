@@ -7,8 +7,6 @@
 
 import Foundation
 
-#warning("These structs need to be checked, if they are needed. If yes, they need cleanup and be integrated into DTOv2")
-
 public extension DTOv1 {
     struct IdentifiableSignal: Codable, Hashable, Identifiable {
         public var id = UUID()
@@ -19,7 +17,7 @@ public extension DTOv1 {
         public var sessionID: String
         public var type: String
         public var payload: [String: String]?
-        public var isTestMode: Bool?
+        public var isTestMode: Bool
         
         public var signal: Signal {
             return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: payload, isTestMode: isTestMode)
@@ -27,7 +25,7 @@ public extension DTOv1 {
     }
     
     struct Signal: Codable, Hashable {
-        public init(appID: UUID? = nil, count: Int? = nil, receivedAt: Date, clientUser: String, sessionID: String? = nil, type: String, payload: [String : String]? = nil, isTestMode: Bool?) {
+        public init(appID: UUID? = nil, count: Int? = nil, receivedAt: Date, clientUser: String, sessionID: String? = nil, type: String, payload: [String : String]? = nil, isTestMode: Bool) {
             self.appID = appID
             self.count = count
             self.receivedAt = receivedAt
@@ -45,7 +43,7 @@ public extension DTOv1 {
         public var sessionID: String?
         public var type: String
         public var payload: [String: String]?
-        public var isTestMode: Bool?
+        public var isTestMode: Bool
         
         public func toIdentifiableSignal() -> IdentifiableSignal {
             return IdentifiableSignal(id: UUID(), appID: appID, count: count ?? 1, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID ?? "–", type: type, payload: payload, isTestMode: isTestMode)
@@ -60,7 +58,7 @@ public extension DTOv1 {
         public var sessionID: String?
         public var type: String
         public var payload: String
-        public var isTestMode: Bool?
+        public var isTestMode: String
 
         public func toSignal() -> Signal {
             let payloadJSON = payload.replacingOccurrences(of: "\\", with: "").data(using: .utf8)
@@ -76,7 +74,7 @@ public extension DTOv1 {
                 }
             }
             
-            return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: actualPayload, isTestMode: isTestMode)
+            return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: actualPayload, isTestMode: isTestMode == "true")
         }
     }
 }
