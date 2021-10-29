@@ -17,10 +17,3 @@ public extension DTOv1 {
         public var signalCount: Int = 0
     }
 }
-
-#if canImport(Vapor)
-import Vapor
-
-extension DTOv1.OrgAdminEntry: Content {}
-#endif
-
