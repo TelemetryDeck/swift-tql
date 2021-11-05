@@ -139,7 +139,8 @@ public enum DTOv2 {
 
         /// If set, display the chart with this accent color, otherwise fall back to default color
         public var accentColor: String?
-
+        
+        #warning("TODO: This should probably be removed, but maybe there needs to be done something on the server first?")
         /// Should this Insight be available as a Widget?
         public var widgetable: Bool?
 
