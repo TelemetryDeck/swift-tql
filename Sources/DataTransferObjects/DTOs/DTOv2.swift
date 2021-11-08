@@ -142,10 +142,6 @@ public enum DTOv2 {
 
         /// If set, display the chart with this accent color, otherwise fall back to default color
         public var accentColor: String?
-        
-        #warning("TODO: This should probably be removed, but maybe there needs to be done something on the server first?")
-        /// Should this Insight be available as a Widget?
-        public var widgetable: Bool?
 
         /// If set, use the custom query in this property instead of constructing a query out of the options below
         public var druidCustomQuery: DruidCustomQuery?
@@ -200,7 +196,6 @@ public enum DTOv2 {
             self.order = order
             self.title = title
             self.accentColor = accentColor
-            self.widgetable = widgetable
             self.druidCustomQuery = druidCustomQuery
             self.signalType = signalType
             self.uniqueUser = uniqueUser
