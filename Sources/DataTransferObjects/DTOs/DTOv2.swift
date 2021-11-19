@@ -247,13 +247,30 @@ public enum DTOv2 {
     }
 
     public struct PriceStructure: Identifiable, Codable {
-        public init(id: String, order: Int, title: String, description: String, includedSignals: Int64, price: String) {
+        public init(id: String, order: Int, title: String, description: String, includedSignals: Int64, nakedPrice: String, mostPopular: Bool, currency: String, billingPeriod: String, features: [String]) {
             self.id = id
             self.order = order
             self.title = title
             self.description = description
             self.includedSignals = includedSignals
-            self.price = price
+            self.mostPopular = mostPopular
+            self.currency = currency
+            self.billingPeriod = billingPeriod
+            self.nakedPrice = nakedPrice
+            self.features = features
+            
+            // currency is derived
+            switch currency {
+            case "EUR":
+                self.currencySymbol = "€"
+            case "USD", "CAD":
+                self.currencySymbol = "$"
+            default:
+                self.currencySymbol = currency
+            }
+            
+            // price is derived
+            self.price = "\(self.currencySymbol)\(self.nakedPrice)/\(self.billingPeriod)"
         }
         
         public let id: String
@@ -261,7 +278,26 @@ public enum DTOv2 {
         public let title: String
         public let description: String
         public let includedSignals: Int64
+        
+        /// Price, including period and currency e.g. "$299/month"
         public let price: String
+        
+        /// Price as a number, e.g. "299"
+        public let nakedPrice: String
+        
+        public let mostPopular: Bool
+        
+        /// "EUR" or "USD" or "CAD"
+        public let currency: String
+        
+        /// "month" or "year"
+        public let billingPeriod: String
+        
+        ///"$" or "€"
+        public let currencySymbol: String
+        
+        /// Each of these gets a checkmark in front of it
+        public let features: [String]
     }
 
     /// A short message that goes out to  users and is usually displayed in the app UI
