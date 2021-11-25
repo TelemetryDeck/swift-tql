@@ -1,6 +1,6 @@
 import Foundation
 
-public struct DruidInterval: Codable, Hashable {
+public struct DruidInterval: Codable, Hashable, Equatable {
     public let beginningDate: Date
     public let endDate: Date
 

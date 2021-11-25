@@ -10,8 +10,8 @@ import Foundation
 /// Custom JSON based Druid query
 ///
 /// @see https://druid.apache.org/docs/latest/querying/querying.html
-public struct DruidCustomQuery: Codable, Hashable {
-    public init(queryType: QueryType, dataSource: String = "telemetry-signals", descending: Bool? = nil, filter: DruidFilter? = nil, intervals: [DruidInterval], granularity: Granularity, aggregations: [DruidAggregator]? = nil, limit: Int? = nil, context: DruidContext? = nil) {
+public struct DruidCustomQuery: Codable, Hashable, Equatable {
+    public init(queryType: QueryType, dataSource: String = "telemetry-signals", descending: Bool? = nil, filter: DruidFilter? = nil, intervals: [DruidInterval], granularity: Granularity, aggregations: [DruidAggregator]? = nil, limit: Int? = nil, context: DruidContext? = nil, dimensions: [DimensionSpec]? = nil) {
         self.queryType = queryType
         self.dataSource = dataSource
         self.descending = descending
@@ -21,6 +21,7 @@ public struct DruidCustomQuery: Codable, Hashable {
         self.aggregations = aggregations
         self.limit = limit
         self.context = context
+        self.dimensions = dimensions
     }
     
     public enum QueryType: String, Codable {
@@ -52,10 +53,20 @@ public struct DruidCustomQuery: Codable, Hashable {
     public var aggregations: [DruidAggregator]? = nil
     public var limit: Int? = nil
     public var context: DruidContext? = nil
+        
+    /// A list of dimensions to do the groupBy over, if queryType is groupBy
+    public var dimensions: [DimensionSpec]?
 
     public func hash(into hasher: inout Hasher) {
-        let jsonValue = try! JSONEncoder.druidEncoder.encode(self)
-        hasher.combine(jsonValue)
+        hasher.combine(queryType)
+        hasher.combine(dataSource)
+        hasher.combine(descending)
+        hasher.combine(filter)
+        hasher.combine(intervals)
+        hasher.combine(granularity)
+        hasher.combine(aggregations)
+        hasher.combine(limit)
+        hasher.combine(context)
     }
 
     public static func == (lhs: DruidCustomQuery, rhs: DruidCustomQuery) -> Bool {

@@ -3,7 +3,7 @@ import Foundation
 /// The selector filter will match a specific dimension with a specific value.
 /// Selector filters can be used as the base filters for more complex Boolean
 /// expressions of filters.
-public struct DruidFilterSelector: Codable {
+public struct DruidFilterSelector: Codable, Hashable, Equatable {
     public init(dimension: String, value: String) {
         self.dimension = dimension
         self.value = value
@@ -15,7 +15,7 @@ public struct DruidFilterSelector: Codable {
 
 /// The column comparison filter is similar to the selector filter, but instead
 /// compares dimensions to each other.
-public struct DruidFilterColumnComparison: Codable {
+public struct DruidFilterColumnComparison: Codable, Hashable, Equatable {
     public init(dimensions: [String]) {
         self.dimensions = dimensions
     }
@@ -28,7 +28,7 @@ public struct DruidFilterColumnComparison: Codable {
 /// pattern can be any standard Java regular expression.
 ///
 /// @see http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html
-public struct DruidFilterRegex: Codable {
+public struct DruidFilterRegex: Codable, Hashable, Equatable {
     public init(dimension: String, pattern: String) {
         self.dimension = dimension
         self.pattern = pattern
@@ -39,7 +39,7 @@ public struct DruidFilterRegex: Codable {
 }
 
 // logical expression filters
-public struct DruidFilterExpression: Codable {
+public struct DruidFilterExpression: Codable, Hashable, Equatable {
     public init(fields: [DruidFilter]) {
         self.fields = fields
     }
@@ -47,7 +47,7 @@ public struct DruidFilterExpression: Codable {
     public let fields: [DruidFilter]
 }
 
-public struct DruidFilterNot: Codable {
+public struct DruidFilterNot: Codable, Hashable, Equatable {
     public init(field: DruidFilter) {
         self.field = field
     }
@@ -57,7 +57,7 @@ public struct DruidFilterNot: Codable {
 
 /// A filter is a JSON object indicating which rows of data should be included in the computation
 /// for a query. It’s essentially the equivalent of the WHERE clause in SQL.
-public indirect enum DruidFilter: Codable {
+public indirect enum DruidFilter: Codable, Hashable, Equatable {
     /// The selector filter will match a specific dimension with a specific value.
     /// Selector filters can be used as the base filters for more complex Boolean
     /// expressions of filters.
