@@ -96,6 +96,31 @@ public enum DTOv2 {
             self.signalCountMultiplier = signalCountMultiplier
         }
     }
+    
+    public struct SignalBoost: Codable, Hashable, Identifiable {
+        public init(id: UUID, receivedAt: Date, organizationID: UUID, source: String, message: String? = nil, signalsReceived: Int64) {
+            self.id = id
+            self.receivedAt = receivedAt
+            self.organizationID = organizationID
+            self.source = source
+            self.message = message
+            self.signalsReceived = signalsReceived
+        }
+        
+        public var id: UUID
+        public var receivedAt: Date
+        public var organizationID: UUID
+        
+        /// Human-Readable "from" field
+        public var source: String
+        
+        ///An optional message from the booster to the boostee
+        public var message: String?
+        
+        /// How many signals were gifted?
+        public var signalsReceived: Int64
+    
+    }
 
     public struct App: Codable, Hashable, Identifiable {
         public var id: UUID
