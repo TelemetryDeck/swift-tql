@@ -19,6 +19,9 @@ public enum DTOv2 {
         public var maxSignalsMultiplier: Double?
         public var resolvedMaxSignals: Int64
         public var isInRestrictedMode: Bool
+        public var countryCode: String?
+        public var referralCode: String
+        public var referredBy: UUID?
         public var appIDs: [App.ID]
         public var badgeAwardIDs: [BadgeAward.ID]
 
@@ -33,6 +36,9 @@ public enum DTOv2 {
             maxSignalsMultiplier: Double?,
             resolvedMaxSignals: Int64,
             isInRestrictedMode: Bool,
+            countryCode: String?,
+            referralCode: String,
+            referredBy: UUID?,
             appIDs: [App.ID],
             badgeAwardIDs: [BadgeAward.ID]
 
@@ -47,6 +53,9 @@ public enum DTOv2 {
             self.maxSignalsMultiplier = maxSignalsMultiplier
             self.resolvedMaxSignals = resolvedMaxSignals
             self.isInRestrictedMode = isInRestrictedMode
+            self.countryCode = countryCode
+            self.referralCode = referralCode
+            self.referredBy = referredBy
             self.appIDs = appIDs
             self.badgeAwardIDs = badgeAwardIDs
         }
