@@ -19,6 +19,7 @@ public extension DTOv1 {
         public var userPasswordConfirm: String = ""
         public var receiveMarketingEmails: Bool = false
         public var countryCode: String? = ""
+        public var referralCode: String? = nil
 
         public var isValid: ValidationState {
             if organisationName.isEmpty || userFirstName.isEmpty || userEmail.isEmpty || userPassword.isEmpty {
