@@ -13,7 +13,7 @@ public struct DruidAggregator: Codable, Hashable {
 }
 
 public enum DruidAggregatorType: String, Codable, Hashable {
-    case countÒ
+    case count
 
     case longSum
     case doubleSum
