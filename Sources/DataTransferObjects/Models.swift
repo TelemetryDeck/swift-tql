@@ -238,6 +238,12 @@ public struct RequestPasswordResetRequestBody: Codable {
 }
 
 public struct UserTokenDTO: Codable {
+    public init(id: UUID? = nil, value: String, user: [String : String]) {
+        self.id = id
+        self.value = value
+        self.user = user
+    }
+    
     public var id: UUID?
     public var value: String
     public var user: [String: String]
