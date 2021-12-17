@@ -28,6 +28,7 @@ public enum DruidResultType: String, Codable {
     case timeSeries
 }
 
+@available(*, deprecated, message: "Use QueryResult instead")
 public struct DruidResultWrapper: Codable {
     public let resultType: DruidResultType
     public let timeSeriesResults: [TimeSeriesQueryResultRow]
