@@ -8,8 +8,12 @@ public struct DruidAggregator: Codable, Hashable {
     }
     
     public let type: DruidAggregatorType
+    
+    /// The output name for the aggregated value
     public let name: String
-    public var fieldName: String? = nil // should be nil for type count, maybe that should be enforced in code?
+    
+    /// The name of the column to aggregate over. Ignore for aggregator type "count"
+    public var fieldName: String? = nil
 }
 
 public enum DruidAggregatorType: String, Codable, Hashable {
@@ -26,7 +30,7 @@ public enum DruidAggregatorType: String, Codable, Hashable {
     case longMin
     case longMax
 
-    case doubleMean
+    case doubleMean // 😡
 
     case doubleFirst
     case doubleLast
