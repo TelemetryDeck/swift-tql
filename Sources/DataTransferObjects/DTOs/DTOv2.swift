@@ -87,7 +87,7 @@ public enum DTOv2 {
         public var description: String
         public var imageURL: URL?
         public var signalCountMultiplier: Double?
-        
+
         public init(id: UUID, title: String, description: String, imageURL: URL? = nil, signalCountMultiplier: Double? = nil) {
             self.id = id
             self.title = title
@@ -96,7 +96,7 @@ public enum DTOv2 {
             self.signalCountMultiplier = signalCountMultiplier
         }
     }
-    
+
     public struct SignalBoost: Codable, Hashable, Identifiable {
         public init(id: UUID, receivedAt: Date, organizationID: UUID, source: String, message: String? = nil, signalsReceived: Int64) {
             self.id = id
@@ -106,20 +106,19 @@ public enum DTOv2 {
             self.message = message
             self.signalsReceived = signalsReceived
         }
-        
+
         public var id: UUID
         public var receivedAt: Date
         public var organizationID: UUID
-        
+
         /// Human-Readable "from" field
         public var source: String
-        
-        ///An optional message from the booster to the boostee
+
+        /// An optional message from the booster to the boostee
         public var message: String?
-        
+
         /// How many signals were gifted?
         public var signalsReceived: Int64
-    
     }
 
     public struct App: Codable, Hashable, Identifiable {
@@ -144,14 +143,14 @@ public enum DTOv2 {
             self.appID = appID
             self.insightIDs = insightIDs
         }
-        
+
         public var id: UUID
         public var title: String
         public var order: Double?
         public var appID: App.ID
         public var insightIDs: [Insight.ID]
     }
-    
+
     public struct AppWithInsights: Codable, Hashable, Identifiable {
         public var id: UUID
         public var name: String
@@ -292,7 +291,7 @@ public enum DTOv2 {
             self.billingPeriod = billingPeriod
             self.nakedPrice = nakedPrice
             self.features = features
-            
+
             // currency is derived
             switch currency {
             case "EUR":
@@ -302,34 +301,34 @@ public enum DTOv2 {
             default:
                 self.currencySymbol = currency
             }
-            
+
             // price is derived
-            self.price = "\(self.currencySymbol)\(self.nakedPrice)/\(self.billingPeriod)"
+            self.price = "\(currencySymbol)\(self.nakedPrice)/\(self.billingPeriod)"
         }
-        
+
         public let id: String
         public let order: Int
         public let title: String
         public let description: String
         public let includedSignals: Int64
-        
+
         /// Price, including period and currency e.g. "$299/month"
         public let price: String
-        
+
         /// Price as a number, e.g. "299"
         public let nakedPrice: String
-        
+
         public let mostPopular: Bool
-        
+
         /// "EUR" or "USD" or "CAD"
         public let currency: String
-        
+
         /// "month" or "year"
         public let billingPeriod: String
-        
-        ///"$" or "€"
+
+        /// "$" or "€"
         public let currencySymbol: String
-        
+
         /// Each of these gets a checkmark in front of it
         public let features: [String]
     }
@@ -344,7 +343,7 @@ public enum DTOv2 {
             self.description = description
             self.systemImageName = systemImageName
         }
-        
+
         public let id: String
         public let validFrom: Date
         public let validUntil: Date?
@@ -360,13 +359,33 @@ public enum DTOv2 {
             self.userCount = userCount
             self.sessionCount = sessionCount
         }
-        
+
         public var id: String { return type }
         public var type: String
         public var signalCount: Int
         public var userCount: Int
         public var sessionCount: Int
     }
+}
+
+public struct ChartTemplate: Codable {
+    public init(template: ChartTemplate.Template, breakdownKey: String?, funnelSignalTypes: [String]?) {
+        self.template = template
+        self.breakdownKey = breakdownKey
+        self.funnelSignalTypes = funnelSignalTypes
+    }
+    
+    public enum Template: String, Codable {
+        case custom
+        case signalCount
+        case userCount
+        case breakdown
+        case funnel
+    }
+
+    public let template: Template
+    public let breakdownKey: String?
+    public let funnelSignalTypes: [String]?
 }
 
 public enum InsightDisplayMode: String, Codable {
