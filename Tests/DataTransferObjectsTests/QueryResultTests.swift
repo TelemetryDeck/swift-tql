@@ -38,7 +38,24 @@ class QueryResultTests: XCTestCase {
     }
 
     func testEncodingGroupBy() throws {
-        let exampleQueryResult = QueryResult.groupBy(GroupByQueryResult(timestamp: Date(), result: ["abc": "def", "uno": "due"]))
+        let exampleQueryResult = QueryResult.groupBy(GroupByQueryResult(timestamp: randomDate, result: ["abc": "def", "uno": "due"]))
         let encodedQueryResult = try JSONEncoder.druidEncoder.encode(exampleQueryResult)
+        let expectedResult = """
+        {"type":"groupByResult","result":{"uno":"due","abc":"def"},"timestamp":"2021-10-21T12:00:00+0000"}
+        """
+        .filter { !$0.isWhitespace }
+            
+        XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
+    }
+    
+    func testDecodingTimeSeriesResult() throws {
+        let exampleResult = """
+        {"timestamp":"2021-01-01T00:00:00.000Z","result":{"d0":1609459200000}}
+        """
+        .filter { !$0.isWhitespace }
+        
+        let decodedResult = try JSONDecoder.druidDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
+        
+        XCTAssertEqual(decodedResult.result, ["d0": 1609459200000])
     }
 }
