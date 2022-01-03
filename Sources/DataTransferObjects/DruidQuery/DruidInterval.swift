@@ -3,20 +3,12 @@ import Foundation
 public struct DruidInterval: Codable, Hashable, Equatable {
     public let beginningDate: Date
     public let endDate: Date
-
-    static var dateFormatter: DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        dateFormatter.locale = Locale(identifier: "en_US")
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-        return dateFormatter
-    }
-
+    
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
-        let date1 = Self.dateFormatter.string(from: beginningDate)
-        let date2 = Self.dateFormatter.string(from: endDate)
+        let date1 = Formatter.iso8601.string(from: beginningDate)
+        let date2 = Formatter.iso8601.string(from: endDate)
 
         try container.encode(date1 + "/" + date2)
     }
@@ -29,8 +21,8 @@ public struct DruidInterval: Codable, Hashable, Equatable {
 
         guard let beginningString = intervalArray.first,
               let endString = intervalArray.last,
-              let beginningDate = Self.dateFormatter.date(from: beginningString),
-              let endDate = Self.dateFormatter.date(from: endString)
+              let beginningDate = Formatter.iso8601.date(from: beginningString) ?? Formatter.iso8601noFS.date(from: beginningString),
+              let endDate = Formatter.iso8601.date(from: endString) ?? Formatter.iso8601noFS.date(from: endString)
         else {
             throw DecodingError.dataCorrupted(.init(
                 codingPath: [],
