@@ -89,7 +89,7 @@ final class DruidQueryTests: XCTestCase {
         let encodedJSON = try JSONEncoder.druidEncoder.encode(dimensionSpec)
         
         let expectedOutput = """
-            {"outputName":"test","outputType":"STRING","type":"default","dimension":"test"}
+            {"dimension":"test","outputName":"test","outputType":"STRING","type":"default"}
             """
         
         XCTAssertEqual(expectedOutput, String(data: encodedJSON, encoding: .utf8)!)
@@ -111,7 +111,7 @@ final class DruidQueryTests: XCTestCase {
         let input = ExtractionFunction.regex(.init(expr: "abc", replaceMissingValue: false, replaceMissingValueWith: nil))
         
         let expectedOutput = """
-        {"index":1,"replaceMissingValue":false,"type":"regex","expr":"abc"}
+        {"expr":"abc","index":1,"replaceMissingValue":false,"type":"regex"}
         """
         
         let encodedOutput = try JSONEncoder.druidEncoder.encode(input)

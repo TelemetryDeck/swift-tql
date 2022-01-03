@@ -25,23 +25,24 @@ class QueryResultTests: XCTestCase {
         
         let expectedResult = """
         {
-            "type":"timeSeriesResult",
             "rows": [
                 {"result":{"test":11},"timestamp":"2021-10-21T11:00:00+0000"},
                 {"result":{"test":12},"timestamp":"2021-10-21T12:00:00+0000"}
-            ]
+            ],
+            "type":"timeSeriesResult"
         }
         """
         .filter { !$0.isWhitespace }
         
         XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
+        
     }
 
     func testEncodingGroupBy() throws {
         let exampleQueryResult = QueryResult.groupBy(GroupByQueryResult(timestamp: randomDate, result: ["abc": "def", "uno": "due"]))
         let encodedQueryResult = try JSONEncoder.druidEncoder.encode(exampleQueryResult)
         let expectedResult = """
-        {"type":"groupByResult","result":{"abc":"def","uno":"due"},"timestamp":"2021-10-21T12:00:00+0000"}
+        {"result":{"abc":"def","uno":"due"},"timestamp":"2021-10-21T12:00:00+0000","type":"groupByResult"}
         """
         .filter { !$0.isWhitespace }
             

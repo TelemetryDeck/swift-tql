@@ -21,7 +21,7 @@ final class ChartDefinitionTests: XCTestCase {
         let exampleDataSection = ChartDefinitionDTO.DataSection(x: "x", xFormat: nil, columns: [])
         
         let expectedResult = """
-        {"x":"x","columns":[]}
+        {"columns":[],"x":"x"}
         """
         
         XCTAssertEqual(String(data: try JSONEncoder.druidEncoder.encode(exampleDataSection), encoding: .utf8)!, expectedResult)
