@@ -41,7 +41,7 @@ class QueryResultTests: XCTestCase {
         let exampleQueryResult = QueryResult.groupBy(GroupByQueryResult(timestamp: randomDate, result: ["abc": "def", "uno": "due"]))
         let encodedQueryResult = try JSONEncoder.druidEncoder.encode(exampleQueryResult)
         let expectedResult = """
-        {"type":"groupByResult","result":{"uno":"due","abc":"def"},"timestamp":"2021-10-21T12:00:00+0000"}
+        {"type":"groupByResult","result":{"abc":"def","uno":"due"},"timestamp":"2021-10-21T12:00:00+0000"}
         """
         .filter { !$0.isWhitespace }
             
