@@ -1,6 +1,6 @@
 import Foundation
 
-public struct DruidSQLQuery: Codable {
+public struct DruidSQLQuery: Codable, Hashable {
     let query: String
     let context: DruidContext
     
