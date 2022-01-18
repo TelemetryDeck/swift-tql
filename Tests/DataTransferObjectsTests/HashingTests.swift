@@ -181,4 +181,33 @@ class HashingTests: XCTestCase {
         
         XCTAssertNotEqual(exampleTopNQuery1.hashValue, exampleTopNQuery2.hashValue)
     }
+    
+    func testHashingForDifferentAppIDs() throws {
+        let query1 = DruidCustomQuery(
+            queryType: .timeseries,
+            dataSource: "telemetry-signals",
+            filter: .selector(.init(dimension: "appID", value: "abcdef")),
+            intervals: [],
+            granularity: .day,
+            aggregations: [
+                .init(type: .count, name: "signals"),
+                .init(type: .thetaSketch, name: "users", fieldName: "clientUser")
+            ]
+        )
+        
+        let query2 = DruidCustomQuery(
+            queryType: .timeseries,
+            dataSource: "telemetry-signals",
+            filter: .selector(.init(dimension: "appID", value: "123123123")),
+            intervals: [],
+            granularity: .day,
+            aggregations: [
+                .init(type: .count, name: "signals"),
+                .init(type: .thetaSketch, name: "users", fieldName: "clientUser")
+            ]
+        )
+        
+        XCTAssertNotEqual(query1.hashValue, query2.hashValue)
+        
+    }
 }
