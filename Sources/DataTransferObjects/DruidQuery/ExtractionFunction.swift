@@ -1,7 +1,7 @@
 import Foundation
 
 /// Extraction functions define the transformation applied to each dimension value.
-public indirect enum ExtractionFunction: Codable, Equatable {
+public indirect enum ExtractionFunction: Codable, Equatable, Hashable {
     case regex(RegularExpressionExtractionFunction)
     
     enum CodingKeys: String, CodingKey {
@@ -33,7 +33,7 @@ public indirect enum ExtractionFunction: Codable, Equatable {
 
 /// Returns the first matching group for the given regular expression. If there is no match,
 /// it returns the dimension value as is.
-public struct RegularExpressionExtractionFunction: Codable, Equatable {
+public struct RegularExpressionExtractionFunction: Codable, Equatable, Hashable {
     public init(expr: String, index: Int = 1, replaceMissingValue: Bool = false, replaceMissingValueWith: String? = nil) {
         self.expr = expr
         self.index = index

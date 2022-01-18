@@ -11,6 +11,6 @@ import XCTest
 class DruidFilterTests: XCTestCase {
     func testEncoding() throws {
         let exampleFilter = DruidFilter.not(DruidFilterNot(field: DruidFilter.selector(DruidFilterSelector(dimension: "test", value: "abc"))))
-        let encodedFilter = try JSONEncoder.druidEncoder.encode(exampleFilter)
+        _ = try JSONEncoder.druidEncoder.encode(exampleFilter)
     }
 }

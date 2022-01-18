@@ -82,6 +82,8 @@ public struct DruidCustomQuery: Codable, Hashable, Equatable {
         hasher.combine(context)
         hasher.combine(threshold)
         hasher.combine(metric)
+        hasher.combine(dimensions)
+        hasher.combine(dimension)
     }
 
     public static func == (lhs: DruidCustomQuery, rhs: DruidCustomQuery) -> Bool {
