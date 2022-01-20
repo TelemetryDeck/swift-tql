@@ -17,5 +17,5 @@ jobs:
       with:
         submodules: 'true'
     - name: Build and Run Tests
-      working-directory: telemetry
+      working-directory: .
       run: swift test
