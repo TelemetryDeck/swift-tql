@@ -177,7 +177,7 @@ public enum DTOv2 {
         public var accentColor: String?
 
         /// If set, use the custom query in this property instead of constructing a query out of the options below
-        public var druidCustomQuery: DruidCustomQuery?
+        public var druidCustomQuery: CustomQuery?
 
         /// Which signal types are we interested in? If nil, do not filter by signal type
         public var signalType: String?
@@ -213,7 +213,7 @@ public enum DTOv2 {
             title: String,
             accentColor: String? = nil,
             widgetable: Bool? = false,
-            druidCustomQuery: DruidCustomQuery? = nil,
+            druidCustomQuery: CustomQuery? = nil,
             signalType: String?,
             uniqueUser: Bool,
             filters: [String: String],
@@ -519,7 +519,7 @@ public extension DTOv2.Insight {
     }
 
     static func newCustomQueryInsight(groupID: UUID) -> DTOv2.Insight {
-        let customQuery = DruidCustomQuery(
+        let customQuery = CustomQuery(
             queryType: .groupBy,
             dataSource: "telemetry-signals",
             intervals: [],

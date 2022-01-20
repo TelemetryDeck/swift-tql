@@ -3,7 +3,7 @@ import Foundation
 /// The selector filter will match a specific dimension with a specific value.
 /// Selector filters can be used as the base filters for more complex Boolean
 /// expressions of filters.
-public struct DruidFilterSelector: Codable, Hashable, Equatable {
+public struct FilterSelector: Codable, Hashable, Equatable {
     public init(dimension: String, value: String) {
         self.dimension = dimension
         self.value = value
@@ -15,7 +15,7 @@ public struct DruidFilterSelector: Codable, Hashable, Equatable {
 
 /// The column comparison filter is similar to the selector filter, but instead
 /// compares dimensions to each other.
-public struct DruidFilterColumnComparison: Codable, Hashable, Equatable {
+public struct FilterColumnComparison: Codable, Hashable, Equatable {
     public init(dimensions: [String]) {
         self.dimensions = dimensions
     }
@@ -28,7 +28,7 @@ public struct DruidFilterColumnComparison: Codable, Hashable, Equatable {
 /// pattern can be any standard Java regular expression.
 ///
 /// @see http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html
-public struct DruidFilterRegex: Codable, Hashable, Equatable {
+public struct FilterRegex: Codable, Hashable, Equatable {
     public init(dimension: String, pattern: String) {
         self.dimension = dimension
         self.pattern = pattern
@@ -39,43 +39,43 @@ public struct DruidFilterRegex: Codable, Hashable, Equatable {
 }
 
 // logical expression filters
-public struct DruidFilterExpression: Codable, Hashable, Equatable {
-    public init(fields: [DruidFilter]) {
+public struct FilterExpression: Codable, Hashable, Equatable {
+    public init(fields: [Filter]) {
         self.fields = fields
     }
     
-    public let fields: [DruidFilter]
+    public let fields: [Filter]
 }
 
-public struct DruidFilterNot: Codable, Hashable, Equatable {
-    public init(field: DruidFilter) {
+public struct FilterNot: Codable, Hashable, Equatable {
+    public init(field: Filter) {
         self.field = field
     }
     
-    public let field: DruidFilter
+    public let field: Filter
 }
 
 /// A filter is a JSON object indicating which rows of data should be included in the computation
 /// for a query. It’s essentially the equivalent of the WHERE clause in SQL.
-public indirect enum DruidFilter: Codable, Hashable, Equatable {
+public indirect enum Filter: Codable, Hashable, Equatable {
     /// The selector filter will match a specific dimension with a specific value.
     /// Selector filters can be used as the base filters for more complex Boolean
     /// expressions of filters.
-    case selector(DruidFilterSelector)
+    case selector(FilterSelector)
 
     /// The column comparison filter is similar to the selector filter, but instead
     /// compares dimensions to each other.
-    case columnComparison(DruidFilterColumnComparison)
+    case columnComparison(FilterColumnComparison)
 
     /// The regular expression filter is similar to the selector filter, but using regular
     /// expressions. It matches the specified dimension with the given pattern. The
     /// pattern can be any standard Java regular expression.
-    case regex(DruidFilterRegex)
+    case regex(FilterRegex)
 
     // logical expression filters
-    case and(DruidFilterExpression)
-    case or(DruidFilterExpression)
-    case not(DruidFilterNot)
+    case and(FilterExpression)
+    case or(FilterExpression)
+    case not(FilterNot)
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -87,17 +87,17 @@ public indirect enum DruidFilter: Codable, Hashable, Equatable {
 
         switch type {
         case "selector":
-            self = .selector(try DruidFilterSelector(from: decoder))
+            self = .selector(try FilterSelector(from: decoder))
         case "columnComparison":
-            self = .columnComparison(try DruidFilterColumnComparison(from: decoder))
+            self = .columnComparison(try FilterColumnComparison(from: decoder))
         case "regex":
-            self = .regex(try DruidFilterRegex(from: decoder))
+            self = .regex(try FilterRegex(from: decoder))
         case "and":
-            self = .and(try DruidFilterExpression(from: decoder))
+            self = .and(try FilterExpression(from: decoder))
         case "or":
-            self = .or(try DruidFilterExpression(from: decoder))
+            self = .or(try FilterExpression(from: decoder))
         case "not":
-            self = .not(try DruidFilterNot(from: decoder))
+            self = .not(try FilterNot(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }

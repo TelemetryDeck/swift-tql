@@ -7,11 +7,9 @@
 
 import Foundation
 
-/// Custom JSON based Druid query
-///
-/// @see https://druid.apache.org/docs/latest/querying/querying.html
-public struct DruidCustomQuery: Codable, Hashable, Equatable {
-    public init(queryType: DruidCustomQuery.QueryType, dataSource: String = "telemetry-signals", descending: Bool? = nil, filter: DruidFilter? = nil, intervals: [DruidInterval], granularity: DruidCustomQuery.Granularity, aggregations: [DruidAggregator]? = nil, limit: Int? = nil, context: DruidContext? = nil, threshold: Int? = nil, metric: TopNMetricSpec? = nil, dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil) {
+/// Custom JSON based  query
+public struct CustomQuery: Codable, Hashable, Equatable {
+    public init(queryType: CustomQuery.QueryType, dataSource: String = "telemetry-signals", descending: Bool? = nil, filter: Filter? = nil, intervals: [DruidInterval], granularity: CustomQuery.Granularity, aggregations: [Aggregator]? = nil, limit: Int? = nil, context: QueryContext? = nil, threshold: Int? = nil, metric: TopNMetricSpec? = nil, dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil) {
         self.queryType = queryType
         self.dataSource = dataSource
         self.descending = descending
@@ -51,12 +49,12 @@ public struct DruidCustomQuery: Codable, Hashable, Equatable {
     public var queryType: QueryType
     public var dataSource: String = "telemetry-signals"
     public var descending: Bool? = nil
-    public var filter: DruidFilter? = nil
+    public var filter: Filter? = nil
     public var intervals: [DruidInterval]
     public let granularity: Granularity
-    public var aggregations: [DruidAggregator]? = nil
+    public var aggregations: [Aggregator]? = nil
     public var limit: Int? = nil
-    public var context: DruidContext? = nil
+    public var context: QueryContext? = nil
     
     /// Only for topN Queries: An integer defining the N in the topN (i.e. how many results you want in the top list)
     public var threshold: Int? = nil
@@ -86,7 +84,7 @@ public struct DruidCustomQuery: Codable, Hashable, Equatable {
         hasher.combine(dimension)
     }
 
-    public static func == (lhs: DruidCustomQuery, rhs: DruidCustomQuery) -> Bool {
+    public static func == (lhs: CustomQuery, rhs: CustomQuery) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
 }

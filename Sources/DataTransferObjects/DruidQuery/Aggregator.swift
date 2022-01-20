@@ -1,7 +1,7 @@
 import Foundation
 
-public struct DruidAggregator: Codable, Hashable {
-    public init(type: DruidAggregatorType, name: String, fieldName: String? = nil) {
+public struct Aggregator: Codable, Hashable {
+    public init(type: AggregatorType, name: String, fieldName: String? = nil) {
         self.type = type
         self.name = name
         self.fieldName = fieldName
@@ -16,7 +16,7 @@ public struct DruidAggregator: Codable, Hashable {
     public var fieldName: String? = nil
 }
 
-public enum DruidAggregatorType: String, Codable, Hashable {
+public enum AggregatorType: String, Codable, Hashable {
     case count
 
     case longSum
