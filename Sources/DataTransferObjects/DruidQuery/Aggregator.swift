@@ -7,7 +7,7 @@ public struct Aggregator: Codable, Hashable {
         self.fieldName = fieldName
     }
     
-    public let type: DruidAggregatorType
+    public let type: AggregatorType
     
     /// The output name for the aggregated value
     public let name: String

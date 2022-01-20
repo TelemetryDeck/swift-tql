@@ -14,7 +14,7 @@ final class ChartDefinitionTests: XCTestCase {
         """
         .data(using: .utf8)!
         
-        XCTAssertNoThrow(try JSONDecoder.druidDecoder.decode(ChartDefinitionDTO.DataSection.self, from: exampleData))
+        XCTAssertNoThrow(try JSONDecoder.telemetryDecoder.decode(ChartDefinitionDTO.DataSection.self, from: exampleData))
     }
     
     func testDataSectionEncoding() throws {
@@ -24,7 +24,7 @@ final class ChartDefinitionTests: XCTestCase {
         {"columns":[],"x":"x"}
         """
         
-        XCTAssertEqual(String(data: try JSONEncoder.druidEncoder.encode(exampleDataSection), encoding: .utf8)!, expectedResult)
+        XCTAssertEqual(String(data: try JSONEncoder.telemetryEncoder.encode(exampleDataSection), encoding: .utf8)!, expectedResult)
     }
     
     func testColumnEncoding() throws {
@@ -34,7 +34,7 @@ final class ChartDefinitionTests: XCTestCase {
         ["data1","12","31",null,"42"]
         """
         
-        XCTAssertEqual(String(data: try JSONEncoder.druidEncoder.encode(exampleColumn), encoding: .utf8)!, expectedResult)
+        XCTAssertEqual(String(data: try JSONEncoder.telemetryEncoder.encode(exampleColumn), encoding: .utf8)!, expectedResult)
     }
     
     func testColumnDecoding() throws {
@@ -46,6 +46,6 @@ final class ChartDefinitionTests: XCTestCase {
             .data(using: .utf8)!
         
         
-        XCTAssertEqual(try JSONDecoder.druidDecoder.decode(ChartDefinitionDTO.DataSection.Column.self, from: testData), expectedResult)
+        XCTAssertEqual(try JSONDecoder.telemetryDecoder.decode(ChartDefinitionDTO.DataSection.Column.self, from: testData), expectedResult)
     }
 }

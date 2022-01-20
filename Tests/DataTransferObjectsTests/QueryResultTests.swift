@@ -21,7 +21,7 @@ class QueryResultTests: XCTestCase {
             )
         )
 
-        let encodedQueryResult = try JSONEncoder.druidEncoder.encode(exampleQueryResult)
+        let encodedQueryResult = try JSONEncoder.telemetryEncoder.encode(exampleQueryResult)
         
         let expectedResult = """
         {
@@ -40,7 +40,7 @@ class QueryResultTests: XCTestCase {
 
     func testEncodingGroupBy() throws {
         let exampleQueryResult = QueryResult.groupBy(.init(rows: [GroupByQueryResultRow(timestamp: randomDate, event: .init(metrics: [:], dimensions: ["abc":"def","uno":"due"]))]))
-        let encodedQueryResult = try JSONEncoder.druidEncoder.encode(exampleQueryResult)
+        let encodedQueryResult = try JSONEncoder.telemetryEncoder.encode(exampleQueryResult)
         let expectedResult = """
         {
           "rows": [{
@@ -71,7 +71,7 @@ class QueryResultTests: XCTestCase {
         }
         """
         
-        let decodedResult = try JSONDecoder.druidDecoder.decode(QueryResult.self, from: groupByResult.data(using: .utf8)!)
+        let decodedResult = try JSONDecoder.telemetryDecoder.decode(QueryResult.self, from: groupByResult.data(using: .utf8)!)
         XCTAssertEqual(expectedResult, decodedResult)
     }
     
@@ -81,7 +81,7 @@ class QueryResultTests: XCTestCase {
         """
         .filter { !$0.isWhitespace }
         
-        let decodedResult = try JSONDecoder.druidDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
+        let decodedResult = try JSONDecoder.telemetryDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
         
         XCTAssertEqual(decodedResult.result, ["d0": 1609459200000])
     }

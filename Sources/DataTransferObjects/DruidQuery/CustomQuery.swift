@@ -1,6 +1,6 @@
 //
-//  DruidNativeQuery.swift
-//  DruidNativeQuery
+//  CustomQuery.swift
+//  CustomQuery
 //
 //  Created by Charlotte Böhm on 25.08.21.
 //
@@ -9,7 +9,7 @@ import Foundation
 
 /// Custom JSON based  query
 public struct CustomQuery: Codable, Hashable, Equatable {
-    public init(queryType: CustomQuery.QueryType, dataSource: String = "telemetry-signals", descending: Bool? = nil, filter: Filter? = nil, intervals: [DruidInterval], granularity: CustomQuery.Granularity, aggregations: [Aggregator]? = nil, limit: Int? = nil, context: QueryContext? = nil, threshold: Int? = nil, metric: TopNMetricSpec? = nil, dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil) {
+    public init(queryType: CustomQuery.QueryType, dataSource: String = "telemetry-signals", descending: Bool? = nil, filter: Filter? = nil, intervals: [QueryTimeInterval], granularity: CustomQuery.Granularity, aggregations: [Aggregator]? = nil, limit: Int? = nil, context: QueryContext? = nil, threshold: Int? = nil, metric: TopNMetricSpec? = nil, dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil) {
         self.queryType = queryType
         self.dataSource = dataSource
         self.descending = descending
@@ -50,7 +50,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     public var dataSource: String = "telemetry-signals"
     public var descending: Bool? = nil
     public var filter: Filter? = nil
-    public var intervals: [DruidInterval]
+    public var intervals: [QueryTimeInterval]
     public let granularity: Granularity
     public var aggregations: [Aggregator]? = nil
     public var limit: Int? = nil

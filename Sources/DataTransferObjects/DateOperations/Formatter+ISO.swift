@@ -35,25 +35,25 @@ public extension JSONDecoder.DateDecodingStrategy {
 }
 
 public extension JSONDecoder {
-    @available(*, deprecated, renamed: "druidDecoder")
     static var telemetryDecoder: JSONDecoder = {
-        return druidDecoder
-    }()
-
-    static var druidDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .customISO8601
         return decoder
     }()
+
+    @available(*, deprecated, renamed: "telemetryDecoder")
+    static var druidDecoder: JSONDecoder = {
+        return telemetryDecoder
+    }()
 }
 
 public extension JSONEncoder {
-    @available(*, deprecated, renamed: "druidEncoder")
-    static var telemetryEncoder: JSONEncoder = {
-        return druidEncoder
-    }()
-    
+    @available(*, deprecated, renamed: "telemetryEncoder")
     static var druidEncoder: JSONEncoder = {
+        telemetryEncoder
+    }()
+
+    static var telemetryEncoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.withoutEscapingSlashes, .sortedKeys]
         let dateFormatter = DateFormatter()

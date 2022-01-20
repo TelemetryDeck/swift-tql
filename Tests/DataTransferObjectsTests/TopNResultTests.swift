@@ -117,52 +117,52 @@ class TopNResultTests: XCTestCase {
     let resultRowItemManyEntriesExample = AdaptableQueryResultItem(metrics: ["count": 88, "some_metrics": 28344, "average": 1.25], dimensions: ["dim1": "another_dim1_val"])
     
     func testDecodingEmptyResult() throws {
-        let decodedRows = try JSONDecoder.druidDecoder.decode([TopNQueryResultRow].self, from: emptyResult.data(using: .utf8)!)
+        let decodedRows = try JSONDecoder.telemetryDecoder.decode([TopNQueryResultRow].self, from: emptyResult.data(using: .utf8)!)
         XCTAssertEqual(decodedRows, decodedEmptyExampleResult)
     }
     
     func testEncodingEmptyResult() throws {
-        let encoded = try JSONEncoder.druidEncoder.encode(decodedEmptyExampleResult)
+        let encoded = try JSONEncoder.telemetryEncoder.encode(decodedEmptyExampleResult)
         XCTAssertEqual(String(data: encoded, encoding: .utf8)!, emptyResult)
     }
     
     func testDecoding() throws {
-        let decodedRows = try JSONDecoder.druidDecoder.decode([TopNQueryResultRow].self, from: exampleResult.data(using: .utf8)!)
+        let decodedRows = try JSONDecoder.telemetryDecoder.decode([TopNQueryResultRow].self, from: exampleResult.data(using: .utf8)!)
         XCTAssertEqual(decodedRows, decodedExampleResult)
     }
     
     func testEncoding() throws {
-        let encoded = try JSONEncoder.druidEncoder.encode(decodedExampleResult)
+        let encoded = try JSONEncoder.telemetryEncoder.encode(decodedExampleResult)
         XCTAssertEqual(String(data: encoded, encoding: .utf8)!, exampleResult)
     }
     
     func testDecodingTopNQueryResultRowItemNullEntry() throws {
-        let decoded = try JSONDecoder.druidDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemNull.data(using: .utf8)!)
+        let decoded = try JSONDecoder.telemetryDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemNull.data(using: .utf8)!)
         XCTAssertEqual(decoded, resultRowItemNullExample)
     }
 
     func testDecodingTopNQueryResultRowItemOneEntry() throws {
-        let decoded = try JSONDecoder.druidDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemOneEntry.data(using: .utf8)!)
+        let decoded = try JSONDecoder.telemetryDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemOneEntry.data(using: .utf8)!)
         XCTAssertEqual(decoded, resultRowItemOneItemExample)
     }
     
     func testDecodingTopNQueryResultRowItemManyEntries() throws {
-        let decoded = try JSONDecoder.druidDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemManyEntries.data(using: .utf8)!)
+        let decoded = try JSONDecoder.telemetryDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemManyEntries.data(using: .utf8)!)
         XCTAssertEqual(decoded, resultRowItemManyEntriesExample)
     }
     
     func testEncodingTopNQueryResultRowItemNullEntry() throws {
-        let encoded = try JSONEncoder.druidEncoder.encode(resultRowItemNullExample)
+        let encoded = try JSONEncoder.telemetryEncoder.encode(resultRowItemNullExample)
         XCTAssertEqual(String(data: encoded, encoding: .utf8)!, resultRowItemNull)
     }
 
     func testEncodingTopNQueryResultRowItemOneEntry() throws {
-        let encoded = try JSONEncoder.druidEncoder.encode(resultRowItemOneItemExample)
+        let encoded = try JSONEncoder.telemetryEncoder.encode(resultRowItemOneItemExample)
         XCTAssertEqual(String(data: encoded, encoding: .utf8)!, resultRowItemOneEntry)
     }
     
     func testEncodingTopNQueryResultRowItemManyEntries() throws {
-        let encoded = try JSONEncoder.druidEncoder.encode(resultRowItemManyEntriesExample)
+        let encoded = try JSONEncoder.telemetryEncoder.encode(resultRowItemManyEntriesExample)
         XCTAssertEqual(String(data: encoded, encoding: .utf8)!, resultRowItemManyEntries)
     }
 }

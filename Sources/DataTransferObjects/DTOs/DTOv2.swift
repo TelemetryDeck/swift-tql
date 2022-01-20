@@ -519,7 +519,7 @@ public extension DTOv2.Insight {
     }
 
     static func newCustomQueryInsight(groupID: UUID) -> DTOv2.Insight {
-        let customQuery = CustomQuery(
+        let customQuery = CustomQuery.init(
             queryType: .groupBy,
             dataSource: "telemetry-signals",
             intervals: [],

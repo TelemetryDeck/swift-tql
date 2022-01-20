@@ -8,7 +8,7 @@
 import DataTransferObjects
 import XCTest
 
-class DruidTopNQueryTests: XCTestCase {
+class TopNQueryTests: XCTestCase {
     let exampleTopNQueryString = """
         {
             "aggregations": [{"name":"count","type":"count"}],
@@ -28,7 +28,7 @@ class DruidTopNQueryTests: XCTestCase {
     static let beginDate: Date = Formatter.iso8601.date(from: "2021-12-03T00:00:00.000Z")!
     static let endDate: Date = Formatter.iso8601.date(from: "2022-01-31T22:59:59.999Z")!
     
-    let exampleTopNQuery = DruidCustomQuery(
+    let exampleTopNQuery = CustomQuery(
         queryType: .topN,
         dataSource: "telemetry-signals",
         intervals: [.init(beginningDate: beginDate, endDate: endDate)],
@@ -40,12 +40,12 @@ class DruidTopNQueryTests: XCTestCase {
     )
     
     func testEncoding() throws {
-        let encodedQuery = try JSONEncoder.druidEncoder.encode(exampleTopNQuery)
+        let encodedQuery = try JSONEncoder.telemetryEncoder.encode(exampleTopNQuery)
         XCTAssertEqual(String(data: encodedQuery, encoding: .utf8)!, exampleTopNQueryString.filter { !$0.isWhitespace })
     }
     
     func testDecoding() throws {
-        let decodedQuery = try JSONDecoder.druidDecoder.decode(DruidCustomQuery.self, from: exampleTopNQueryString.data(using: .utf8)!)
+        let decodedQuery = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: exampleTopNQueryString.data(using: .utf8)!)
         XCTAssertEqual(decodedQuery, exampleTopNQuery)
     }
 }

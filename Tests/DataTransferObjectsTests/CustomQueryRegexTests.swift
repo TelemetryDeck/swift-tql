@@ -1,7 +1,7 @@
 @testable import DataTransferObjects
 import XCTest
 
-final class DruidQueryTests: XCTestCase {
+final class CustomQueryTests: XCTestCase {
     
     let randomDate = Date(timeIntervalSinceReferenceDate: 656510400) // Thursday, October 21, 2021 2:00:00 PM GMT+02:00
 
@@ -41,7 +41,7 @@ final class DruidQueryTests: XCTestCase {
     .data(using: .utf8)!
     
     func testRegexQueryDecoding() throws {
-        let regexQuery = DruidCustomQuery(
+        let regexQuery = CustomQuery(
             queryType: .groupBy,
             dataSource: "telemetry-signals",
             descending: false,
@@ -70,7 +70,7 @@ final class DruidQueryTests: XCTestCase {
             ]
         )
         
-        let decodedQuery = try JSONDecoder.druidDecoder.decode(DruidCustomQuery.self, from: exampleDruidRegexJSON)
+        let decodedQuery = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: exampleDruidRegexJSON)
         
         XCTAssertEqual(regexQuery.intervals, decodedQuery.intervals)
         XCTAssertEqual(regexQuery.queryType, decodedQuery.queryType)
@@ -86,7 +86,7 @@ final class DruidQueryTests: XCTestCase {
     func testDimensionSpecEncoding() throws {
         let dimensionSpec = DimensionSpec.default(.init(dimension: "test", outputName: "test", outputType: .string))
         
-        let encodedJSON = try JSONEncoder.druidEncoder.encode(dimensionSpec)
+        let encodedJSON = try JSONEncoder.telemetryEncoder.encode(dimensionSpec)
         
         let expectedOutput = """
             {"dimension":"test","outputName":"test","outputType":"STRING","type":"default"}
@@ -102,7 +102,7 @@ final class DruidQueryTests: XCTestCase {
             {"outputName":"test","outputType":"STRING","type":"default","dimension":"test"}
             """.data(using: .utf8)!
         
-        let decodedOutput = try JSONDecoder.druidDecoder.decode(DimensionSpec.self, from: input)
+        let decodedOutput = try JSONDecoder.telemetryDecoder.decode(DimensionSpec.self, from: input)
         
         XCTAssertEqual(expectedOutput, decodedOutput)
     }
@@ -114,7 +114,7 @@ final class DruidQueryTests: XCTestCase {
         {"expr":"abc","index":1,"replaceMissingValue":false,"type":"regex"}
         """
         
-        let encodedOutput = try JSONEncoder.druidEncoder.encode(input)
+        let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
         
         XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
     }
@@ -127,7 +127,7 @@ final class DruidQueryTests: XCTestCase {
         
         let expectedOutput = ExtractionFunction.regex(.init(expr: "abc", index: 1, replaceMissingValue: true, replaceMissingValueWith: "foobar"))
         
-        let decodedOutput = try JSONDecoder.druidDecoder.decode(ExtractionFunction.self, from: input)
+        let decodedOutput = try JSONDecoder.telemetryDecoder.decode(ExtractionFunction.self, from: input)
         
         XCTAssertEqual(expectedOutput, decodedOutput)
     }
@@ -140,7 +140,7 @@ final class DruidQueryTests: XCTestCase {
         
         let expectedOutput = RegularExpressionExtractionFunction(expr: "abc", index: 1, replaceMissingValue: true, replaceMissingValueWith: "foobar")
         
-        let decodedOutput = try JSONDecoder.druidDecoder.decode(RegularExpressionExtractionFunction.self, from: input)
+        let decodedOutput = try JSONDecoder.telemetryDecoder.decode(RegularExpressionExtractionFunction.self, from: input)
         
         XCTAssertTrue(decodedOutput.replaceMissingValue)
         XCTAssertEqual(expectedOutput, decodedOutput)

@@ -58,7 +58,7 @@ class HashingTests: XCTestCase {
     }
     
     func testDruidQueryHashingNonEquals1() {
-        let exampleTopNQuery1 = DruidCustomQuery(
+        let exampleTopNQuery1 = CustomQuery(
             queryType: .topN,
             dataSource: "telemetry-signals",
             intervals: [.init(beginningDate: Self.beginDate, endDate: Self.endDate)],
@@ -69,7 +69,7 @@ class HashingTests: XCTestCase {
             dimension: .default(.init(dimension: "appVersion", outputName: "appVersion"))
         )
         
-        let exampleTopNQuery2 = DruidCustomQuery(
+        let exampleTopNQuery2 = CustomQuery(
             queryType: .topN,
             dataSource: "telemetry-signals",
             intervals: [.init(beginningDate: Self.beginDate, endDate: Self.endDate)],
@@ -84,7 +84,7 @@ class HashingTests: XCTestCase {
     }
     
     func testDruidQueryHashingNonEquals2() {
-        let exampleTopNQuery1 = DruidCustomQuery(
+        let exampleTopNQuery1 = CustomQuery(
             queryType: .topN,
             dataSource: "telemetry-signals",
             intervals: [.init(beginningDate: Self.beginDate, endDate: Self.endDate)],
@@ -95,7 +95,7 @@ class HashingTests: XCTestCase {
             dimension: .default(.init(dimension: "appVersion", outputName: "appVersion"))
         )
         
-        let regexQuery = DruidCustomQuery(
+        let regexQuery = CustomQuery(
             queryType: .groupBy,
             dataSource: "telemetry-signals",
             descending: false,
@@ -129,7 +129,7 @@ class HashingTests: XCTestCase {
     }
     
     func testDruidQueryHashingEquals() {
-        let exampleTopNQuery = DruidCustomQuery(
+        let exampleTopNQuery = CustomQuery(
             queryType: .topN,
             dataSource: "telemetry-signals",
             intervals: [.init(beginningDate: Self.beginDate, endDate: Self.endDate)],
@@ -157,7 +157,7 @@ class HashingTests: XCTestCase {
         
         XCTAssertNotEqual(dimensionSpec1.hashValue, dimensionSpec2.hashValue)
         
-        let exampleTopNQuery1 = DruidCustomQuery(
+        let exampleTopNQuery1 = CustomQuery(
             queryType: .topN,
             dataSource: "telemetry-signals",
             intervals: [.init(beginningDate: Self.beginDate, endDate: Self.endDate)],
@@ -168,7 +168,7 @@ class HashingTests: XCTestCase {
             dimension: dimensionSpec1
         )
         
-        let exampleTopNQuery2 = DruidCustomQuery(
+        let exampleTopNQuery2 = CustomQuery(
             queryType: .topN,
             dataSource: "telemetry-signals",
             intervals: [.init(beginningDate: Self.beginDate, endDate: Self.endDate)],
@@ -183,7 +183,7 @@ class HashingTests: XCTestCase {
     }
     
     func testHashingForDifferentAppIDs() throws {
-        let query1 = DruidCustomQuery(
+        let query1 = CustomQuery(
             queryType: .timeseries,
             dataSource: "telemetry-signals",
             filter: .selector(.init(dimension: "appID", value: "abcdef")),
@@ -195,7 +195,7 @@ class HashingTests: XCTestCase {
             ]
         )
         
-        let query2 = DruidCustomQuery(
+        let query2 = CustomQuery(
             queryType: .timeseries,
             dataSource: "telemetry-signals",
             filter: .selector(.init(dimension: "appID", value: "123123123")),
