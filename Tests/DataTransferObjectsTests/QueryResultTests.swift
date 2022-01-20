@@ -39,14 +39,33 @@ class QueryResultTests: XCTestCase {
     }
 
     func testEncodingGroupBy() throws {
-        let exampleQueryResult = QueryResult.groupBy(GroupByQueryResult(timestamp: randomDate, result: ["abc": "def", "uno": "due"]))
+        let exampleQueryResult = QueryResult.groupBy(GroupByQueryResult(timestamp: randomDate, event: .init(metrics: [:], dimensions: ["abc":"def","uno":"due"])))
         let encodedQueryResult = try JSONEncoder.druidEncoder.encode(exampleQueryResult)
         let expectedResult = """
-        {"result":{"abc":"def","uno":"due"},"timestamp":"2021-10-21T12:00:00+0000","type":"groupByResult"}
+          {
+            "event": {"abc":"def","uno":"due"},
+            "timestamp": "2021-10-21T12:00:00+0000",
+            "type":"groupByResult",
+            "version": "v1"
+          }
         """
         .filter { !$0.isWhitespace }
             
         XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
+    }
+    
+    func testDecodingGroupBy() throws {
+        let expectedResult = GroupByQueryResult(timestamp: randomDate, event: .init(metrics: ["count":12], dimensions: ["abc":"def","uno":"due"]))
+        let groupByResult = """
+          {
+            "event": {"abc":"def","uno":"due", "count": 12},
+            "timestamp": "2021-10-21T12:00:00+0000",
+            "version": "v1"
+          }
+        """
+        
+        let decodedResult = try JSONDecoder.druidDecoder.decode(GroupByQueryResult.self, from: groupByResult.data(using: .utf8)!)
+        XCTAssertEqual(expectedResult, decodedResult)
     }
     
     func testDecodingTimeSeriesResult() throws {

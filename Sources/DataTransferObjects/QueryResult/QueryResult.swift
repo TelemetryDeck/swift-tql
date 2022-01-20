@@ -65,13 +65,15 @@ public struct TimeSeriesQueryResultRow: Codable, Hashable, Equatable {
 /// GroupBy queries return an array of JSON objects, where each object represents a grouping as described in the group-by query.
 /// For example, we can query for the daily average of a dimension for the past month grouped by another dimension.
 public struct GroupByQueryResult: Codable, Hashable, Equatable {
-    public init(timestamp: Date, result: [String: String]) {
+    public init(timestamp: Date, event: AdaptableQueryResultItem) {
+        self.version = "v1"
         self.timestamp = timestamp
-        self.result = result
+        self.event = event
     }
 
+    public let version: String
     public let timestamp: Date
-    public let result: [String: String]
+    public let event: AdaptableQueryResultItem
 }
 
 /// TopN queries return a sorted set of results for the values in a given dimension according to some criteria.
@@ -88,16 +90,17 @@ public struct TopNQueryResult: Codable, Hashable, Equatable {
 }
 
 public struct TopNQueryResultRow: Codable, Hashable, Equatable {
-    public init(timestamp: Date, result: [TopNQueryResultRowItem]) {
+    public init(timestamp: Date, result: [AdaptableQueryResultItem]) {
         self.timestamp = timestamp
         self.result = result
     }
 
     public let timestamp: Date
-    public let result: [TopNQueryResultRowItem]
+    public let result: [AdaptableQueryResultItem]
 }
 
-public struct TopNQueryResultRowItem: Codable, Hashable, Equatable {
+/// Represents a JSON object that can contain string values (dimensions), double values (dimensions) and null values.
+public struct AdaptableQueryResultItem: Codable, Hashable, Equatable {
     public init(metrics: [String: Double], dimensions: [String: String], nullValues: [String] = []) {
         self.metrics = metrics
         self.dimensions = dimensions

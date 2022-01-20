@@ -92,7 +92,7 @@ class TopNResultTests: XCTestCase {
     """
     .filter { !$0.isWhitespace }
     
-    let resultRowItemNullExample = TopNQueryResultRowItem(metrics: ["count": 2], dimensions: [:], nullValues: ["appVersion"])
+    let resultRowItemNullExample = AdaptableQueryResultItem(metrics: ["count": 2], dimensions: [:], nullValues: ["appVersion"])
     
     let resultRowItemOneEntry = """
       {
@@ -102,7 +102,7 @@ class TopNResultTests: XCTestCase {
     """
     .filter { !$0.isWhitespace }
     
-    let resultRowItemOneItemExample = TopNQueryResultRowItem(metrics: ["count": 2], dimensions: ["appVersion": "335"])
+    let resultRowItemOneItemExample = AdaptableQueryResultItem(metrics: ["count": 2], dimensions: ["appVersion": "335"])
     
     let resultRowItemManyEntries = """
       {
@@ -114,7 +114,7 @@ class TopNResultTests: XCTestCase {
     """
     .filter { !$0.isWhitespace }
     
-    let resultRowItemManyEntriesExample = TopNQueryResultRowItem(metrics: ["count": 88, "some_metrics": 28344, "average": 1.25], dimensions: ["dim1": "another_dim1_val"])
+    let resultRowItemManyEntriesExample = AdaptableQueryResultItem(metrics: ["count": 88, "some_metrics": 28344, "average": 1.25], dimensions: ["dim1": "another_dim1_val"])
     
     func testDecodingEmptyResult() throws {
         let decodedRows = try JSONDecoder.druidDecoder.decode([TopNQueryResultRow].self, from: emptyResult.data(using: .utf8)!)
@@ -137,17 +137,17 @@ class TopNResultTests: XCTestCase {
     }
     
     func testDecodingTopNQueryResultRowItemNullEntry() throws {
-        let decoded = try JSONDecoder.druidDecoder.decode(TopNQueryResultRowItem.self, from: resultRowItemNull.data(using: .utf8)!)
+        let decoded = try JSONDecoder.druidDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemNull.data(using: .utf8)!)
         XCTAssertEqual(decoded, resultRowItemNullExample)
     }
 
     func testDecodingTopNQueryResultRowItemOneEntry() throws {
-        let decoded = try JSONDecoder.druidDecoder.decode(TopNQueryResultRowItem.self, from: resultRowItemOneEntry.data(using: .utf8)!)
+        let decoded = try JSONDecoder.druidDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemOneEntry.data(using: .utf8)!)
         XCTAssertEqual(decoded, resultRowItemOneItemExample)
     }
     
     func testDecodingTopNQueryResultRowItemManyEntries() throws {
-        let decoded = try JSONDecoder.druidDecoder.decode(TopNQueryResultRowItem.self, from: resultRowItemManyEntries.data(using: .utf8)!)
+        let decoded = try JSONDecoder.druidDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemManyEntries.data(using: .utf8)!)
         XCTAssertEqual(decoded, resultRowItemManyEntriesExample)
     }
     
