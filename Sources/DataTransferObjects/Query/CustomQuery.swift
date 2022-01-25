@@ -25,7 +25,9 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.dimensions = dimensions
     }
 
-    public enum QueryType: String, Codable {
+    public enum QueryType: String, Codable, CaseIterable, Identifiable {
+        public var id: String { self.rawValue }
+        
         case timeseries
         case groupBy
         case topN
