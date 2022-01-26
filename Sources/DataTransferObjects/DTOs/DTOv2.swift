@@ -170,6 +170,8 @@ public enum DTOv2 {
         public var id: UUID
         public var groupID: UUID
 
+        
+        /// order in which insights appear in the apps (if not expanded)
         public var order: Double?
         public var title: String
 
