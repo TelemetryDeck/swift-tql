@@ -179,7 +179,7 @@ public enum DTOv2 {
         public var accentColor: String?
 
         /// If set, use the custom query in this property instead of constructing a query out of the options below
-        public var druidCustomQuery: CustomQuery?
+        public var customQuery: CustomQuery?
 
         /// Which signal types are we interested in? If nil, do not filter by signal type
         public var signalType: String?
@@ -215,7 +215,7 @@ public enum DTOv2 {
             title: String,
             accentColor: String? = nil,
             widgetable: Bool? = false,
-            druidCustomQuery: CustomQuery? = nil,
+            customQuery: CustomQuery? = nil,
             signalType: String?,
             uniqueUser: Bool,
             filters: [String: String],
@@ -231,7 +231,7 @@ public enum DTOv2 {
             self.order = order
             self.title = title
             self.accentColor = accentColor
-            self.druidCustomQuery = druidCustomQuery
+            self.customQuery = customQuery
             self.signalType = signalType
             self.uniqueUser = uniqueUser
             self.filters = filters
@@ -425,7 +425,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "New Time Series Insight",
-            druidCustomQuery: nil,
+            customQuery: nil,
             signalType: nil,
             uniqueUser: false,
             filters: [:],
@@ -444,7 +444,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: title ?? "New Breakdown Insight",
-            druidCustomQuery: nil,
+            customQuery: nil,
             signalType: nil,
             uniqueUser: false,
             filters: [:],
@@ -463,7 +463,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Daily Active Users",
-            druidCustomQuery: nil,
+            customQuery: nil,
             signalType: nil,
             uniqueUser: true,
             filters: [:],
@@ -482,7 +482,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Weekly Active Users",
-            druidCustomQuery: nil,
+            customQuery: nil,
             signalType: nil,
             uniqueUser: true,
             filters: [:],
@@ -501,7 +501,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Active Users this Month",
-            druidCustomQuery: nil,
+            customQuery: nil,
             signalType: nil,
             uniqueUser: true,
             filters: [:],
@@ -520,7 +520,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Signals by Day",
-            druidCustomQuery: nil,
+            customQuery: nil,
             signalType: nil,
             uniqueUser: false,
             filters: [:],
@@ -549,7 +549,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Custom Query",
-            druidCustomQuery: customQuery,
+            customQuery: customQuery,
             signalType: nil,
             uniqueUser: false,
             filters: [:],
