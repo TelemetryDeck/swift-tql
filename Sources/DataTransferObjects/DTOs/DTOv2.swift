@@ -369,17 +369,18 @@ public enum DTOv2 {
         public var sessionCount: Int
     }
     
-    public struct LexiconPayloadKey: Codable {
+    public struct LexiconPayloadKey: Codable, Hashable {
+        
         public init(name: String, count: Int) {
             self.name = name
             self.count = count
         }
         
         /// Name of the payload key
-        let name: String
+        public let name: String
         
         /// Occurrences of the payload key within this month and the previous one
-        let count: Int
+        public let count: Int
     }
 }
 
