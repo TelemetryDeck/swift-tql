@@ -21,6 +21,14 @@ public extension Formatter {
         formatter.formatOptions = [.withFullDate]
         return formatter
     }()
+    
+    static func customISO8601(from string: String) -> Date? {
+        if let date = Formatter.iso8601.date(from: string) ?? Formatter.iso8601noFS.date(from: string) {
+            return date
+        }
+        
+        return nil
+    }
 }
 
 public extension JSONDecoder.DateDecodingStrategy {
