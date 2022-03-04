@@ -288,6 +288,12 @@ public enum LoadingState: Equatable {
     case error(String, Date)
 }
 
+public enum QueryTaskStatus:  Equatable, Codable {
+    case running
+    case successful(Date)
+    case error(String, Date)
+}
+
 public enum RelativeDateDescription: Equatable {
     case end(of: CurrentOrPrevious)
     case beginning(of: CurrentOrPrevious)
