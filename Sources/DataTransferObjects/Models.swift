@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 /// Data Transfer Objects
 public enum DTOv1 {
     public struct InsightGroup: Codable, Identifiable, Hashable {
@@ -238,12 +236,12 @@ public struct RequestPasswordResetRequestBody: Codable {
 }
 
 public struct UserTokenDTO: Codable {
-    public init(id: UUID? = nil, value: String, user: [String : String]) {
+    public init(id: UUID? = nil, value: String, user: [String: String]) {
         self.id = id
         self.value = value
         self.user = user
     }
-    
+
     public var id: UUID?
     public var value: String
     public var user: [String: String]
@@ -288,10 +286,16 @@ public enum LoadingState: Equatable {
     case error(String, Date)
 }
 
-public enum QueryTaskStatus:  Equatable, Codable {
+public struct QueryTaskStatusStruct: Equatable, Codable {
+    public var status: QueryTaskStatus
+}
+
+public enum QueryTaskStatus: String, Equatable, Codable {
+    public var id: String { rawValue }
+
     case running
-    case successful(Date)
-    case error(String, Date)
+    case successful
+    case error
 }
 
 public enum RelativeDateDescription: Equatable {
