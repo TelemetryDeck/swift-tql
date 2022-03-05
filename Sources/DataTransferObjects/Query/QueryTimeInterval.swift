@@ -1,4 +1,5 @@
 import Foundation
+import DateOperations
 
 public struct QueryTimeInterval: Codable, Hashable, Equatable {
     public let beginningDate: Date
