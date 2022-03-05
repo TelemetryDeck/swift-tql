@@ -290,8 +290,8 @@ public enum LoadingState: Equatable {
 
 public enum QueryTaskStatus:  Equatable, Codable {
     case running
-    case successful
-    case error
+    case successful(Date)
+    case error(String, Date)
 }
 
 public enum RelativeDateDescription: Equatable {
