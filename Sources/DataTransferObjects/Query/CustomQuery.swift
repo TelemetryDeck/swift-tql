@@ -14,6 +14,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.descending = descending
         self.filter = filter
         self.intervals = intervals
+        self.relativeIntervals = relativeIntervals
         self.granularity = granularity
         self.aggregations = aggregations
         self.limit = limit
