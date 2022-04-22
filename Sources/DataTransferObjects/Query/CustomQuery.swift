@@ -1,20 +1,13 @@
-//
-//  CustomQuery.swift
-//  CustomQuery
-//
-//  Created by Charlotte Böhm on 25.08.21.
-//
-
 import Foundation
 
 /// Custom JSON based  query
 public struct CustomQuery: Codable, Hashable, Equatable {
     public init(queryType: CustomQuery.QueryType, dataSource: String = "telemetry-signals",
-                descending: Bool? = nil, filter: Filter? = nil, intervals: [QueryTimeInterval],
-                granularity: CustomQuery.Granularity, aggregations: [Aggregator]? = nil,
-                limit: Int? = nil, context: QueryContext? = nil, threshold: Int? = nil,
-                metric: TopNMetricSpec? = nil, dimension: DimensionSpec? = nil,
-                dimensions: [DimensionSpec]? = nil)
+                descending: Bool? = nil, filter: Filter? = nil, intervals: [QueryTimeInterval]? = nil,
+                relativeIntervals: [RelativeTimeInterval]? = nil, granularity: CustomQuery.Granularity,
+                aggregations: [Aggregator]? = nil, limit: Int? = nil, context: QueryContext? = nil,
+                threshold: Int? = nil, metric: TopNMetricSpec? = nil,
+                dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil)
     {
         self.queryType = queryType
         self.dataSource = dataSource
@@ -58,7 +51,10 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     public var dataSource: String = "telemetry-signals"
     public var descending: Bool?
     public var filter: Filter?
-    public var intervals: [QueryTimeInterval]
+    public var intervals: [QueryTimeInterval]?
+
+    /// If a relative intervals are set, their calculated output replaces the regular intervals
+    public var relativeIntervals: [RelativeTimeInterval]?
     public let granularity: Granularity
     public var aggregations: [Aggregator]?
     public var limit: Int?
@@ -82,6 +78,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(descending)
         hasher.combine(filter)
         hasher.combine(intervals)
+        hasher.combine(relativeIntervals)
         hasher.combine(granularity)
         hasher.combine(aggregations)
         hasher.combine(limit)
