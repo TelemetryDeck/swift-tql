@@ -2,12 +2,17 @@ import DateOperations
 import Foundation
 
 public struct RelativeTimeInterval: Codable, Hashable, Equatable {
-    let beginningDate: RelativeDate
-    let endDate: RelativeDate
+    public init(beginningDate: RelativeDate, endDate: RelativeDate) {
+        self.beginningDate = beginningDate
+        self.endDate = endDate
+    }
+
+    public let beginningDate: RelativeDate
+    public let endDate: RelativeDate
 }
 
 public struct RelativeDate: Codable, Hashable, Equatable {
-    enum RelativeDateComponent: String, Codable, Hashable, Equatable {
+    public enum RelativeDateComponent: String, Codable, Hashable, Equatable {
         case hour
         case day
         case week
@@ -33,7 +38,7 @@ public struct RelativeDate: Codable, Hashable, Equatable {
         }
     }
 
-    enum ComponentPosition: String, Codable, Hashable, Equatable {
+    public enum ComponentPosition: String, Codable, Hashable, Equatable {
         /// Generate a date at the first possible moment in the specified component
         case beginning
 
@@ -41,23 +46,23 @@ public struct RelativeDate: Codable, Hashable, Equatable {
         case end
     }
 
-    init(_ position: ComponentPosition, of component: RelativeDateComponent, adding offset: Int) {
+    public init(_ position: ComponentPosition, of component: RelativeDateComponent, adding offset: Int) {
         self.component = component
         self.offset = offset
         self.position = position
     }
 
     /// The granularity with which to work in this component
-    let component: RelativeDateComponent
+    public let component: RelativeDateComponent
 
     /// How often to add the component to the current date.
     ///
     /// 0 is the current day/month/component.
     /// Positive values move the date into the future, negative values move the date into the past.
-    let offset: Int
+    public let offset: Int
 
     /// Where in the generated hour/day/month/component should the generated date lie?
-    let position: ComponentPosition
+    public let position: ComponentPosition
 }
 
 public extension Date {
