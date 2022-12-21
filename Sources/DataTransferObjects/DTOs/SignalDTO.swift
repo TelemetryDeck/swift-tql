@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Daniel Jilg on 12.05.21.
-//
-
 import Foundation
 
 public extension DTOv1 {
@@ -17,15 +10,26 @@ public extension DTOv1 {
         public var sessionID: String
         public var type: String
         public var payload: [String: String]?
+        public var floatValue: Double?
         public var isTestMode: Bool
 
         public var signal: Signal {
-            Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: payload, isTestMode: isTestMode)
+            Signal(
+                appID: appID,
+                count: count,
+                receivedAt: receivedAt,
+                clientUser: clientUser,
+                sessionID: sessionID,
+                type: type,
+                payload: payload,
+                floatValue: floatValue,
+                isTestMode: isTestMode
+            )
         }
     }
 
     struct Signal: Codable, Hashable {
-        public init(appID: UUID? = nil, count: Int? = nil, receivedAt: Date, clientUser: String, sessionID: String? = nil, type: String, payload: [String: String]? = nil, isTestMode: Bool) {
+        public init(appID: UUID? = nil, count: Int? = nil, receivedAt: Date, clientUser: String, sessionID: String? = nil, type: String, payload: [String: String]? = nil, floatValue: Double? = nil, isTestMode: Bool) {
             self.appID = appID
             self.count = count
             self.receivedAt = receivedAt
@@ -33,6 +37,7 @@ public extension DTOv1 {
             self.sessionID = sessionID
             self.type = type
             self.payload = payload
+            self.floatValue = floatValue
             self.isTestMode = isTestMode
         }
 
@@ -43,11 +48,12 @@ public extension DTOv1 {
         public var sessionID: String?
         public var type: String
         public var payload: [String: String]?
+        public var floatValue: Double?
         public var isTestMode: Bool
 
         public func toIdentifiableSignal() -> IdentifiableSignal {
             IdentifiableSignal(id: UUID(), appID: appID, count: count ?? 1, receivedAt: receivedAt, clientUser: clientUser,
-                               sessionID: sessionID ?? "–", type: type, payload: payload, isTestMode: isTestMode)
+                               sessionID: sessionID ?? "–", type: type, payload: payload, floatValue: floatValue, isTestMode: isTestMode)
         }
     }
 
@@ -59,6 +65,7 @@ public extension DTOv1 {
         public var sessionID: String?
         public var type: String
         public var payload: String
+        public var floatValue: Double?
         public var isTestMode: String
 
         public func toSignal() -> Signal {
@@ -76,7 +83,17 @@ public extension DTOv1 {
                 }
             }
 
-            return Signal(appID: appID, count: count, receivedAt: receivedAt, clientUser: clientUser, sessionID: sessionID, type: type, payload: actualPayload, isTestMode: isTestMode == "true")
+            return Signal(
+                appID: appID,
+                count: count,
+                receivedAt: receivedAt,
+                clientUser: clientUser,
+                sessionID: sessionID,
+                type: type,
+                payload: actualPayload,
+                floatValue: floatValue,
+                isTestMode: isTestMode == "true"
+            )
         }
     }
 }
