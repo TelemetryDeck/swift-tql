@@ -52,7 +52,7 @@ public struct TimeSeriesQueryResult: Codable, Hashable, Equatable {
 
 /// Wrapper around the Double type that also accepts encoding and decoding as "Infinity" and "-Infinity"
 public struct DoubleWrapper: Codable, Hashable, Equatable {
-    let value: Double
+    public let value: Double
 
     public init(_ doubleValue: Double) {
         value = doubleValue
