@@ -15,8 +15,10 @@ class QueryResultTests: XCTestCase {
         let exampleQueryResult = QueryResult.timeSeries(
             TimeSeriesQueryResult(rows:
                 [
-                    TimeSeriesQueryResultRow(timestamp: randomDate - 3600, result: ["test": 11]),
-                    TimeSeriesQueryResultRow(timestamp: randomDate, result: ["test": 12]),
+                    TimeSeriesQueryResultRow(timestamp: randomDate - 3600, result: ["test": DoubleWrapper(11)]),
+                    TimeSeriesQueryResultRow(timestamp: randomDate, result: ["test": DoubleWrapper(12)]),
+                    TimeSeriesQueryResultRow(timestamp: randomDate, result: ["test": DoubleWrapper(Double.infinity)]),
+                    TimeSeriesQueryResultRow(timestamp: randomDate, result: ["test": DoubleWrapper(-Double.infinity)]),
                 ]
             )
         )
@@ -27,7 +29,9 @@ class QueryResultTests: XCTestCase {
         {
             "rows": [
                 {"result":{"test":11},"timestamp":"2021-10-21T11:00:00+0000"},
-                {"result":{"test":12},"timestamp":"2021-10-21T12:00:00+0000"}
+                {"result":{"test":12},"timestamp":"2021-10-21T12:00:00+0000"},
+                {"result":{"test":"Infinity"},"timestamp":"2021-10-21T12:00:00+0000"},
+                {"result":{"test":"-Infinity"},"timestamp":"2021-10-21T12:00:00+0000"}
             ],
             "type":"timeSeriesResult"
         }
@@ -83,6 +87,30 @@ class QueryResultTests: XCTestCase {
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
 
-        XCTAssertEqual(decodedResult.result, ["d0": 1_609_459_200_000])
+        XCTAssertEqual(decodedResult.result, ["d0": DoubleWrapper(1_609_459_200_000)])
+    }
+
+    func testDecodingInfinity() throws {
+        let exampleResult = """
+            [
+              {"timestamp":"2022-12-19T00:00:00.000Z","result":{"min":"Infinity","max":"-Infinity","mean":0.0}},
+              {"timestamp":"2022-12-20T00:00:00.000Z","result":{"min":0.02,"max":5775.11,"mean":938.24}},
+            ]
+        """
+        .filter { !$0.isWhitespace }
+
+        let decodedResult = try JSONDecoder.telemetryDecoder.decode([TimeSeriesQueryResultRow].self, from: exampleResult.data(using: .utf8)!)
+
+        XCTAssertEqual(decodedResult.first?.result, [
+            "mean": DoubleWrapper(0.0),
+            "max": DoubleWrapper(-Double.infinity),
+            "min": DoubleWrapper(Double.infinity),
+        ])
+        
+        XCTAssertEqual(decodedResult.last?.result, [
+            "mean": DoubleWrapper(938.24),
+            "max": DoubleWrapper(5775.11),
+            "min": DoubleWrapper(0.02),
+        ])
     }
 }

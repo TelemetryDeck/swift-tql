@@ -50,16 +50,67 @@ public struct TimeSeriesQueryResult: Codable, Hashable, Equatable {
     public let rows: [TimeSeriesQueryResultRow]
 }
 
+/// Wrapper around the Double type that also accepts encoding and decoding as "Infinity" and "-Infinity"
+public struct DoubleWrapper: Codable, Hashable, Equatable {
+    let value: Double
+
+    public init(_ doubleValue: Double) {
+        value = doubleValue
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if let stringValue = try? container.decode(String.self) {
+            if stringValue == "Infinity" {
+                value = Double.infinity
+            } else if stringValue == "-Infinity" {
+                value = -Double.infinity
+            } else {
+                guard let parsedDoubleValue = NumberFormatter().number(from: stringValue)?.doubleValue else {
+                    throw DecodingError.dataCorrupted(.init(
+                        codingPath: [],
+                        debugDescription: "Could not parse value as Double",
+                        underlyingError: nil
+                    ))
+                }
+
+                value = parsedDoubleValue
+            }
+
+            return
+        }
+
+        value = try container.decode(Double.self)
+    }
+
+    enum CodingKeys: CodingKey {
+        case value
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+
+        if value == Double.infinity {
+            try container.encode("Infinity")
+        } else if value == -Double.infinity {
+            try container.encode("-Infinity")
+        } else {
+            try container.encode(value)
+        }
+    }
+}
+
 /// Time series queries return an array of JSON objects, where each object represents a value as described in the time-series query.
 /// For instance, the daily average of a dimension for the last one month.
 public struct TimeSeriesQueryResultRow: Codable, Hashable, Equatable {
-    public init(timestamp: Date, result: [String: Double]) {
+    public init(timestamp: Date, result: [String: DoubleWrapper]) {
         self.timestamp = timestamp
         self.result = result
     }
 
     public let timestamp: Date
-    public let result: [String: Double]
+    public let result: [String: DoubleWrapper]
 }
 
 /// GroupBy queries return an array of JSON objects, where each object represents a grouping as described in the group-by query.
