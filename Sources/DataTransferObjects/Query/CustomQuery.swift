@@ -3,7 +3,10 @@ import Foundation
 /// Custom JSON based  query
 public struct CustomQuery: Codable, Hashable, Equatable {
     public init(queryType: CustomQuery.QueryType, dataSource: String = "telemetry-signals",
-                descending: Bool? = nil, filter: Filter? = nil, intervals: [QueryTimeInterval]? = nil,
+                descending: Bool? = nil,
+                filter: Filter? = nil,
+                baseFilters: BaseFilters?  = nil,
+                intervals: [QueryTimeInterval]? = nil,
                 relativeIntervals: [RelativeTimeInterval]? = nil, granularity: QueryGranularity,
                 aggregations: [Aggregator]? = nil, postAggregations: [PostAggregator]? = nil,
                 limit: Int? = nil, context: QueryContext? = nil,
@@ -14,6 +17,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.queryType = queryType
         self.dataSource = DataSource(type: .table, name: dataSource)
         self.descending = descending
+        self.baseFilters = baseFilters
         self.filter = filter
         self.intervals = intervals
         self.relativeIntervals = relativeIntervals
@@ -31,7 +35,10 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     }
     
     public init(queryType: CustomQuery.QueryType, dataSource: DataSource,
-                descending: Bool? = nil, filter: Filter? = nil, intervals: [QueryTimeInterval]? = nil,
+                descending: Bool? = nil,
+                filter: Filter? = nil,
+                baseFilters: BaseFilters? = nil,
+                intervals: [QueryTimeInterval]? = nil,
                 relativeIntervals: [RelativeTimeInterval]? = nil, granularity: QueryGranularity,
                 aggregations: [Aggregator]? = nil, postAggregations: [PostAggregator]? = nil,
                 limit: Int? = nil, context: QueryContext? = nil,
@@ -42,6 +49,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.queryType = queryType
         self.dataSource = dataSource
         self.descending = descending
+        self.baseFilters = baseFilters
         self.filter = filter
         self.intervals = intervals
         self.relativeIntervals = relativeIntervals
@@ -72,6 +80,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     public var queryType: QueryType
     public var dataSource: DataSource = .init(type: .table, name: "telemetry-signals")
     public var descending: Bool?
+    public var baseFilters: BaseFilters?
     public var filter: Filter?
     public var intervals: [QueryTimeInterval]?
 
@@ -105,6 +114,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(queryType)
         hasher.combine(dataSource)
         hasher.combine(descending)
+        hasher.combine(baseFilters)
         hasher.combine(filter)
         hasher.combine(intervals)
         hasher.combine(relativeIntervals)
@@ -116,6 +126,8 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(metric)
         hasher.combine(dimensions)
         hasher.combine(dimension)
+        hasher.combine(steps)
+        hasher.combine(stepNames)
     }
 
     public static func == (lhs: CustomQuery, rhs: CustomQuery) -> Bool {
@@ -128,6 +140,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.queryType = try container.decode(CustomQuery.QueryType.self, forKey: CustomQuery.CodingKeys.queryType)
         self.dataSource = try container.decode(DataSource.self, forKey: CustomQuery.CodingKeys.dataSource)
         self.descending = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.descending)
+        self.baseFilters = try container.decodeIfPresent(BaseFilters.self, forKey: CustomQuery.CodingKeys.baseFilters)
         self.filter = try container.decodeIfPresent(Filter.self, forKey: CustomQuery.CodingKeys.filter)
         self.relativeIntervals = try container.decodeIfPresent([RelativeTimeInterval].self, forKey: CustomQuery.CodingKeys.relativeIntervals)
         self.granularity = try container.decode(QueryGranularity.self, forKey: CustomQuery.CodingKeys.granularity)
@@ -139,6 +152,8 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.dimension = try container.decodeIfPresent(DimensionSpec.self, forKey: CustomQuery.CodingKeys.dimension)
         self.metric = try container.decodeIfPresent(TopNMetricSpec.self, forKey: CustomQuery.CodingKeys.metric)
         self.dimensions = try container.decodeIfPresent([DimensionSpec].self, forKey: CustomQuery.CodingKeys.dimensions)
+        self.steps = try container.decodeIfPresent([Filter].self, forKey: CustomQuery.CodingKeys.steps)
+        self.stepNames = try container.decodeIfPresent([String].self, forKey: CustomQuery.CodingKeys.stepNames)
         
         if let intervals = try? container.decode(QueryTimeIntervalsContainer.self, forKey: CustomQuery.CodingKeys.intervals) {
             self.intervals = intervals.intervals
