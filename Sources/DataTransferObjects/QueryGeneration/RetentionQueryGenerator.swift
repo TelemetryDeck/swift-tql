@@ -12,39 +12,37 @@ public enum RetentionQueryGenerator {
         /// beginDate and endDate are less than one month apart
         case datesTooClose
     }
-    
+
     public static func generateRetentionQuery(appID: String, testMode: Bool, beginDate: Date, endDate: Date) throws -> CustomQuery {
-        // TODO: what do we do if beginDate and endDate are less than 1m apart?
+        // If beginDate and endDate are less than 1m apart, this does not make sense as a query
         let components = Calendar.current.dateComponents([.month], from: beginDate, to: endDate)
         if (components.month ?? 0) < 1 {
             throw RetentionQueryGeneratorErrors.datesTooClose
         }
-        
+
         let months = splitIntoMonthLongIntervals(from: beginDate, to: endDate)
-        
+
         // Collect all Aggregators and PostAggregators
-        var aggregators = Array<Aggregator>()
-        var postAggregators = Array<PostAggregator>()
-        
+        var aggregators = [Aggregator]()
+        var postAggregators = [PostAggregator]()
+
         for month in months {
             aggregators.append(aggregator(for: month))
         }
-        
+
         for row in months {
-            for column in months {
-                if column >= row {
-                    postAggregators.append(postAggregatorBetween(interval1: row, interval2: column))
-                }
+            for column in months where column >= row {
+                postAggregators.append(postAggregatorBetween(interval1: row, interval2: column))
             }
         }
-        
-        // Combine query 
+
+        // Combine query
         return CustomQuery(
             queryType: .groupBy,
             dataSource: "telemetry-signals",
             filter: .and(.init(fields: [
                 .selector(.init(dimension: "appID", value: appID)),
-                .selector(.init(dimension: "isTestMode", value: testMode ? "true": "false"))
+                .selector(.init(dimension: "isTestMode", value: testMode ? "true" : "false"))
             ])),
             intervals: [QueryTimeInterval(beginningDate: beginDate, endDate: endDate)],
             granularity: .all,
@@ -52,13 +50,13 @@ public enum RetentionQueryGenerator {
             postAggregations: postAggregators.uniqued()
         )
     }
-    
+
     static func numberOfMonthsBetween(beginDate: Date, endDate: Date) -> Int {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.month], from: beginDate, to: endDate)
         return components.month ?? 0
     }
-    
+
     static func splitIntoMonthLongIntervals(from fromDate: Date, to toDate: Date) -> [DateInterval] {
         let calendar = Calendar.current
         let numberOfMonths = numberOfMonthsBetween(beginDate: fromDate, endDate: toDate)
@@ -85,11 +83,11 @@ public enum RetentionQueryGenerator {
         let components = calendar.dateComponents([.year, .month], from: date)
         return calendar.date(byAdding: DateComponents(month: 1, day: -1), to: calendar.date(from: components)!)!
     }
-    
+
     static func title(for interval: DateInterval) -> String {
         "\(DateFormatter.iso8601.string(from: interval.start))_\(DateFormatter.iso8601.string(from: interval.end))"
     }
-    
+
     static func aggregator(for interval: DateInterval) -> Aggregator {
         return .filtered(.init(
             filter: .interval(.init(
@@ -104,7 +102,7 @@ public enum RetentionQueryGenerator {
         )
         )
     }
-    
+
     static func postAggregatorBetween(interval1: DateInterval, interval2: DateInterval) -> PostAggregator {
         return .thetaSketchEstimate(.init(
             name: "retention_\(title(for: interval1))_\(title(for: interval2))",
@@ -115,7 +113,8 @@ public enum RetentionQueryGenerator {
                     .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title(for: interval2))"))
                 ]
             )
-            ))
+            )
+        )
         )
     }
 }

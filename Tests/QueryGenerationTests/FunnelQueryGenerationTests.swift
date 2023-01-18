@@ -1,4 +1,4 @@
-import DataTransferObjects
+@testable import DataTransferObjects
 import XCTest
 
 final class FunnelQueryGenerationTests: XCTestCase {
@@ -19,15 +19,13 @@ final class FunnelQueryGenerationTests: XCTestCase {
     let tinyQuery = CustomQuery(
         queryType: .groupBy,
         dataSource: "telemetry-signals",
-        filter: .and(.init(fields: [
-            .selector(.init(dimension: "appID", value: "79167A27-EBBF-4012-9974-160624E5D07B")),
-            .selector(.init(dimension: "isTestMode", value: "false")),
-            .or(.init(fields: [
-                .selector(.init(dimension: "type", value: "appLaunchedRegularly")),
-                .selector(.init(dimension: "type", value: "dataEntered")),
-                .selector(.init(dimension: "type", value: "paywallSeen")),
-                .selector(.init(dimension: "type", value: "conversion"))
-            ]))
+        filter:
+        .or(.init(fields: [
+            .selector(.init(dimension: "type", value: "appLaunchedRegularly")),
+            .selector(.init(dimension: "type", value: "dataEntered")),
+            .selector(.init(dimension: "type", value: "paywallSeen")),
+            .selector(.init(dimension: "type", value: "conversion"))
+
         ])),
         granularity: .all,
         aggregations: [
@@ -144,38 +142,21 @@ final class FunnelQueryGenerationTests: XCTestCase {
     )
 
     func testExample() throws {
-        let generatedTinyQuery = try FunnelQueryGenerator.generateFunnelQuery(
-            steps: steps,
-            stepNames: stepNames,
-            filter: nil,
-            appID: "79167A27-EBBF-4012-9974-160624E5D07B",
-            testMode: false
-        )
-        
+        let startingQuery = CustomQuery(queryType: .funnel, granularity: .all, steps: steps, stepNames: stepNames)
+        let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
+
         XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
         XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
         XCTAssertEqual(tinyQuery.postAggregations, generatedTinyQuery.postAggregations)
-        
-        XCTAssertEqual(tinyQuery, generatedTinyQuery)
-
-        // Apparently sometimes the previous line says the queries are equal even if they are not,
-        // let's double check by comparing the encoded JSON strings!
-        XCTAssertEqual(String(data: try! JSONEncoder.telemetryEncoder.encode(tinyQuery), encoding: .utf8), String(data: try! JSONEncoder.telemetryEncoder.encode(generatedTinyQuery), encoding: .utf8))
     }
-    
+
     func testWithAdditionalFilters() throws {
         let additionalFilter = Filter.selector(.init(dimension: "something", value: "other"))
-        let generatedTinyQuery = try FunnelQueryGenerator.generateFunnelQuery(
-            steps: steps,
-            stepNames: stepNames,
-            filter: additionalFilter,
-            appID: "B97579B6-FFB8-4AC5-AAA7-DA5796CC5DCE",
-            testMode: false
-        )
-        
+
+        let startingQuery = CustomQuery(queryType: .funnel, filter: additionalFilter, granularity: .all, steps: steps, stepNames: stepNames)
+        let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
+
         let expectedFilter = Filter.and(.init(fields: [
-            .selector(.init(dimension: "appID", value: "B97579B6-FFB8-4AC5-AAA7-DA5796CC5DCE")),
-            .selector(.init(dimension: "isTestMode", value: "false")),
             additionalFilter,
             .or(.init(fields: [
                 .selector(.init(dimension: "type", value: "appLaunchedRegularly")),
@@ -184,10 +165,23 @@ final class FunnelQueryGenerationTests: XCTestCase {
                 .selector(.init(dimension: "type", value: "conversion"))
             ]))
         ]))
-        
-        
+
         XCTAssertEqual(expectedFilter, generatedTinyQuery.filter)
         XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
         XCTAssertEqual(tinyQuery.postAggregations, generatedTinyQuery.postAggregations)
+    }
+
+    func testFunnelQueryGenerationKeepsRelativeIntervals() throws {
+        let relativeTimeIntervals = [
+            RelativeTimeInterval(
+                beginningDate: RelativeDate(.beginning, of: .month, adding: -1),
+                endDate: RelativeDate(.end, of: .month, adding: 0)
+            )
+        ]
+
+        let startingQuery = CustomQuery(queryType: .funnel, relativeIntervals: relativeTimeIntervals, granularity: .all, steps: steps, stepNames: stepNames)
+        let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
+
+        XCTAssertEqual(startingQuery.relativeIntervals, generatedTinyQuery.relativeIntervals)
     }
 }

@@ -29,7 +29,17 @@ public extension DTOv1 {
     }
 
     struct Signal: Codable, Hashable {
-        public init(appID: UUID? = nil, count: Int? = nil, receivedAt: Date, clientUser: String, sessionID: String? = nil, type: String, payload: [String: String]? = nil, floatValue: Double? = nil, isTestMode: Bool) {
+        public init(
+            appID: UUID? = nil,
+            count: Int? = nil,
+            receivedAt: Date,
+            clientUser: String,
+            sessionID: String? = nil,
+            type: String,
+            payload: [String: String]? = nil,
+            floatValue: Double? = nil,
+            isTestMode: Bool
+        ) {
             self.appID = appID
             self.count = count
             self.receivedAt = receivedAt
@@ -65,7 +75,7 @@ public extension DTOv1 {
         public var sessionID: String?
         public var type: String
         public var payload: String
-        public var floatValue: Double? = nil
+        public var floatValue: Double?
         public var isTestMode: String
 
         public func toSignal() -> Signal {

@@ -1,33 +1,13 @@
-import Foundation
+extension CustomQuery {
+    func precompiledFunnelQuery() throws -> CustomQuery {
+        var query = self
 
-public enum FunnelQueryGenerator {
-    public static func generateFunnelQuery(
-        steps: [Filter],
-        stepNames: [String],
-        filter: Filter?,
-        appID: String?,
-        testMode: Bool
-    ) throws -> CustomQuery {
+        guard let steps = steps else { throw QueryGenerationError.keyMissing(reason: "Missing key 'steps'") }
+        let stepNames = stepNames ?? []
+
         // Generate Filter Statement
         let stepsFilters = Filter.or(.init(fields: steps))
-        let testModeFilter = Filter.selector(.init(dimension: "isTestMode", value: "\(testMode)"))
-        
-        var filterFields = [Filter]()
-        
-        if let appID = appID {
-            let appIDFilter = Filter.selector(.init(dimension: "appID", value: appID))
-            filterFields.append(appIDFilter)
-        }
-        
-        filterFields.append(testModeFilter)
-        
-        if let additionalFilter = filter {
-            filterFields.append(additionalFilter)
-        }
-        
-        filterFields.append(stepsFilters)
-        
-        let queryFilter = Filter.and(.init(fields: filterFields))
+        let queryFilter = filter && stepsFilters
 
         // Generate Aggregations
         let aggregationNamePrefix = "_funnel_step_"
@@ -45,7 +25,7 @@ public enum FunnelQueryGenerator {
 
         // Generate Post-Agregations
         var postAggregations = [PostAggregator]()
-        for (index, _) in steps.enumerated() {
+        for index in steps.indices {
             if index == 0 {
                 postAggregations.append(.thetaSketchEstimate(.init(
                     name: "\(index)_\(stepNames[safe: index, default: "\(aggregationNamePrefix)\(index)"])",
@@ -69,18 +49,16 @@ public enum FunnelQueryGenerator {
         }
 
         // Combine query
-        return CustomQuery(
-            queryType: .groupBy,
-            dataSource: "telemetry-signals",
-            filter: queryFilter,
-            granularity: .all,
-            aggregations: aggregations,
-            postAggregations: postAggregations
-        )
+        query.queryType = .groupBy
+        query.filter = queryFilter
+        query.aggregations = aggregations
+        query.postAggregations = postAggregations
+
+        return query
     }
 }
 
-private extension Array {
+fileprivate extension Array {
     subscript(safe index: Index, default defaultValue: Element) -> Element {
         return indices.contains(index) ? self[index] : defaultValue
     }
