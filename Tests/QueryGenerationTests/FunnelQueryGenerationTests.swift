@@ -6,9 +6,9 @@ final class FunnelQueryGenerationTests: XCTestCase {
         .init(filter: .selector(.init(dimension: "type", value: "appLaunchedRegularly")), name: "Regular Launch"),
         .init(filter: .selector(.init(dimension: "type", value: "dataEntered")), name: "Data Entered"),
         .init(filter: .selector(.init(dimension: "type", value: "paywallSeen")), name: "Paywall Presented"),
-        .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion"),
+        .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion")
     ]
-    
+
     let tinyQuery = CustomQuery(
         queryType: .groupBy,
         dataSource: "telemetry-signals",
@@ -176,5 +176,19 @@ final class FunnelQueryGenerationTests: XCTestCase {
         let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
 
         XCTAssertEqual(startingQuery.relativeIntervals, generatedTinyQuery.relativeIntervals)
+    }
+
+    func testFunnelWithEmptyFilter() throws {
+        var stepsWithEmpty = steps
+        stepsWithEmpty.append(.init(name: "Empty Step"))
+
+        let startingQuery = CustomQuery(queryType: .funnel, granularity: .all, steps: steps)
+        let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
+
+        print(String(data: try JSONEncoder.telemetryEncoder.encode(generatedTinyQuery), encoding: .utf8)!)
+
+        XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
+        XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
+        XCTAssertEqual(tinyQuery.postAggregations, generatedTinyQuery.postAggregations)
     }
 }
