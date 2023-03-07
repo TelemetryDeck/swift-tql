@@ -3,20 +3,19 @@ extension CustomQuery {
         var query = self
 
         guard let steps = steps else { throw QueryGenerationError.keyMissing(reason: "Missing key 'steps'") }
-        
-        let stepFilters = steps.compactMap({ $0.filter })
-        let stepNames = steps.compactMap({ $0.name })
 
         // Generate Filter Statement
-        let stepsFilters = Filter.or(.init(fields: stepFilters))
+        let stepsFilters = Filter.or(.init(fields: steps.compactMap { $0.filter }))
         let queryFilter = filter && stepsFilters
 
         // Generate Aggregations
         let aggregationNamePrefix = "_funnel_step_"
         var aggregations = [Aggregator]()
-        for (index, step) in stepFilters.enumerated() {
+        for (index, step) in steps.enumerated() {
+            guard let filter = step.filter else { continue }
+
             aggregations.append(.filtered(.init(
-                filter: step,
+                filter: filter,
                 aggregator: .thetaSketch(.init(
                     type: .thetaSketch,
                     name: "\(aggregationNamePrefix)\(index)",
@@ -27,10 +26,12 @@ extension CustomQuery {
 
         // Generate Post-Agregations
         var postAggregations = [PostAggregator]()
-        for index in steps.indices {
+        for (index, step) in steps.enumerated() {
+            guard step.filter != nil else { continue }
+
             if index == 0 {
                 postAggregations.append(.thetaSketchEstimate(.init(
-                    name: "\(index)_\(stepNames[safe: index, default: "\(aggregationNamePrefix)\(index)"])",
+                    name: "\(index)_\(step.name)",
                     field: .fieldAccess(.init(
                         type: .fieldAccess,
                         fieldName: "\(aggregationNamePrefix)\(index)"
@@ -40,7 +41,7 @@ extension CustomQuery {
             }
 
             postAggregations.append(.thetaSketchEstimate(.init(
-                name: "\(index)_\(stepNames[safe: index, default: "\(aggregationNamePrefix)\(index)"])",
+                name: "\(index)_\(step.name)",
                 field: .thetaSketchSetOp(.init(
                     func: .intersect,
                     fields: (0 ... index).map { stepNumber in
@@ -60,7 +61,7 @@ extension CustomQuery {
     }
 }
 
-fileprivate extension Array {
+private extension Array {
     subscript(safe index: Index, default defaultValue: Element) -> Element {
         return indices.contains(index) ? self[index] : defaultValue
     }
