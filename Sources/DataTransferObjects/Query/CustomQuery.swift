@@ -16,7 +16,8 @@ public struct CustomQuery: Codable, Hashable, Equatable {
                 limit: Int? = nil, context: QueryContext? = nil,
                 threshold: Int? = nil, metric: TopNMetricSpec? = nil,
                 dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
-                steps: [FunnelStep]? = nil)
+                steps: [NamedFilter]? = nil,
+                sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
     {
         self.queryType = queryType
         self.compilationStatus = compilationStatus
@@ -42,6 +43,9 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.dimension = dimension
         self.dimensions = dimensions
         self.steps = steps
+        self.sample1 = sample1
+        self.sample2 = sample2
+        self.successCriterion = successCriterion
     }
 
     public init(queryType: CustomQuery.QueryType,
@@ -58,7 +62,8 @@ public struct CustomQuery: Codable, Hashable, Equatable {
                 limit: Int? = nil, context: QueryContext? = nil,
                 threshold: Int? = nil, metric: TopNMetricSpec? = nil,
                 dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
-                steps: [FunnelStep]? = nil)
+                steps: [NamedFilter]? = nil,
+                sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
     {
         self.queryType = queryType
         self.compilationStatus = compilationStatus
@@ -80,6 +85,9 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.dimension = dimension
         self.dimensions = dimensions
         self.steps = steps
+        self.sample1 = sample1
+        self.sample2 = sample2
+        self.successCriterion = successCriterion
     }
 
     public enum QueryType: String, Codable, CaseIterable, Identifiable {
@@ -91,6 +99,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
 
         // derived types
         case funnel
+        case experiment
         // case retention
     }
 
@@ -134,12 +143,20 @@ public struct CustomQuery: Codable, Hashable, Equatable {
 
     /// Only for groupBy Queries: A list of dimensions to do the groupBy over, if queryType is groupBy
     public var dimensions: [DimensionSpec]?
-
+    
     /// Only for funnel Queries: A list of filters that form the steps of the funnel
-    public var steps: [FunnelStep]?
-
-    /// Only for funnel Queries: An optional List of names for the funnel steps
-    public var stepNames: [String]?
+    public var steps: [NamedFilter]?
+    
+    /// Only for experiment Queries: The control cohort for the experiment
+    public var sample1: NamedFilter?
+    
+    /// Only for experiment Queries: The experiment cohort for the experiment
+    public var sample2: NamedFilter?
+    
+    /// Only for experiment Queries: A named filter that defines the successful cohort in the experiment.
+    ///
+    /// Will be intersected with cohort 1 for success 1 and cohort 2 for success 2
+    public var successCriterion: NamedFilter?
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(queryType)
@@ -162,7 +179,9 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(dimensions)
         hasher.combine(dimension)
         hasher.combine(steps)
-        hasher.combine(stepNames)
+        hasher.combine(sample1)
+        hasher.combine(sample2)
+        hasher.combine(successCriterion)
     }
 
     public static func == (lhs: CustomQuery, rhs: CustomQuery) -> Bool {
@@ -190,8 +209,10 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.dimension = try container.decodeIfPresent(DimensionSpec.self, forKey: CustomQuery.CodingKeys.dimension)
         self.metric = try container.decodeIfPresent(TopNMetricSpec.self, forKey: CustomQuery.CodingKeys.metric)
         self.dimensions = try container.decodeIfPresent([DimensionSpec].self, forKey: CustomQuery.CodingKeys.dimensions)
-        self.steps = try container.decodeIfPresent([FunnelStep].self, forKey: CustomQuery.CodingKeys.steps)
-        self.stepNames = try container.decodeIfPresent([String].self, forKey: CustomQuery.CodingKeys.stepNames)
+        self.steps = try container.decodeIfPresent([NamedFilter].self, forKey: CustomQuery.CodingKeys.steps)
+        self.sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
+        self.sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)
+        self.successCriterion = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.successCriterion)
 
         if let intervals = try? container.decode(QueryTimeIntervalsContainer.self, forKey: CustomQuery.CodingKeys.intervals) {
             self.intervals = intervals.intervals
