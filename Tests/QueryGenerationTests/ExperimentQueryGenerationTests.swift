@@ -56,6 +56,19 @@ final class ExperimentQueryGenerationTests: XCTestCase {
                         fieldName: "clientUser"
                     )
                 )
+            )),
+            .filtered(.init(
+                filter: .or(.init(fields: [
+                    .selector(.init(dimension: "type", value: "payScreenALaunched")),
+                    .selector(.init(dimension: "type", value: "payScreenBLaunched")),
+                ])),
+                aggregator: .thetaSketch(
+                    .init(
+                        type: .thetaSketch,
+                        name: "users",
+                        fieldName: "clientUser"
+                    )
+                )
             ))
         ],
         postAggregations: [
@@ -127,6 +140,10 @@ final class ExperimentQueryGenerationTests: XCTestCase {
             successCriterion: successCriterion
         )
         let generatedTinyQuery = try startingQuery.precompile(organizationAppIDs: organizationAppIDs, isSuperOrg: false)
+        
+        let encodedQuery = try JSONEncoder.telemetryEncoder.encode(startingQuery)
+        let encodedQueryString = String(data: encodedQuery, encoding: .utf8)
+        print(encodedQueryString)
 
         XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
         XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)

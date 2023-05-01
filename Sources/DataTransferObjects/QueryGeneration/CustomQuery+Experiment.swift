@@ -28,6 +28,18 @@ extension CustomQuery {
             )
         }
         
+        aggregations.append(.filtered(.init(
+            filter: .or(.init(fields: [
+                sample1.filter ?? Filter.empty,
+                sample2.filter ?? Filter.empty
+            ])),
+            aggregator: .thetaSketch(.init(
+                type: .thetaSketch,
+                name: "users",
+                fieldName: "clientUser"
+            ))
+        )))
+        
         // Generate Post-Agregations
         let postAggregations: [PostAggregator] = [
             .thetaSketchEstimate(.init(
