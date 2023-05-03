@@ -143,7 +143,6 @@ final class ExperimentQueryGenerationTests: XCTestCase {
         
         let encodedQuery = try JSONEncoder.telemetryEncoder.encode(startingQuery)
         let encodedQueryString = String(data: encodedQuery, encoding: .utf8)
-        print(encodedQueryString)
 
         XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
         XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
