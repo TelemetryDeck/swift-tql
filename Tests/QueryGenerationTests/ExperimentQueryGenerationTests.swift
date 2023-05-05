@@ -140,9 +140,6 @@ final class ExperimentQueryGenerationTests: XCTestCase {
             successCriterion: successCriterion
         )
         let generatedTinyQuery = try startingQuery.precompile(organizationAppIDs: organizationAppIDs, isSuperOrg: false)
-        
-        let encodedQuery = try JSONEncoder.telemetryEncoder.encode(startingQuery)
-        let encodedQueryString = String(data: encodedQuery, encoding: .utf8)
 
         XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
         XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
