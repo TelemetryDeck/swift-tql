@@ -21,6 +21,7 @@ public extension DTOv1 {
         public var countryCode: String? = ""
         public var referralCode: String?
         public var source: String?
+        public var tags: [String]?
 
         public var isValid: ValidationState {
             if organisationName.isEmpty || userFirstName.isEmpty || userEmail.isEmpty || userPassword.isEmpty {
