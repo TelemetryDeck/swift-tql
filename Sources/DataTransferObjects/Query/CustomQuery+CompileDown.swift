@@ -67,10 +67,9 @@ public extension CustomQuery {
         guard query.intervals != nil, !query.intervals!.isEmpty else {
             throw QueryGenerationError.keyMissing(reason: "Either 'relativeIntervals' or 'intervals' need to be set")
         }
-        
+
         // Add restrictionsFilter
         if let restrictions = query.restrictions {
-            
             // Only apply those restrictions that actually are inside the query intervals
             var applicableRestrictions = Set<QueryTimeInterval>()
             for queryInterval in query.intervals ?? [] {
@@ -81,9 +80,13 @@ public extension CustomQuery {
                     }
                 }
             }
-            
-            query.restrictions = applicableRestrictions.sorted { $0 < $1 }
-            query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: query.restrictions ?? []))))
+
+            if applicableRestrictions.isEmpty {
+                query.restrictions = nil
+            } else {
+                query.restrictions = applicableRestrictions.sorted { $0 < $1 }
+                query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: query.restrictions ?? []))))
+            }
         }
 
         // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
