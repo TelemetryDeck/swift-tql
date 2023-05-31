@@ -69,6 +69,22 @@ public extension CustomQuery {
         }
         
         // Add restrictionsFilter
+        if let restrictions = query.restrictions {
+            
+            // Only apply those restrictions that actually are inside the query intervals
+            var applicableRestrictions = Set<QueryTimeInterval>()
+            for queryInterval in query.intervals ?? [] {
+                for restrictionInterval in restrictions {
+                    let isOverlapping = (queryInterval.beginningDate <= restrictionInterval.endDate) && (restrictionInterval.beginningDate <= queryInterval.endDate)
+                    if isOverlapping {
+                        applicableRestrictions.insert(restrictionInterval)
+                    }
+                }
+            }
+            
+            query.restrictions = applicableRestrictions.sorted { $0 < $1 }
+            query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: query.restrictions ?? []))))
+        }
 
         // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
         query.compilationStatus = .compiled

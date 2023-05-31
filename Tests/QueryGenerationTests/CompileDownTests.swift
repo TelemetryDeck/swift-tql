@@ -14,9 +14,9 @@ final class CompileDownTests: XCTestCase {
             .init(filter: .selector(.init(dimension: "type", value: "appLaunchedRegularly")), name: "Regular Launch"),
             .init(filter: .selector(.init(dimension: "type", value: "dataEntered")), name: "Data Entered"),
             .init(filter: .selector(.init(dimension: "type", value: "paywallSeen")), name: "Paywall Presented"),
-            .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion"),
+            .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion")
         ]
-        
+
         let query = CustomQuery(queryType: .funnel, relativeIntervals: relativeIntervals, granularity: .all, steps: steps)
 
         let precompiledQuery = try query.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false)
@@ -104,15 +104,15 @@ final class CompileDownTests: XCTestCase {
     func testDataSource() throws {
         // No datasource means data source is telemetry-signals
         let query1 = CustomQuery(queryType: .timeseries, baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
-        XCTAssertEqual(try query1.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false).dataSource, DataSource.init("telemetry-signals"))
+        XCTAssertEqual(try query1.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false).dataSource, DataSource("telemetry-signals"))
 
         // Specified datasource but not noFilter + super org will be replaced by telemetry-signals
         let query2 = CustomQuery(queryType: .timeseries, dataSource: "some-data-source", baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
-        XCTAssertEqual(try query2.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false).dataSource, DataSource.init("telemetry-signals"))
+        XCTAssertEqual(try query2.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false).dataSource, DataSource("telemetry-signals"))
 
         // Specified datasource will be retained if super org is set
         let query3 = CustomQuery(queryType: .timeseries, dataSource: "some-data-source", baseFilters: .noFilter, relativeIntervals: relativeIntervals, granularity: .all)
-        XCTAssertEqual(try query3.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: true).dataSource, DataSource.init("some-data-source"))
+        XCTAssertEqual(try query3.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: true).dataSource, DataSource("some-data-source"))
     }
 
     func testThrowsIfNeitherIntervalsNorRelativeIntervalsSet() throws {
@@ -147,5 +147,31 @@ final class CompileDownTests: XCTestCase {
     func testThrowsIfCompilationStatusNotSetCorrectly() throws {
         let query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .all)
         XCTAssertThrowsError(try query.compileToRunnableQuery())
+    }
+
+    func testRestrictions() throws {
+        let intervals: [QueryTimeInterval] = [
+            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!)
+        ]
+
+        let restrictions: [QueryTimeInterval] = [
+            // This restriction should be dropped in the final query, because it does not apply
+            .init(beginningDate: Date(iso8601String: "2023-01-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-01-31T00:00:00.000Z")!),
+
+            // This restriction should be included because it does apply
+            .init(beginningDate: Date(iso8601String: "2023-05-14T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
+
+            // This restriction should be included because it applies partially
+            .init(beginningDate: Date(iso8601String: "2023-03-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-04-02T00:00:00.000Z")!)
+        ]
+
+        let query = CustomQuery(queryType: .timeseries, restrictions: restrictions, intervals: intervals, granularity: .all)
+        let precompiledQuery = try query.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let compiledQuery = try precompiledQuery.compileToRunnableQuery()
+
+        XCTAssertEqual(compiledQuery.restrictions, [
+            .init(beginningDate: Date(iso8601String: "2023-03-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-04-02T00:00:00.000Z")!),
+            .init(beginningDate: Date(iso8601String: "2023-05-14T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!)
+        ])
     }
 }

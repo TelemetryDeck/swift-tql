@@ -10,7 +10,7 @@ public struct QueryTimeIntervalsContainer: Codable, Hashable, Equatable {
     public let intervals: [QueryTimeInterval]
 }
 
-public struct QueryTimeInterval: Codable, Hashable, Equatable {
+public struct QueryTimeInterval: Codable, Hashable, Equatable, Comparable {
     public let beginningDate: Date
     public let endDate: Date
 
@@ -53,5 +53,10 @@ public struct QueryTimeInterval: Codable, Hashable, Equatable {
     public init(dateInterval: DateInterval) {
         self.beginningDate = dateInterval.start
         self.endDate = dateInterval.end
+    }
+    
+    public static func < (lhs: QueryTimeInterval, rhs: QueryTimeInterval) -> Bool {
+        if lhs.beginningDate == rhs.beginningDate { return lhs.endDate < rhs.endDate }
+        return lhs.beginningDate < rhs.beginningDate
     }
 }
