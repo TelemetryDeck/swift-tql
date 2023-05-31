@@ -69,24 +69,9 @@ public extension CustomQuery {
         }
 
         // Add restrictionsFilter
-        if let restrictions = query.restrictions {
-            // Only apply those restrictions that actually are inside the query intervals
-            var applicableRestrictions = Set<QueryTimeInterval>()
-            for queryInterval in query.intervals ?? [] {
-                for restrictionInterval in restrictions {
-                    let isOverlapping = (queryInterval.beginningDate <= restrictionInterval.endDate) && (restrictionInterval.beginningDate <= queryInterval.endDate)
-                    if isOverlapping {
-                        applicableRestrictions.insert(restrictionInterval)
-                    }
-                }
-            }
-
-            if applicableRestrictions.isEmpty {
-                query.restrictions = nil
-            } else {
-                query.restrictions = applicableRestrictions.sorted { $0 < $1 }
-                query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: query.restrictions ?? []))))
-            }
+        if let applicableRestrictions = Self.getApplicableRestrictions(from: query) {
+            query.restrictions = applicableRestrictions
+            query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: applicableRestrictions))))
         }
 
         // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
@@ -154,5 +139,26 @@ extension CustomQuery {
         }
 
         return Filter.or(.init(fields: filters))
+    }
+
+    static func getApplicableRestrictions(from query: CustomQuery) -> [QueryTimeInterval]? {
+        guard let restrictions = query.restrictions else { return nil }
+
+        // Only apply those restrictions that actually are inside the query intervals
+        var applicableRestrictions = Set<QueryTimeInterval>()
+        for queryInterval in query.intervals ?? [] {
+            for restrictionInterval in restrictions {
+                let isOverlapping = (queryInterval.beginningDate <= restrictionInterval.endDate) && (restrictionInterval.beginningDate <= queryInterval.endDate)
+                if isOverlapping {
+                    applicableRestrictions.insert(restrictionInterval)
+                }
+            }
+        }
+
+        if applicableRestrictions.isEmpty {
+            return nil
+        } else {
+            return applicableRestrictions.sorted { $0 < $1 }
+        }
     }
 }
