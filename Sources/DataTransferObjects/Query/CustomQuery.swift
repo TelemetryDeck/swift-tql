@@ -166,6 +166,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(queryType)
         hasher.combine(compilationStatus)
+        hasher.combine(restrictions)
         hasher.combine(dataSource)
         hasher.combine(descending)
         hasher.combine(baseFilters)
