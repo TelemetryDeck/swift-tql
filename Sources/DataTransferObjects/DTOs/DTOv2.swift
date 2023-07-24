@@ -25,6 +25,7 @@ public enum DTOv2 {
         public var referredBy: UUID?
         public var appIDs: [App.ID]
         public var badgeAwardIDs: [BadgeAward.ID]
+        public var settings: OrganizationSettings?
 
         public init(
             id: UUID,
@@ -42,8 +43,8 @@ public enum DTOv2 {
             referralCode: String,
             referredBy: UUID?,
             appIDs: [App.ID],
-            badgeAwardIDs: [BadgeAward.ID]
-
+            badgeAwardIDs: [BadgeAward.ID],
+            settings: OrganizationSettings
         ) {
             self.id = id
             self.name = name
@@ -61,6 +62,64 @@ public enum DTOv2 {
             self.referredBy = referredBy
             self.appIDs = appIDs
             self.badgeAwardIDs = badgeAwardIDs
+            self.settings = settings
+        }
+    }
+
+    public struct OrganizationSettings: Codable, Hashable {
+        // TBA
+
+        public init() {}
+    }
+
+    struct User: Identifiable, Codable {
+        public let id: UUID
+        public let organization: DTOv1.Organization?
+        public var firstName: String
+        public var lastName: String
+        public var email: String
+        public let emailIsVerified: Bool
+        public var receiveMarketingEmails: Bool?
+        public let isFoundingUser: Bool
+        public var receiveReports: ReportSendingRate
+        public var settings: UserSettings?
+
+        public init(
+            id: UUID,
+            organization: DTOv1.Organization?,
+            firstName: String,
+            lastName: String,
+            email: String,
+            emailIsVerified: Bool,
+            receiveMarketingEmails: Bool?,
+            isFoundingUser: Bool,
+            receiveReports: ReportSendingRate,
+            settings: UserSettings
+        ) {
+            self.id = id
+            self.organization = organization
+            self.firstName = firstName
+            self.lastName = lastName
+            self.email = email
+            self.emailIsVerified = emailIsVerified
+            self.receiveMarketingEmails = receiveMarketingEmails
+            self.isFoundingUser = isFoundingUser
+            self.receiveReports = receiveReports
+            self.settings = settings
+        }
+    }
+
+    public struct UserSettings: Codable, Hashable {
+        public enum ChartColorSet: Codable, Hashable {
+            case telemetryDeckRainbow
+            case highContrast
+        }
+
+        // if set, use a custom chart color set, e.g. for various forms of color blindness
+        public var chartColorSet: ChartColorSet
+
+        public init(chartColorSet: ChartColorSet? = nil) {
+            self.chartColorSet = chartColorSet ?? .telemetryDeckRainbow
         }
     }
 
@@ -129,12 +188,27 @@ public enum DTOv2 {
         public var name: String
         public var organizationID: Organization.ID
         public var insightGroupIDs: [Group.ID]
+        public var settings: AppSettings
 
-        public init(id: UUID, name: String, organizationID: Organization.ID, insightGroupIDs: [Group.ID]) {
+        public init(id: UUID, name: String, organizationID: Organization.ID, insightGroupIDs: [Group.ID], settings: AppSettings) {
             self.id = id
             self.name = name
             self.organizationID = organizationID
             self.insightGroupIDs = insightGroupIDs
+            self.settings = settings
+        }
+    }
+
+    public struct AppSettings: Codable, Hashable {
+        public enum DisplayMode: Codable, Hashable {
+            case app
+            case website
+        }
+
+        public var displayMode: DisplayMode
+
+        public init(displayMode: DisplayMode? = nil) {
+            self.displayMode = displayMode ?? .app
         }
     }
 
@@ -159,12 +233,14 @@ public enum DTOv2 {
         public var name: String
         public var organizationID: Organization.ID
         public var insights: [DTOv2.Insight]
+        public var settings: AppSettings
 
-        public init(id: UUID, name: String, organizationID: Organization.ID, insights: [DTOv2.Insight]) {
+        public init(id: UUID, name: String, organizationID: Organization.ID, insights: [DTOv2.Insight], settings: AppSettings) {
             self.id = id
             self.name = name
             self.organizationID = organizationID
             self.insights = insights
+            self.settings = settings
         }
     }
 
@@ -297,9 +373,18 @@ public enum DTOv2 {
     }
 
     public struct PriceStructure: Identifiable, Codable {
-        public init(id: String, order: Int, title: String, description: String,
-                    includedSignals: Int64, nakedPrice: String, mostPopular: Bool, currency: String, billingPeriod: String, features: [String])
-        {
+        public init(
+            id: String,
+            order: Int,
+            title: String,
+            description: String,
+            includedSignals: Int64,
+            nakedPrice: String,
+            mostPopular: Bool,
+            currency: String,
+            billingPeriod: String,
+            features: [String]
+        ) {
             self.id = id
             self.order = order
             self.title = title
