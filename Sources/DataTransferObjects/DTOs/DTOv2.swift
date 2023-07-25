@@ -110,7 +110,7 @@ public enum DTOv2 {
     }
 
     public struct UserSettings: Codable, Hashable {
-        public enum ChartColorSet: Codable, Hashable {
+        public enum ChartColorSet: String, Codable, Hashable {
             case telemetryDeckRainbow
             case highContrast
         }
@@ -200,7 +200,7 @@ public enum DTOv2 {
     }
 
     public struct AppSettings: Codable, Hashable {
-        public enum DisplayMode: Codable, Hashable {
+        public enum DisplayMode: String, Codable, Hashable {
             case app
             case website
         }
