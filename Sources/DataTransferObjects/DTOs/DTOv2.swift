@@ -204,11 +204,25 @@ public enum DTOv2 {
             case app
             case website
         }
+        
+        /// If true, the app should display demo content instead of
+        public var showExampleData: Bool?
+        
+        /// What colors should charts be in?
+        ///
+        /// This should be formatted as
+        ///   - space-separated hex codes like "#ff0000 #12aa33 #baff1e"
+        ///   - a color scheme name like "highcontrast"
+        ///   - or nil for default color scheme
+        public var colorScheme: String?
 
-        public var displayMode: DisplayMode
+        /// How should the overview page for this application be layouted?
+        public var displayMode: DisplayMode?
 
-        public init(displayMode: DisplayMode? = nil) {
+        public init(displayMode: DisplayMode? = nil, colorScheme: String? = nil, showExampleData: Bool? = nil) {
             self.displayMode = displayMode ?? .app
+            self.colorScheme = colorScheme
+            self.showExampleData = showExampleData ?? false
         }
     }
 
