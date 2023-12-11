@@ -6,7 +6,7 @@ final class FunnelQueryGenerationTests: XCTestCase {
         .init(filter: .selector(.init(dimension: "type", value: "appLaunchedRegularly")), name: "Regular Launch"),
         .init(filter: .selector(.init(dimension: "type", value: "dataEntered")), name: "Data Entered"),
         .init(filter: .selector(.init(dimension: "type", value: "paywallSeen")), name: "Paywall Presented"),
-        .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion")
+        .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion"),
     ]
 
     let tinyQuery = CustomQuery(
@@ -17,7 +17,7 @@ final class FunnelQueryGenerationTests: XCTestCase {
             .selector(.init(dimension: "type", value: "appLaunchedRegularly")),
             .selector(.init(dimension: "type", value: "dataEntered")),
             .selector(.init(dimension: "type", value: "paywallSeen")),
-            .selector(.init(dimension: "type", value: "conversion"))
+            .selector(.init(dimension: "type", value: "conversion")),
 
         ])),
         granularity: .all,
@@ -61,7 +61,7 @@ final class FunnelQueryGenerationTests: XCTestCase {
                         fieldName: "clientUser"
                     )
                 )
-            ))
+            )),
         ],
         postAggregations: [
             .thetaSketchEstimate(.init(
@@ -83,7 +83,7 @@ final class FunnelQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_funnel_step_1"
-                        ))
+                        )),
                     ]
                 ))
             )),
@@ -103,7 +103,7 @@ final class FunnelQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_funnel_step_2"
-                        ))
+                        )),
                     ]
                 ))
             )),
@@ -127,10 +127,10 @@ final class FunnelQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_funnel_step_3"
-                        ))
+                        )),
                     ]
                 ))
-            ))
+            )),
         ]
     )
 
@@ -155,8 +155,8 @@ final class FunnelQueryGenerationTests: XCTestCase {
                 .selector(.init(dimension: "type", value: "appLaunchedRegularly")),
                 .selector(.init(dimension: "type", value: "dataEntered")),
                 .selector(.init(dimension: "type", value: "paywallSeen")),
-                .selector(.init(dimension: "type", value: "conversion"))
-            ]))
+                .selector(.init(dimension: "type", value: "conversion")),
+            ])),
         ]))
 
         XCTAssertEqual(expectedFilter, generatedTinyQuery.filter)
@@ -169,7 +169,7 @@ final class FunnelQueryGenerationTests: XCTestCase {
             RelativeTimeInterval(
                 beginningDate: RelativeDate(.beginning, of: .month, adding: -1),
                 endDate: RelativeDate(.end, of: .month, adding: 0)
-            )
+            ),
         ]
 
         let startingQuery = CustomQuery(queryType: .funnel, relativeIntervals: relativeTimeIntervals, granularity: .all, steps: steps)
@@ -185,7 +185,7 @@ final class FunnelQueryGenerationTests: XCTestCase {
         let startingQuery = CustomQuery(queryType: .funnel, granularity: .all, steps: steps)
         let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
 
-        print(String(data: try JSONEncoder.telemetryEncoder.encode(generatedTinyQuery), encoding: .utf8)!)
+        try print(String(data: JSONEncoder.telemetryEncoder.encode(generatedTinyQuery), encoding: .utf8)!)
 
         XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
         XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)

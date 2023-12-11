@@ -103,7 +103,7 @@ final class RelativeDateTests: XCTestCase {
             RelativeTimeInterval(
                 beginningDate: RelativeDate(.beginning, of: .month, adding: -1),
                 endDate: RelativeDate(.end, of: .month, adding: 0)
-            )
+            ),
         ]
 
         let expectedOutput = """

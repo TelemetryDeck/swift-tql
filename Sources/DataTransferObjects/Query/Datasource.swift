@@ -7,7 +7,7 @@ public struct DataSource: Codable, Hashable, Equatable {
     }
 
     public init(_ name: String) {
-        self.type = .table
+        type = .table
         self.name = name
     }
 
@@ -38,15 +38,15 @@ public struct DataSource: Codable, Hashable, Equatable {
     }
 
     public func encode(to encoder: Encoder) throws {
-        if self.type == .table {
+        if type == .table {
             var container = encoder.singleValueContainer()
-            try container.encode(self.name)
+            try container.encode(name)
             return
         }
 
         var container: KeyedEncodingContainer<DataSource.CodingKeys> = encoder.container(keyedBy: DataSource.CodingKeys.self)
 
-        try container.encode(self.type, forKey: DataSource.CodingKeys.type)
-        try container.encode(self.name, forKey: DataSource.CodingKeys.name)
+        try container.encode(type, forKey: DataSource.CodingKeys.type)
+        try container.encode(name, forKey: DataSource.CodingKeys.name)
     }
 }

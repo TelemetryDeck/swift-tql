@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UserDTO.swift
 //
 //
 //  Created by Daniel Jilg on 09.04.21.

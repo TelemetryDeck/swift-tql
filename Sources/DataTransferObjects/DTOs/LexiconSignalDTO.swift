@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  LexiconSignalDTO.swift
 //
 //
 //  Created by Daniel Jilg on 12.05.21.

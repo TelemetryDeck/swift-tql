@@ -51,10 +51,10 @@ public struct QueryTimeInterval: Codable, Hashable, Equatable, Comparable {
     }
 
     public init(dateInterval: DateInterval) {
-        self.beginningDate = dateInterval.start
-        self.endDate = dateInterval.end
+        beginningDate = dateInterval.start
+        endDate = dateInterval.end
     }
-    
+
     public static func < (lhs: QueryTimeInterval, rhs: QueryTimeInterval) -> Bool {
         if lhs.beginningDate == rhs.beginningDate { return lhs.endDate < rhs.endDate }
         return lhs.beginningDate < rhs.beginningDate

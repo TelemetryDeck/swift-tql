@@ -24,7 +24,7 @@ final class ChartDefinitionTests: XCTestCase {
         {"columns":[],"x":"x"}
         """
 
-        XCTAssertEqual(String(data: try JSONEncoder.telemetryEncoder.encode(exampleDataSection), encoding: .utf8)!, expectedResult)
+        XCTAssertEqual(try String(data: JSONEncoder.telemetryEncoder.encode(exampleDataSection), encoding: .utf8)!, expectedResult)
     }
 
     func testColumnEncoding() throws {
@@ -34,7 +34,7 @@ final class ChartDefinitionTests: XCTestCase {
         ["data1","12","31",null,"42"]
         """
 
-        XCTAssertEqual(String(data: try JSONEncoder.telemetryEncoder.encode(exampleColumn), encoding: .utf8)!, expectedResult)
+        XCTAssertEqual(try String(data: JSONEncoder.telemetryEncoder.encode(exampleColumn), encoding: .utf8)!, expectedResult)
     }
 
     func testColumnDecoding() throws {

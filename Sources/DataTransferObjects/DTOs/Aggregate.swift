@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Aggregate.swift
 //
 //
 //  Created by Daniel Jilg on 15.04.21.

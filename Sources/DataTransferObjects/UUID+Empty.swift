@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UUID+Empty.swift
 //  File
 //
 //  Created by Daniel Jilg on 17.08.21.

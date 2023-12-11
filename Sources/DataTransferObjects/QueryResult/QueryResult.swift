@@ -15,11 +15,11 @@ public enum QueryResult: Codable, Hashable, Equatable {
 
         switch type {
         case "timeSeriesResult":
-            self = .timeSeries(try TimeSeriesQueryResult(from: decoder))
+            self = try .timeSeries(TimeSeriesQueryResult(from: decoder))
         case "topNResult":
-            self = .topN(try TopNQueryResult(from: decoder))
+            self = try .topN(TopNQueryResult(from: decoder))
         case "groupByResult":
-            self = .groupBy(try GroupByQueryResult(from: decoder))
+            self = try .groupBy(GroupByQueryResult(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }

@@ -20,9 +20,9 @@ public indirect enum DimensionSpec: Codable, Equatable, Hashable {
 
         switch type {
         case "default":
-            self = .default(try DefaultDimensionSpec(from: decoder))
+            self = try .default(DefaultDimensionSpec(from: decoder))
         case "extraction":
-            self = .extraction(try ExtractionDimensionSpec(from: decoder))
+            self = try .extraction(ExtractionDimensionSpec(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }

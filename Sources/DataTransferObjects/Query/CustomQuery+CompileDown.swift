@@ -101,12 +101,12 @@ extension CustomQuery {
         switch baseFilters {
         case .thisOrganization:
             guard let organizationAppIDs = organizationAppIDs else { throw QueryGenerationError.keyMissing(reason: "Missing organization app IDs") }
-            query.filter = query.filter && (try appIDFilter(for: organizationAppIDs)) && testModeFilter(for: query)
+            query.filter = try query.filter && appIDFilter(for: organizationAppIDs) && testModeFilter(for: query)
             return query
 
         case .thisApp:
             guard let appID = query.appID else { throw QueryGenerationError.keyMissing(reason: "Missing key 'appID'") }
-            query.filter = query.filter && (try appIDFilter(for: [appID])) && testModeFilter(for: query)
+            query.filter = try query.filter && appIDFilter(for: [appID]) && testModeFilter(for: query)
             return query
 
         case .exampleData:
@@ -121,7 +121,7 @@ extension CustomQuery {
 
     /// Returns a filter according to the query objects `testMode` property.
     static func testModeFilter(for query: CustomQuery) -> Filter {
-        return Filter.selector(.init(dimension: "isTestMode", value: "\(query.testMode ?? false ? "true" : "false")"))
+        Filter.selector(.init(dimension: "isTestMode", value: "\(query.testMode ?? false ? "true" : "false")"))
     }
 
     // Given a list of app UUIDs, generates a Filter object that restricts a query to only apps with either of the given IDs

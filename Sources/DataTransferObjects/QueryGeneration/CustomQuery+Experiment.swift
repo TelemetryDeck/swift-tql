@@ -1,15 +1,15 @@
 extension CustomQuery {
     func precompiledExperimentQuery() throws -> CustomQuery {
         var query = self
-        
+
         guard let sample1 = sample1 else { throw QueryGenerationError.keyMissing(reason: "Missing key 'sample1'") }
         guard let sample2 = sample2 else { throw QueryGenerationError.keyMissing(reason: "Missing key 'sample2'") }
         guard let successCriterion = successCriterion else { throw QueryGenerationError.keyMissing(reason: "Missing key 'successCriterion'") }
-        
+
         // Generate Filter Statement
         // In theory, we could pre-filter here by combining all filtered aggregations with an "or" filter. Which
         // might bring a bit of a perfmance benefit.
-   
+
         // Generate Aggregations
         var aggregations = [Aggregator]()
         for combined in zip(
@@ -27,11 +27,11 @@ extension CustomQuery {
                 ))
             )
         }
-        
+
         aggregations.append(.filtered(.init(
             filter: .or(.init(fields: [
                 sample1.filter ?? Filter.empty,
-                sample2.filter ?? Filter.empty
+                sample2.filter ?? Filter.empty,
             ])),
             aggregator: .thetaSketch(.init(
                 type: .thetaSketch,
@@ -39,7 +39,7 @@ extension CustomQuery {
                 fieldName: "clientUser"
             ))
         )))
-        
+
         // Generate Post-Agregations
         let postAggregations: [PostAggregator] = [
             .thetaSketchEstimate(.init(
@@ -54,7 +54,7 @@ extension CustomQuery {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "success"
-                        ))
+                        )),
                     ]
                 ))
             )),
@@ -70,7 +70,7 @@ extension CustomQuery {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "success"
-                        ))
+                        )),
                     ]
                 ))
             )),
@@ -96,9 +96,9 @@ extension CustomQuery {
             .pvalue2tailedZtest(.init(
                 name: "pvalue",
                 zScore: .fieldAccess(.init(type: .fieldAccess, fieldName: "zscore"))
-            ))
+            )),
         ]
-        
+
         // Combine query
         query.queryType = .groupBy
         // query.filter = queryFilter

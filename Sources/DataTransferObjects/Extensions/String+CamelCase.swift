@@ -11,7 +11,7 @@ public extension String {
     var camelCaseToWords: String {
         unicodeScalars.reduce("") {
             if CharacterSet.uppercaseLetters.contains($1) {
-                return ($0 + " " + String($1))
+                return $0 + " " + String($1)
             }
 
             return $0 + String($1)

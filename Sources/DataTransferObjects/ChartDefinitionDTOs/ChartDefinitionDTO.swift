@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ChartDefinitionDTO.swift
 //
 //
 //  Created by Daniel Jilg on 10.11.21.

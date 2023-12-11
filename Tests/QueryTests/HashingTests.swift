@@ -209,4 +209,21 @@ class HashingTests: XCTestCase {
 
         XCTAssertNotEqual(query1.hashValue, query2.hashValue)
     }
+
+    func testCustomQueryHashingStable() {
+        let exampleTopNQuery = CustomQuery(
+            queryType: .topN,
+            dataSource: "telemetry-signals",
+            intervals: [.init(beginningDate: Self.beginDate, endDate: Self.endDate)],
+            granularity: .all,
+            aggregations: [.count(.init(name: "count"))],
+            threshold: 10,
+            metric: .dimension(.init(ordering: .version)),
+            dimension: .default(.init(dimension: "appVersion", outputName: "appVersion"))
+        )
+
+        let hashValue = "\(exampleTopNQuery.stableHashValue)"
+
+        XCTAssertEqual(hashValue, "58b597a17a48338e1c2d4799ed56548cc239265a246962388d0a17dbf7d2dc36")
+    }
 }

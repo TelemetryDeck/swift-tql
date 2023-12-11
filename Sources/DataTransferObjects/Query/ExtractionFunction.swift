@@ -16,11 +16,11 @@ public indirect enum ExtractionFunction: Codable, Equatable, Hashable {
 
         switch type {
         case "regex":
-            self = .regex(try RegularExpressionExtractionFunction(from: decoder))
+            self = try .regex(RegularExpressionExtractionFunction(from: decoder))
         case "lookup":
-            self = .inlineLookup(try InlineLookupExtractionFunction(from: decoder))
+            self = try .inlineLookup(InlineLookupExtractionFunction(from: decoder))
         case "registeredLookup":
-            self = .registeredLookup(try RegisteredLookupExtractionFunction(from: decoder))
+            self = try .registeredLookup(RegisteredLookupExtractionFunction(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }
@@ -83,7 +83,7 @@ public struct RegularExpressionExtractionFunction: Codable, Equatable, Hashable 
 /// It is illegal to set retainMissingValue = true and also specify a replaceMissingValueWith.
 public struct InlineLookupExtractionFunction: Codable, Equatable, Hashable {
     public init(lookupMap: [String: String], retainMissingValue: Bool = true, injective: Bool = true, replaceMissingValueWith: String? = nil) {
-        self.lookup = Lookup(map: lookupMap)
+        lookup = Lookup(map: lookupMap)
         self.retainMissingValue = retainMissingValue
         self.injective = injective
         self.replaceMissingValueWith = replaceMissingValueWith

@@ -144,8 +144,7 @@ final class CustomQueryTests: XCTestCase {
         XCTAssertTrue(decodedOutput.replaceMissingValue)
         XCTAssertEqual(expectedOutput, decodedOutput)
     }
-    
-    
+
     func testRegisteredLookupExtractionFunctionEncodingDefault() throws {
         let input = ExtractionFunction.registeredLookup(.init(lookup: "apps", retainMissingValue: true))
 
@@ -174,9 +173,9 @@ final class CustomQueryTests: XCTestCase {
 
         XCTAssertEqual(expectedOutput, decodedOutput)
     }
-    
+
     func testInlineLookupExtractionFunctionEncodingDefault() throws {
-        let input = ExtractionFunction.inlineLookup(InlineLookupExtractionFunction.init(lookupMap: ["foo": "bar", "baz":"bat"]))
+        let input = ExtractionFunction.inlineLookup(InlineLookupExtractionFunction(lookupMap: ["foo": "bar", "baz": "bat"]))
 
         let expectedOutput = """
         {"injective":true,"lookup":{"map":{"baz":"bat","foo":"bar"},"type":"map"},"retainMissingValue":true,"type":"lookup"}
@@ -201,15 +200,15 @@ final class CustomQueryTests: XCTestCase {
         """
         .data(using: .utf8)!
 
-        let expectedOutput = ExtractionFunction.inlineLookup(.init(lookupMap: ["foo": "bar", "baz":"bat"]))
+        let expectedOutput = ExtractionFunction.inlineLookup(.init(lookupMap: ["foo": "bar", "baz": "bat"]))
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(ExtractionFunction.self, from: input)
 
         XCTAssertEqual(expectedOutput, decodedOutput)
     }
-    
+
     func testInlineLookupExtractionFunctionEncodingNonInjective() throws {
-        let input = ExtractionFunction.inlineLookup(.init(lookupMap: ["foo": "bar", "baz":"bat"], retainMissingValue: false, injective: false, replaceMissingValueWith: "MISSING"))
+        let input = ExtractionFunction.inlineLookup(.init(lookupMap: ["foo": "bar", "baz": "bat"], retainMissingValue: false, injective: false, replaceMissingValueWith: "MISSING"))
 
         let expectedOutput = """
         {"injective":false,"lookup":{"map":{"baz":"bat","foo":"bar"},"type":"map"},"replaceMissingValueWith":"MISSING","retainMissingValue":false,"type":"lookup"}
@@ -235,13 +234,13 @@ final class CustomQueryTests: XCTestCase {
         """
         .data(using: .utf8)!
 
-        let expectedOutput = ExtractionFunction.inlineLookup(.init(lookupMap: ["foo": "bar", "baz":"bat"], retainMissingValue: false, injective: false, replaceMissingValueWith: "MISSING"))
+        let expectedOutput = ExtractionFunction.inlineLookup(.init(lookupMap: ["foo": "bar", "baz": "bat"], retainMissingValue: false, injective: false, replaceMissingValueWith: "MISSING"))
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(ExtractionFunction.self, from: input)
 
         XCTAssertEqual(expectedOutput, decodedOutput)
     }
-    
+
     func testRegisteredLookupDimensionDecoding() throws {
         let input = """
         {
@@ -256,9 +255,9 @@ final class CustomQueryTests: XCTestCase {
           }
         """
         .data(using: .utf8)!
-        
+
         let expectedOutput = DimensionSpec.extraction(.init(dimension: "appID", outputName: "App", extractionFn: .registeredLookup(.init(lookup: "apps", retainMissingValue: true))))
-        
+
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(DimensionSpec.self, from: input)
 
         XCTAssertEqual(expectedOutput, decodedOutput)

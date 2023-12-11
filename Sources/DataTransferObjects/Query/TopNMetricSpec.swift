@@ -16,11 +16,11 @@ public indirect enum TopNMetricSpec: Codable, Equatable, Hashable {
 
         switch type {
         case "numeric":
-            self = .numeric(try NumericTopNMetricSpec(from: decoder))
+            self = try .numeric(NumericTopNMetricSpec(from: decoder))
         case "dimension":
-            self = .dimension(try DimensionTopNMetricSpec(from: decoder))
+            self = try .dimension(DimensionTopNMetricSpec(from: decoder))
         case "inverted":
-            self = .inverted(try InvertedTopNMetricSpec(from: decoder))
+            self = try .inverted(InvertedTopNMetricSpec(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }

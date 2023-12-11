@@ -112,24 +112,24 @@ public indirect enum Filter: Codable, Hashable, Equatable {
 
         switch type {
         case "selector":
-            self = .selector(try FilterSelector(from: decoder))
+            self = try .selector(FilterSelector(from: decoder))
         case "columnComparison":
-            self = .columnComparison(try FilterColumnComparison(from: decoder))
+            self = try .columnComparison(FilterColumnComparison(from: decoder))
         case "interval":
-            self = .interval(try FilterInterval(from: decoder))
+            self = try .interval(FilterInterval(from: decoder))
         case "regex":
-            self = .regex(try FilterRegex(from: decoder))
+            self = try .regex(FilterRegex(from: decoder))
         case "and":
-            self = .and(try FilterExpression(from: decoder))
+            self = try .and(FilterExpression(from: decoder))
         case "or":
-            self = .or(try FilterExpression(from: decoder))
+            self = try .or(FilterExpression(from: decoder))
         case "not":
-            self = .not(try FilterNot(from: decoder))
+            self = try .not(FilterNot(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }
     }
-    
+
     /// Empty Filter that basically catches everthing
     public static var empty: Filter {
         Filter.not(.init(field: .selector(.init(dimension: "appID", value: "0"))))
@@ -164,7 +164,7 @@ public indirect enum Filter: Codable, Hashable, Equatable {
     }
 
     public static func && (lhs: Filter, rhs: Filter) -> Filter {
-        return Filter.and(.init(fields: [lhs, rhs]))
+        Filter.and(.init(fields: [lhs, rhs]))
     }
 
     public static func && (lhs: Filter, rhs: Filter?) -> Filter {
@@ -178,6 +178,6 @@ public indirect enum Filter: Codable, Hashable, Equatable {
     }
 
     public static func || (lhs: Filter, rhs: Filter) -> Filter {
-        return Filter.or(.init(fields: [lhs, rhs]))
+        Filter.or(.init(fields: [lhs, rhs]))
     }
 }

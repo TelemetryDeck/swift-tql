@@ -42,7 +42,7 @@ public enum RetentionQueryGenerator {
             dataSource: "telemetry-signals",
             filter: .and(.init(fields: [
                 .selector(.init(dimension: "appID", value: appID)),
-                .selector(.init(dimension: "isTestMode", value: testMode ? "true" : "false"))
+                .selector(.init(dimension: "isTestMode", value: testMode ? "true" : "false")),
             ])),
             intervals: [QueryTimeInterval(beginningDate: beginDate, endDate: endDate)],
             granularity: .all,
@@ -89,7 +89,7 @@ public enum RetentionQueryGenerator {
     }
 
     static func aggregator(for interval: DateInterval) -> Aggregator {
-        return .filtered(.init(
+        .filtered(.init(
             filter: .interval(.init(
                 dimension: "__time",
                 intervals: [.init(dateInterval: interval)]
@@ -104,13 +104,13 @@ public enum RetentionQueryGenerator {
     }
 
     static func postAggregatorBetween(interval1: DateInterval, interval2: DateInterval) -> PostAggregator {
-        return .thetaSketchEstimate(.init(
+        .thetaSketchEstimate(.init(
             name: "retention_\(title(for: interval1))_\(title(for: interval2))",
             field: .thetaSketchSetOp(.init(
                 func: .intersect,
                 fields: [
                     .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title(for: interval1))")),
-                    .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title(for: interval2))"))
+                    .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title(for: interval2))")),
                 ]
             )
             )

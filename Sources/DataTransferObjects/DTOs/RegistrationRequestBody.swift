@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RegistrationRequestBody.swift
 //
 //
 //  Created by Daniel Jilg on 14.05.21.

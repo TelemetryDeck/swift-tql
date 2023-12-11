@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  PostAggregatorTests.swift
 //
 //
 //  Created by Daniel Jilg on 22.09.22.
@@ -48,10 +48,10 @@ final class PostAggregatorTests: XCTestCase {
                         func: .intersect,
                         fields: [
                             .fieldAccess(.init(type: .fieldAccess, fieldName: "appLaunchedByNotification_count")),
-                            .fieldAccess(.init(type: .fieldAccess, fieldName: "dataEntered_count"))
+                            .fieldAccess(.init(type: .fieldAccess, fieldName: "dataEntered_count")),
                         ]
                     ))
-                ))
+                )),
             ]
         )
     }
@@ -91,12 +91,12 @@ final class PostAggregatorTests: XCTestCase {
                             name: "ratio",
                             function: .division, fields: [
                                 .fieldAccess(.init(type: .fieldAccess, name: "part", fieldName: "part")),
-                                .fieldAccess(.init(type: .fieldAccess, name: "tot", fieldName: "tot"))
+                                .fieldAccess(.init(type: .fieldAccess, name: "tot", fieldName: "tot")),
                             ]
                         )),
-                        PostAggregator.constant(.init(name: "const", value: 100))
+                        PostAggregator.constant(.init(name: "const", value: 100)),
                     ]
-                ))
+                )),
             ]
         )
     }
@@ -117,7 +117,7 @@ final class PostAggregatorTests: XCTestCase {
         XCTAssertEqual(
             decodedAggregators,
             [
-                .expression(.init(name: "part_percentage", expression: "100*(part/tot)"))
+                .expression(.init(name: "part_percentage", expression: "100*(part/tot)")),
             ]
         )
     }
@@ -145,9 +145,9 @@ final class PostAggregatorTests: XCTestCase {
                 function: .division,
                 fields: [
                     .fieldAccess(.init(type: .fieldAccess, name: "tot", fieldName: "tot")),
-                    .fieldAccess(.init(type: .fieldAccess, name: "rows", fieldName: "rows"))
+                    .fieldAccess(.init(type: .fieldAccess, name: "rows", fieldName: "rows")),
                 ]
-            ))
+            )),
         ])
     }
 
@@ -174,9 +174,9 @@ final class PostAggregatorTests: XCTestCase {
                 function: .division,
                 fields: [
                     .hyperUniqueCardinality(.init(fieldName: "unique_users")),
-                    .fieldAccess(.init(type: .fieldAccess, name: "rows", fieldName: "rows"))
+                    .fieldAccess(.init(type: .fieldAccess, name: "rows", fieldName: "rows")),
                 ]
-            ))
+            )),
         ])
     }
 
@@ -204,8 +204,7 @@ final class PostAggregatorTests: XCTestCase {
           }]
         """
         .filter { !$0.isWhitespace }
-        
-        
+
         let postAggregators = [
             PostAggregator.zscore2sample(.init(
                 name: "zscore",
@@ -225,16 +224,16 @@ final class PostAggregatorTests: XCTestCase {
                     type: .finalizingFieldAccess,
                     fieldName: "_cohort_1_success_0"
                 ))
-            ))
+            )),
         ]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: example.data(using: .utf8)!)
         XCTAssertEqual(decodedAggregators, postAggregators)
-        
+
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(postAggregators)
         XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8), example)
     }
-    
+
     func testPValueCodable() throws {
         let example = """
         [{
@@ -247,17 +246,17 @@ final class PostAggregatorTests: XCTestCase {
           }]
         """
         .filter { !$0.isWhitespace }
-        
+
         let postAggregators = [
             PostAggregator.pvalue2tailedZtest(.init(
                 name: "pvalue",
                 zScore: .fieldAccess(.init(type: .fieldAccess, fieldName: "zscore"))
-            ))
+            )),
         ]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: example.data(using: .utf8)!)
         XCTAssertEqual(decodedAggregators, postAggregators)
-        
+
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(postAggregators)
         XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8), example)
     }

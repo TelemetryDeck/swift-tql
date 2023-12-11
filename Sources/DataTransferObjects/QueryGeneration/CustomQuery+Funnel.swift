@@ -5,14 +5,13 @@ extension CustomQuery {
         guard let steps = steps else { throw QueryGenerationError.keyMissing(reason: "Missing key 'steps'") }
 
         // Generate Filter Statement
-        let stepsFilters = Filter.or(.init(fields: steps.compactMap { $0.filter }))
+        let stepsFilters = Filter.or(.init(fields: steps.compactMap(\.filter)))
         let queryFilter = filter && stepsFilters
 
         // Generate Aggregations
         let aggregationNamePrefix = "_funnel_step_"
         var aggregations = [Aggregator]()
-        
-        
+
         for (index, step) in steps.enumerated() {
             aggregations.append(.filtered(.init(
                 filter: step.filter ?? Filter.empty,
@@ -61,6 +60,6 @@ extension CustomQuery {
 
 private extension Array {
     subscript(safe index: Index, default defaultValue: Element) -> Element {
-        return indices.contains(index) ? self[index] : defaultValue
+        indices.contains(index) ? self[index] : defaultValue
     }
 }

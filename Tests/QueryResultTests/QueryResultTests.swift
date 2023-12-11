@@ -1,5 +1,5 @@
 //
-//  DruidQueryResultTests.swift
+//  QueryResultTests.swift
 //
 //
 //  Created by Daniel Jilg on 22.12.21.
@@ -9,7 +9,7 @@ import DataTransferObjects
 import XCTest
 
 class QueryResultTests: XCTestCase {
-    let randomDate = Date(timeIntervalSinceReferenceDate: 656510400) // Thursday, October 21, 2021 2:00:00 PM GMT+02:00
+    let randomDate = Date(timeIntervalSinceReferenceDate: 656_510_400) // Thursday, October 21, 2021 2:00:00 PM GMT+02:00
 
     func testEncodingTimeSeries() throws {
         let exampleQueryResult = QueryResult.timeSeries(
@@ -90,7 +90,7 @@ class QueryResultTests: XCTestCase {
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
 
-        XCTAssertEqual(decodedResult.result, ["d0": DoubleWrapper(1609459200000)])
+        XCTAssertEqual(decodedResult.result, ["d0": DoubleWrapper(1_609_459_200_000)])
     }
 
     func testDecodingInfinity() throws {
@@ -148,5 +148,3 @@ class QueryResultTests: XCTestCase {
         XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
     }
 }
-
-

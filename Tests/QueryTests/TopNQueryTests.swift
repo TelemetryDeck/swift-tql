@@ -1,5 +1,5 @@
 //
-//  DruidTopNQueryTests.swift
+//  TopNQueryTests.swift
 //
 //
 //  Created by Daniel Jilg on 03.01.22.

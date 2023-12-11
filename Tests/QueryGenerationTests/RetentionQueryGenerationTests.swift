@@ -16,13 +16,13 @@ final class RetentionQueryGenerationTests: XCTestCase {
         dataSource: "telemetry-signals",
         filter: .and(.init(fields: [
             .selector(.init(dimension: "appID", value: "79167A27-EBBF-4012-9974-160624E5D07B")),
-            .selector(.init(dimension: "isTestMode", value: "false"))
+            .selector(.init(dimension: "isTestMode", value: "false")),
         ])),
         intervals: [
             QueryTimeInterval(
                 beginningDate: Date(iso8601String: "2022-08-01T00:00:00.000Z")!,
                 endDate: Date(iso8601String: "2022-09-30T00:00:00.000Z")!
-            )
+            ),
         ], granularity: .all,
         aggregations: [
             .filtered(.init(
@@ -32,7 +32,7 @@ final class RetentionQueryGenerationTests: XCTestCase {
                         .init(
                             beginningDate: Date(iso8601String: "2022-08-01T00:00:00.000Z")!,
                             endDate: Date(iso8601String: "2022-08-31T23:59:59.000Z")!
-                        )
+                        ),
                     ]
                 )),
                 aggregator: .thetaSketch(
@@ -50,7 +50,7 @@ final class RetentionQueryGenerationTests: XCTestCase {
                         .init(
                             beginningDate: Date(iso8601String: "2022-09-01T00:00:00.000Z")!,
                             endDate: Date(iso8601String: "2022-09-30T23:59:59.000Z")!
-                        )
+                        ),
                     ]
                 )),
                 aggregator: .thetaSketch(
@@ -60,7 +60,7 @@ final class RetentionQueryGenerationTests: XCTestCase {
                         fieldName: "clientUser"
                     )
                 )
-            ))
+            )),
         ],
         postAggregations: [
             .thetaSketchEstimate(.init(
@@ -75,7 +75,7 @@ final class RetentionQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_2022-08-01T00:00:00.000Z_2022-08-31T23:59:59.000Z"
-                        ))
+                        )),
                     ]
                 ))
             )
@@ -92,7 +92,7 @@ final class RetentionQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_2022-09-01T00:00:00.000Z_2022-09-30T23:59:59.000Z"
-                        ))
+                        )),
                     ]
                 ))
             )
@@ -109,7 +109,7 @@ final class RetentionQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_2022-09-01T00:00:00.000Z_2022-09-30T23:59:59.000Z"
-                        ))
+                        )),
                     ]
                 ))
             )
@@ -154,7 +154,7 @@ final class RetentionQueryGenerationTests: XCTestCase {
 //                fatalError()
 //            }
 //        }
-//        
+//
 //        let postAggregationNames = generatedTinyQuery.postAggregations!.map { postAgg in
 //            switch postAgg {
 //            case .thetaSketchEstimate(let thetaEstimateAgg):

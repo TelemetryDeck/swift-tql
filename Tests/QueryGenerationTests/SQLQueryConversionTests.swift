@@ -23,7 +23,7 @@ final class SQLQueryConversionTests: XCTestCase {
       }
     ]
     """
-        .data(using: .utf8)!
+    .data(using: .utf8)!
 
     func testEncodingConversionRequest() throws {
         let input = SQLQueryConversionRequest(query: sqlQuery)

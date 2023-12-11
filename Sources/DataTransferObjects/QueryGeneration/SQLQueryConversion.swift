@@ -15,7 +15,7 @@ public struct SQLQueryConversionResponseItem: Codable, Equatable {
     }
 
     public init(plan: String) {
-        self.PLAN = plan
+        PLAN = plan
     }
 
     public let PLAN: String
@@ -29,7 +29,7 @@ public struct SQLQueryConversionResponseItem: Codable, Equatable {
             ))
         }
 
-        let planItems = try JSONDecoder.telemetryDecoder.decode([PlanContainerItem].self, from: planData )
+        let planItems = try JSONDecoder.telemetryDecoder.decode([PlanContainerItem].self, from: planData)
 
         guard let firstPlanItem = planItems.first else {
             throw DecodingError.dataCorrupted(.init(
@@ -41,7 +41,7 @@ public struct SQLQueryConversionResponseItem: Codable, Equatable {
 
         var query = firstPlanItem.query
 
-        query.dataSource = DataSource.init("telemetry-signals")
+        query.dataSource = DataSource("telemetry-signals")
         query.context = nil
         query.intervals = nil
 

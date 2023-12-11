@@ -23,7 +23,7 @@ final class ExperimentQueryGenerationTests: XCTestCase {
             )),
             .selector(.init(
                 dimension: "isTestMode", value: "false"
-            ))
+            )),
         ])),
         granularity: .all,
         aggregations: [
@@ -69,7 +69,7 @@ final class ExperimentQueryGenerationTests: XCTestCase {
                         fieldName: "clientUser"
                     )
                 )
-            ))
+            )),
         ],
         postAggregations: [
             .thetaSketchEstimate(.init(
@@ -84,7 +84,7 @@ final class ExperimentQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "success"
-                        ))
+                        )),
                     ]
                 ))
             )),
@@ -100,7 +100,7 @@ final class ExperimentQueryGenerationTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "success"
-                        ))
+                        )),
                     ]
                 ))
             )),
@@ -126,7 +126,7 @@ final class ExperimentQueryGenerationTests: XCTestCase {
             .pvalue2tailedZtest(.init(
                 name: "pvalue",
                 zScore: .fieldAccess(.init(type: .fieldAccess, fieldName: "zscore"))
-            ))
+            )),
         ]
     )
 

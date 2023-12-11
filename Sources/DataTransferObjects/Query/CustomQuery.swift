@@ -1,3 +1,4 @@
+import Crypto
 import Foundation
 
 /// Custom JSON based  query
@@ -148,20 +149,30 @@ public struct CustomQuery: Codable, Hashable, Equatable {
 
     /// Only for groupBy Queries: A list of dimensions to do the groupBy over, if queryType is groupBy
     public var dimensions: [DimensionSpec]?
-    
+
     /// Only for funnel Queries: A list of filters that form the steps of the funnel
     public var steps: [NamedFilter]?
-    
+
     /// Only for experiment Queries: The control cohort for the experiment
     public var sample1: NamedFilter?
-    
+
     /// Only for experiment Queries: The experiment cohort for the experiment
     public var sample2: NamedFilter?
-    
+
     /// Only for experiment Queries: A named filter that defines the successful cohort in the experiment.
     ///
     /// Will be intersected with cohort 1 for success 1 and cohort 2 for success 2
     public var successCriterion: NamedFilter?
+
+    public var stableHashValue: String {
+        // We've tried various hashing functions here and they are just not stable.
+        // So instead, let's convert to JSON and hash that.
+
+        guard let jsonData = try? JSONEncoder.telemetryEncoder.encode(self) else { return "nothashed" }
+        let digest = SHA256.hash(data: jsonData)
+
+        return digest.compactMap { String(format: "%02x", $0) }.joined()
+    }
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(queryType)
@@ -197,34 +208,34 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     public init(from decoder: Decoder) throws {
         let container: KeyedDecodingContainer<CustomQuery.CodingKeys> = try decoder.container(keyedBy: CustomQuery.CodingKeys.self)
 
-        self.queryType = try container.decode(CustomQuery.QueryType.self, forKey: CustomQuery.CodingKeys.queryType)
-        self.compilationStatus = try container.decodeIfPresent(CompilationStatus.self, forKey: CustomQuery.CodingKeys.compilationStatus)
-        self.restrictions = try container.decodeIfPresent([QueryTimeInterval].self, forKey: CustomQuery.CodingKeys.restrictions)
-        self.dataSource = try container.decodeIfPresent(DataSource.self, forKey: CustomQuery.CodingKeys.dataSource)
-        self.descending = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.descending)
-        self.baseFilters = try container.decodeIfPresent(BaseFilters.self, forKey: CustomQuery.CodingKeys.baseFilters)
-        self.testMode = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.testMode)
-        self.filter = try container.decodeIfPresent(Filter.self, forKey: CustomQuery.CodingKeys.filter)
-        self.appID = try container.decodeIfPresent(UUID.self, forKey: CustomQuery.CodingKeys.appID)
-        self.relativeIntervals = try container.decodeIfPresent([RelativeTimeInterval].self, forKey: CustomQuery.CodingKeys.relativeIntervals)
-        self.granularity = try container.decode(QueryGranularity.self, forKey: CustomQuery.CodingKeys.granularity)
-        self.aggregations = try container.decodeIfPresent([Aggregator].self, forKey: CustomQuery.CodingKeys.aggregations)
-        self.postAggregations = try container.decodeIfPresent([PostAggregator].self, forKey: CustomQuery.CodingKeys.postAggregations)
-        self.limit = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.limit)
-        self.context = try container.decodeIfPresent(QueryContext.self, forKey: CustomQuery.CodingKeys.context)
-        self.threshold = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.threshold)
-        self.dimension = try container.decodeIfPresent(DimensionSpec.self, forKey: CustomQuery.CodingKeys.dimension)
-        self.metric = try container.decodeIfPresent(TopNMetricSpec.self, forKey: CustomQuery.CodingKeys.metric)
-        self.dimensions = try container.decodeIfPresent([DimensionSpec].self, forKey: CustomQuery.CodingKeys.dimensions)
-        self.steps = try container.decodeIfPresent([NamedFilter].self, forKey: CustomQuery.CodingKeys.steps)
-        self.sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
-        self.sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)
-        self.successCriterion = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.successCriterion)
+        queryType = try container.decode(CustomQuery.QueryType.self, forKey: CustomQuery.CodingKeys.queryType)
+        compilationStatus = try container.decodeIfPresent(CompilationStatus.self, forKey: CustomQuery.CodingKeys.compilationStatus)
+        restrictions = try container.decodeIfPresent([QueryTimeInterval].self, forKey: CustomQuery.CodingKeys.restrictions)
+        dataSource = try container.decodeIfPresent(DataSource.self, forKey: CustomQuery.CodingKeys.dataSource)
+        descending = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.descending)
+        baseFilters = try container.decodeIfPresent(BaseFilters.self, forKey: CustomQuery.CodingKeys.baseFilters)
+        testMode = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.testMode)
+        filter = try container.decodeIfPresent(Filter.self, forKey: CustomQuery.CodingKeys.filter)
+        appID = try container.decodeIfPresent(UUID.self, forKey: CustomQuery.CodingKeys.appID)
+        relativeIntervals = try container.decodeIfPresent([RelativeTimeInterval].self, forKey: CustomQuery.CodingKeys.relativeIntervals)
+        granularity = try container.decode(QueryGranularity.self, forKey: CustomQuery.CodingKeys.granularity)
+        aggregations = try container.decodeIfPresent([Aggregator].self, forKey: CustomQuery.CodingKeys.aggregations)
+        postAggregations = try container.decodeIfPresent([PostAggregator].self, forKey: CustomQuery.CodingKeys.postAggregations)
+        limit = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.limit)
+        context = try container.decodeIfPresent(QueryContext.self, forKey: CustomQuery.CodingKeys.context)
+        threshold = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.threshold)
+        dimension = try container.decodeIfPresent(DimensionSpec.self, forKey: CustomQuery.CodingKeys.dimension)
+        metric = try container.decodeIfPresent(TopNMetricSpec.self, forKey: CustomQuery.CodingKeys.metric)
+        dimensions = try container.decodeIfPresent([DimensionSpec].self, forKey: CustomQuery.CodingKeys.dimensions)
+        steps = try container.decodeIfPresent([NamedFilter].self, forKey: CustomQuery.CodingKeys.steps)
+        sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
+        sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)
+        successCriterion = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.successCriterion)
 
         if let intervals = try? container.decode(QueryTimeIntervalsContainer.self, forKey: CustomQuery.CodingKeys.intervals) {
             self.intervals = intervals.intervals
         } else {
-            self.intervals = try container.decodeIfPresent([QueryTimeInterval].self, forKey: CustomQuery.CodingKeys.intervals)
+            intervals = try container.decodeIfPresent([QueryTimeInterval].self, forKey: CustomQuery.CodingKeys.intervals)
         }
     }
 }

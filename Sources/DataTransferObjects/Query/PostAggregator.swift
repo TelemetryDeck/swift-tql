@@ -23,7 +23,7 @@ public indirect enum PostAggregator: Codable, Hashable, Equatable {
     // From DataSketches ThetaSketches
     case thetaSketchEstimate(ThetaSketchEstimatePostAggregator)
     case thetaSketchSetOp(ThetaSketchSetOpPostAggregator)
-    
+
     // From druid-stats
     case zscore2sample(ZScore2SamplePostAggregator)
     case pvalue2tailedZtest(PValue2TailedZTestPostAggregator)
@@ -41,35 +41,35 @@ public indirect enum PostAggregator: Codable, Hashable, Equatable {
 
         switch type {
         case "arithmetic":
-            self = .arithmetic(try ArithmetricPostAggregator(from: decoder))
+            self = try .arithmetic(ArithmetricPostAggregator(from: decoder))
         case "fieldAccess":
-            self = .fieldAccess(try FieldAccessPostAggregator(from: decoder))
+            self = try .fieldAccess(FieldAccessPostAggregator(from: decoder))
         case "finalizingFieldAccess":
-            self = .finalizingFieldAccess(try FieldAccessPostAggregator(from: decoder))
+            self = try .finalizingFieldAccess(FieldAccessPostAggregator(from: decoder))
         case "constant":
-            self = .constant(try ConstantPostAggregator(from: decoder))
+            self = try .constant(ConstantPostAggregator(from: decoder))
         case "doubleGreatest":
-            self = .doubleGreatest(try GreatestLeastPostAggregator(from: decoder))
+            self = try .doubleGreatest(GreatestLeastPostAggregator(from: decoder))
         case "longGreatest":
-            self = .longGreatest(try GreatestLeastPostAggregator(from: decoder))
+            self = try .longGreatest(GreatestLeastPostAggregator(from: decoder))
         case "doubleMax":
-            self = .doubleMax(try GreatestLeastPostAggregator(from: decoder))
+            self = try .doubleMax(GreatestLeastPostAggregator(from: decoder))
         case "doubleLeast":
-            self = .doubleLeast(try GreatestLeastPostAggregator(from: decoder))
+            self = try .doubleLeast(GreatestLeastPostAggregator(from: decoder))
         case "longLeast":
-            self = .longLeast(try GreatestLeastPostAggregator(from: decoder))
+            self = try .longLeast(GreatestLeastPostAggregator(from: decoder))
         case "hyperUniqueCardinality":
-            self = .hyperUniqueCardinality(try HyperUniqueCardinalityPostAggregator(from: decoder))
+            self = try .hyperUniqueCardinality(HyperUniqueCardinalityPostAggregator(from: decoder))
         case "expression":
-            self = .expression(try ExpressionPostAggregator(from: decoder))
+            self = try .expression(ExpressionPostAggregator(from: decoder))
         case "thetaSketchEstimate":
-            self = .thetaSketchEstimate(try ThetaSketchEstimatePostAggregator(from: decoder))
+            self = try .thetaSketchEstimate(ThetaSketchEstimatePostAggregator(from: decoder))
         case "thetaSketchSetOp":
-            self = .thetaSketchSetOp(try ThetaSketchSetOpPostAggregator(from: decoder))
+            self = try .thetaSketchSetOp(ThetaSketchSetOpPostAggregator(from: decoder))
         case "zscore2sample":
-            self = .zscore2sample(try ZScore2SamplePostAggregator(from: decoder))
+            self = try .zscore2sample(ZScore2SamplePostAggregator(from: decoder))
         case "pvalue2tailedZtest":
-            self = .pvalue2tailedZtest(try PValue2TailedZTestPostAggregator(from: decoder))
+            self = try .pvalue2tailedZtest(PValue2TailedZTestPostAggregator(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type: \(type)", underlyingError: nil))
         }
@@ -169,9 +169,9 @@ public enum PostAggregatorOrdering: String, Codable, Hashable {
 /// - numericFirst ordering always returns finite values first, followed by NaN, and infinite values last.
 public struct ArithmetricPostAggregator: Codable, Hashable {
     public init(name: String, function: MathematicalFunction, fields: [PostAggregator], ordering: PostAggregatorOrdering? = nil) {
-        self.type = .arithmetic
+        type = .arithmetic
         self.name = name
-        self.fn = function
+        fn = function
         self.fields = fields
         self.ordering = ordering
     }
@@ -222,7 +222,7 @@ public struct FieldAccessPostAggregator: Codable, Hashable {
 /// The constant post-aggregator always returns the specified value.
 public struct ConstantPostAggregator: Codable, Hashable {
     public init(name: String, value: Double) {
-        self.type = .constant
+        type = .constant
         self.name = name
         self.value = value
     }
@@ -255,7 +255,7 @@ public struct GreatestLeastPostAggregator: Codable, Hashable {
 /// see https://druid.apache.org/docs/latest/misc/math-expr.html
 public struct ExpressionPostAggregator: Codable, Hashable {
     public init(name: String, expression: String, ordering: PostAggregatorOrdering? = nil) {
-        self.type = .expression
+        type = .expression
         self.name = name
         self.expression = expression
         self.ordering = ordering
@@ -274,7 +274,7 @@ public struct ExpressionPostAggregator: Codable, Hashable {
 /// The hyperUniqueCardinality post aggregator is used to wrap a hyperUnique object such that it can be used in post aggregations.
 public struct HyperUniqueCardinalityPostAggregator: Codable, Hashable {
     public init(name: String? = nil, fieldName: String) {
-        self.type = .hyperUniqueCardinality
+        type = .hyperUniqueCardinality
         self.name = name
         self.fieldName = fieldName
     }
@@ -287,7 +287,7 @@ public struct HyperUniqueCardinalityPostAggregator: Codable, Hashable {
 ///   "field"  : <post aggregator of type fieldAccess that refers to a thetaSketch aggregator or that of type thetaSketchSetOp>
 public struct ThetaSketchEstimatePostAggregator: Codable, Hashable {
     public init(name: String? = nil, field: PostAggregator) {
-        self.type = .thetaSketchEstimate
+        type = .thetaSketchEstimate
         self.name = name
         self.field = field
     }
@@ -299,7 +299,7 @@ public struct ThetaSketchEstimatePostAggregator: Codable, Hashable {
 
 public struct ThetaSketchSetOpPostAggregator: Codable, Hashable {
     public init(name: String? = nil, func: ThetaSketchSetOpPostAggregator.SketchOperation, fields: [PostAggregator]) {
-        self.type = .thetaSketchSetOp
+        type = .thetaSketchSetOp
         self.name = name
         self.func = `func`
         self.fields = fields
@@ -328,14 +328,14 @@ public struct ThetaSketchSetOpPostAggregator: Codable, Hashable {
 /// @see https://medium.com/paypal-tech/democratizing-experimentation-data-for-product-innovations-8b6e1cf40c27#DemocratizingExperimentationScience-Druid
 public struct ZScore2SamplePostAggregator: Codable, Hashable {
     public init(name: String, sample1Size: PostAggregator, successCount1: PostAggregator, sample2Size: PostAggregator, successCount2: PostAggregator) {
-        self.type = .zscore2sample
+        type = .zscore2sample
         self.name = name
         self.sample1Size = sample1Size
         self.successCount1 = successCount1
         self.sample2Size = sample2Size
         self.successCount2 = successCount2
     }
-    
+
     public let type: PostAggregatorType
     public let name: String
     public let sample1Size: PostAggregator
@@ -352,11 +352,11 @@ public struct ZScore2SamplePostAggregator: Codable, Hashable {
 /// @see https://medium.com/paypal-tech/democratizing-experimentation-data-for-product-innovations-8b6e1cf40c27#DemocratizingExperimentationScience-Druid
 public struct PValue2TailedZTestPostAggregator: Codable, Hashable {
     public init(name: String, zScore: PostAggregator) {
-        self.type = .pvalue2tailedZtest
+        type = .pvalue2tailedZtest
         self.name = name
         self.zScore = zScore
     }
-    
+
     public let type: PostAggregatorType
     public let name: String
     public let zScore: PostAggregator

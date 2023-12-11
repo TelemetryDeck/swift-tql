@@ -9,7 +9,7 @@ public struct NamedFilter: Codable, Hashable, Equatable {
         self.filter = filter
         self.name = name
     }
-    
+
     public let filter: Filter?
     public let name: String
 }

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RetentionQueryTests.swift
 //
 //
 //  Created by Daniel Jilg on 25.11.22.
@@ -17,7 +17,7 @@ class RetentionQueryTests: XCTestCase {
                     .init(
                         beginningDate: Date(iso8601String: "2022-08-01T00:00:00.000Z")!,
                         endDate: Date(iso8601String: "2022-09-01T00:00:00.000Z")!
-                    )
+                    ),
                 ]
             )),
             aggregator: .thetaSketch(
@@ -35,7 +35,7 @@ class RetentionQueryTests: XCTestCase {
                     .init(
                         beginningDate: Date(iso8601String: "2022-09-01T00:00:00.000Z")!,
                         endDate: Date(iso8601String: "2022-10-01T00:00:00.000Z")!
-                    )
+                    ),
                 ]
             )),
             aggregator: .thetaSketch(
@@ -53,7 +53,7 @@ class RetentionQueryTests: XCTestCase {
                     .init(
                         beginningDate: Date(iso8601String: "2022-10-01T00:00:00.000Z")!,
                         endDate: Date(iso8601String: "2022-11-01T00:00:00.000Z")!
-                    )
+                    ),
                 ]
             )),
             aggregator: .thetaSketch(
@@ -71,7 +71,7 @@ class RetentionQueryTests: XCTestCase {
                     .init(
                         beginningDate: Date(iso8601String: "2022-11-01T00:00:00.000Z")!,
                         endDate: Date(iso8601String: "2022-12-01T00:00:00.000Z")!
-                    )
+                    ),
                 ]
             )),
             aggregator: .thetaSketch(
@@ -81,7 +81,7 @@ class RetentionQueryTests: XCTestCase {
                     fieldName: "clientUser"
                 )
             )
-        ))
+        )),
     ]
 
     let retentionQueryExample = CustomQuery(
@@ -89,7 +89,7 @@ class RetentionQueryTests: XCTestCase {
         dataSource: "telemetry-signals",
         filter: .and(.init(fields: [
             .selector(.init(dimension: "appID", value: "79167A27-EBBF-4012-9974-160624E5D07B")),
-            .selector(.init(dimension: "isTestMode", value: "false"))
+            .selector(.init(dimension: "isTestMode", value: "false")),
         ])),
         granularity: .all,
         aggregations: aggregations,
@@ -106,7 +106,7 @@ class RetentionQueryTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_september_clientUser_count"
-                        ))
+                        )),
                     ]
                 ))
             )
@@ -124,7 +124,7 @@ class RetentionQueryTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_october_clientUser_count"
-                        ))
+                        )),
                     ]
                 ))
             )
@@ -142,11 +142,11 @@ class RetentionQueryTests: XCTestCase {
                         .fieldAccess(.init(
                             type: .fieldAccess,
                             fieldName: "_november_clientUser_count"
-                        ))
+                        )),
                     ]
                 ))
             )
-            )
+            ),
         ]
     )
 

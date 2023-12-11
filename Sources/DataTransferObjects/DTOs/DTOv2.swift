@@ -1,5 +1,5 @@
 //
-//  InsightDTOs.swift
+//  DTOv2.swift
 //  InsightDTOs
 //
 //  Created by Daniel Jilg on 17.08.21.
@@ -204,10 +204,10 @@ public enum DTOv2 {
             case app
             case website
         }
-        
+
         /// If true, the app should display demo content instead of
         public var showExampleData: Bool?
-        
+
         /// What colors should charts be in?
         ///
         /// This should be formatted as
@@ -660,7 +660,7 @@ public extension DTOv2.Insight {
             intervals: [],
             granularity: .all,
             aggregations: [
-                .longSum(.init(type: .longSum, name: "total_usage", fieldName: "count"))
+                .longSum(.init(type: .longSum, name: "total_usage", fieldName: "count")),
             ]
         )
 

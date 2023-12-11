@@ -132,57 +132,57 @@ public indirect enum Aggregator: Codable, Hashable, Equatable {
 
         switch type {
         case "count":
-            self = .count(try CountAggregator(from: decoder))
+            self = try .count(CountAggregator(from: decoder))
         case "cardinality":
-            self = .cardinality(try CardinalityAggregator(from: decoder))
+            self = try .cardinality(CardinalityAggregator(from: decoder))
         case "longSum":
-            self = .longSum(try GenericAggregator(from: decoder))
+            self = try .longSum(GenericAggregator(from: decoder))
         case "doubleSum":
-            self = .doubleSum(try GenericAggregator(from: decoder))
+            self = try .doubleSum(GenericAggregator(from: decoder))
         case "floatSum":
-            self = .floatSum(try GenericAggregator(from: decoder))
+            self = try .floatSum(GenericAggregator(from: decoder))
         case "doubleMin":
-            self = .doubleMin(try GenericAggregator(from: decoder))
+            self = try .doubleMin(GenericAggregator(from: decoder))
         case "doubleMax":
-            self = .doubleMax(try GenericAggregator(from: decoder))
+            self = try .doubleMax(GenericAggregator(from: decoder))
         case "floatMin":
-            self = .floatMin(try GenericAggregator(from: decoder))
+            self = try .floatMin(GenericAggregator(from: decoder))
         case "floatMax":
-            self = .floatMax(try GenericAggregator(from: decoder))
+            self = try .floatMax(GenericAggregator(from: decoder))
         case "longMin":
-            self = .longMin(try GenericAggregator(from: decoder))
+            self = try .longMin(GenericAggregator(from: decoder))
         case "longMax":
-            self = .longMax(try GenericAggregator(from: decoder))
+            self = try .longMax(GenericAggregator(from: decoder))
         case "doubleMean":
-            self = .doubleMean(try GenericAggregator(from: decoder))
+            self = try .doubleMean(GenericAggregator(from: decoder))
         case "doubleFirst":
-            self = .doubleFirst(try GenericTimeColumnAggregator(from: decoder))
+            self = try .doubleFirst(GenericTimeColumnAggregator(from: decoder))
         case "doubleLast":
-            self = .doubleLast(try GenericTimeColumnAggregator(from: decoder))
+            self = try .doubleLast(GenericTimeColumnAggregator(from: decoder))
         case "floatFirst":
-            self = .floatFirst(try GenericTimeColumnAggregator(from: decoder))
+            self = try .floatFirst(GenericTimeColumnAggregator(from: decoder))
         case "floatLast":
-            self = .floatLast(try GenericTimeColumnAggregator(from: decoder))
+            self = try .floatLast(GenericTimeColumnAggregator(from: decoder))
         case "longFirst":
-            self = .longFirst(try GenericTimeColumnAggregator(from: decoder))
+            self = try .longFirst(GenericTimeColumnAggregator(from: decoder))
         case "longLast":
-            self = .longLast(try GenericTimeColumnAggregator(from: decoder))
+            self = try .longLast(GenericTimeColumnAggregator(from: decoder))
         case "stringFirst":
-            self = .stringFirst(try GenericTimeColumnAggregator(from: decoder))
+            self = try .stringFirst(GenericTimeColumnAggregator(from: decoder))
         case "stringLast":
-            self = .stringLast(try GenericTimeColumnAggregator(from: decoder))
+            self = try .stringLast(GenericTimeColumnAggregator(from: decoder))
         case "doubleAny":
-            self = .doubleAny(try GenericAggregator(from: decoder))
+            self = try .doubleAny(GenericAggregator(from: decoder))
         case "floatAny":
-            self = .floatAny(try GenericAggregator(from: decoder))
+            self = try .floatAny(GenericAggregator(from: decoder))
         case "longAny":
-            self = .longAny(try GenericAggregator(from: decoder))
+            self = try .longAny(GenericAggregator(from: decoder))
         case "stringAny":
-            self = .stringAny(try GenericAggregator(from: decoder))
+            self = try .stringAny(GenericAggregator(from: decoder))
         case "thetaSketch":
-            self = .thetaSketch(try GenericAggregator(from: decoder))
+            self = try .thetaSketch(GenericAggregator(from: decoder))
         case "filtered":
-            self = .filtered(try FilteredAggregator(from: decoder))
+            self = try .filtered(FilteredAggregator(from: decoder))
 
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
@@ -277,7 +277,7 @@ public indirect enum Aggregator: Codable, Hashable, Equatable {
 
 public struct CountAggregator: Codable, Hashable {
     public init(name: String) {
-        self.type = .count
+        type = .count
         self.name = name
     }
 
@@ -290,7 +290,7 @@ public struct CountAggregator: Codable, Hashable {
 /// Calcluate the cardinality of a dimension (deprecated)
 public struct CardinalityAggregator: Codable, Hashable {
     public init(name: String, fields: [String], byRow: Bool = false, round: Bool = true) {
-        self.type = .cardinality
+        type = .cardinality
         self.name = name
         self.fields = fields
         self.byRow = byRow
@@ -382,7 +382,7 @@ public enum AggregatorType: String, Codable, Hashable {
 /// Note: If only the filtered results are required, consider putting the filter on the query itself, which will be much faster since it does not require scanning all the data.
 public struct FilteredAggregator: Codable, Hashable {
     public init(filter: Filter, aggregator: Aggregator) {
-        self.type = .filtered
+        type = .filtered
         self.filter = filter
         self.aggregator = aggregator
     }

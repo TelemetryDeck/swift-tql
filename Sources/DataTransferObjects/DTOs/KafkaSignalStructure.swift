@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  KafkaSignalStructure.swift
 //
 //
 //  Created by Daniel Jilg on 05.06.21.

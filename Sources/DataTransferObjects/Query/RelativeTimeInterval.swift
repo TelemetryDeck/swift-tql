@@ -85,7 +85,7 @@ public extension Date {
 
 public extension QueryTimeInterval {
     static func from(relativeTimeInterval: RelativeTimeInterval) -> QueryTimeInterval {
-        return QueryTimeInterval(
+        QueryTimeInterval(
             beginningDate: Date.from(relativeDate: relativeTimeInterval.beginningDate),
             endDate: Date.from(relativeDate: relativeTimeInterval.endDate)
         )

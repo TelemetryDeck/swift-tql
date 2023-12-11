@@ -94,8 +94,7 @@ final class AggregatorTests: XCTestCase {
 
         XCTAssertEqual(try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: exampleAggregatorsString.data(using: .utf8)!), exampleAggregators)
 
-        XCTAssertEqual(String(data: try JSONEncoder.telemetryEncoder.encode(exampleAggregators), encoding: .utf8)!, exampleAggregatorsString)
-
+        XCTAssertEqual(try String(data: JSONEncoder.telemetryEncoder.encode(exampleAggregators), encoding: .utf8)!, exampleAggregatorsString)
     }
 
     func testFilteredAggregatorDecoding() throws {
@@ -129,7 +128,7 @@ final class AggregatorTests: XCTestCase {
                                         dimension: "type",
                                         value: "InsightShown"
                                     )
-                                )
+                                ),
                             ]
                         )
                     ),
@@ -141,7 +140,7 @@ final class AggregatorTests: XCTestCase {
                         )
                     )
                 )
-            )
+            ),
         ])
     }
 }

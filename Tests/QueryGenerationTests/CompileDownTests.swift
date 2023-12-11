@@ -3,7 +3,7 @@ import XCTest
 
 final class CompileDownTests: XCTestCase {
     let relativeIntervals = [
-        RelativeTimeInterval(beginningDate: .init(.beginning, of: .month, adding: 0), endDate: .init(.end, of: .month, adding: 0))
+        RelativeTimeInterval(beginningDate: .init(.beginning, of: .month, adding: 0), endDate: .init(.end, of: .month, adding: 0)),
     ]
 
     let appID1 = UUID()
@@ -14,7 +14,7 @@ final class CompileDownTests: XCTestCase {
             .init(filter: .selector(.init(dimension: "type", value: "appLaunchedRegularly")), name: "Regular Launch"),
             .init(filter: .selector(.init(dimension: "type", value: "dataEntered")), name: "Data Entered"),
             .init(filter: .selector(.init(dimension: "type", value: "paywallSeen")), name: "Paywall Presented"),
-            .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion")
+            .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion"),
         ]
 
         let query = CustomQuery(queryType: .funnel, relativeIntervals: relativeIntervals, granularity: .all, steps: steps)
@@ -48,10 +48,10 @@ final class CompileDownTests: XCTestCase {
                     .selector(.init(
                         dimension: "appID",
                         value: appID2.uuidString
-                    ))
+                    )),
                 ]
                 )),
-                .selector(.init(dimension: "isTestMode", value: "false"))
+                .selector(.init(dimension: "isTestMode", value: "false")),
             ]
             ))
         )
@@ -71,7 +71,7 @@ final class CompileDownTests: XCTestCase {
             precompiledQuery.filter,
             .and(.init(fields: [
                 .selector(.init(dimension: "appID", value: appID.uuidString)),
-                .selector(.init(dimension: "isTestMode", value: "false"))
+                .selector(.init(dimension: "isTestMode", value: "false")),
             ]))
         )
     }
@@ -84,7 +84,7 @@ final class CompileDownTests: XCTestCase {
             precompiledQuery.filter,
             .and(.init(fields: [
                 .selector(.init(dimension: "appID", value: "B97579B6-FFB8-4AC5-AAA7-DA5796CC5DCE")),
-                .selector(.init(dimension: "isTestMode", value: "false"))
+                .selector(.init(dimension: "isTestMode", value: "false")),
             ]))
         )
     }
@@ -151,7 +151,7 @@ final class CompileDownTests: XCTestCase {
 
     func testRestrictions() throws {
         let intervals: [QueryTimeInterval] = [
-            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!)
+            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
         ]
 
         let restrictions: [QueryTimeInterval] = [
@@ -162,7 +162,7 @@ final class CompileDownTests: XCTestCase {
             .init(beginningDate: Date(iso8601String: "2023-05-14T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
 
             // This restriction should be included because it applies partially
-            .init(beginningDate: Date(iso8601String: "2023-03-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-04-02T00:00:00.000Z")!)
+            .init(beginningDate: Date(iso8601String: "2023-03-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-04-02T00:00:00.000Z")!),
         ]
 
         let query = CustomQuery(queryType: .timeseries, restrictions: restrictions, intervals: intervals, granularity: .all)
@@ -171,7 +171,7 @@ final class CompileDownTests: XCTestCase {
 
         XCTAssertEqual(compiledQuery.restrictions, [
             .init(beginningDate: Date(iso8601String: "2023-03-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-04-02T00:00:00.000Z")!),
-            .init(beginningDate: Date(iso8601String: "2023-05-14T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!)
+            .init(beginningDate: Date(iso8601String: "2023-05-14T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
         ])
     }
 }
