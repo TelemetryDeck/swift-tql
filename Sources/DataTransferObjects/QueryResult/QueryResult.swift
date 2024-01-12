@@ -112,7 +112,7 @@ public struct TimeSeriesQueryResultRow: Codable, Hashable, Equatable {
     }
 
     public let timestamp: Date
-    public let result: [String: DoubleWrapper]
+    public let result: [String: DoubleWrapper?]
 }
 
 /// GroupBy queries return an array of JSON objects, where each object represents a grouping as described in the group-by query.

@@ -92,6 +92,17 @@ class QueryResultTests: XCTestCase {
 
         XCTAssertEqual(decodedResult.result, ["d0": DoubleWrapper(1_609_459_200_000)])
     }
+    
+    func testDecodingEmptyTimeSeriesResult() throws {
+        let exampleResult = """
+        { "timestamp": "2023-09-01T00:00:00.000Z", "result": { "count": null } }
+        """
+        .filter { !$0.isWhitespace }
+
+        let decodedResult = try JSONDecoder.telemetryDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
+
+        XCTAssertEqual(decodedResult.result, ["count": nil])
+    }
 
     func testDecodingInfinity() throws {
         let exampleResult = """
