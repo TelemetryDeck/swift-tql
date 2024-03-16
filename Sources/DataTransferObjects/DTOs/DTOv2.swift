@@ -534,6 +534,7 @@ public enum InsightDisplayMode: String, Codable {
     case funnelChart
     case experimentChart
     case matrix
+    case sankey
 }
 
 public extension DTOv2.Insight {
