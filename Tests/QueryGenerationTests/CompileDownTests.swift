@@ -1,3 +1,4 @@
+// swiftlint:disable cyclomatic_complexity
 import DataTransferObjects
 import XCTest
 
@@ -133,6 +134,107 @@ final class CompileDownTests: XCTestCase {
 
         XCTAssertNotNil(compiledQuery.intervals)
         XCTAssertFalse(compiledQuery.intervals!.isEmpty)
+    }
+
+    func testFiltersSupportRelativeIntervals() throws {
+        let query = CustomQuery(
+            queryType: .timeseries,
+            filter: .or(
+                .init(
+                    fields: [.interval(
+                        .init(
+                            dimension: "__time",
+                            relativeIntervals: [.init(
+                                beginningDate: .init(.beginning, of: .month, adding: -6),
+                                endDate: .init(.end, of: .month, adding: 0)
+                            )]
+                        )
+                    )]
+                )
+            ),
+            relativeIntervals: relativeIntervals,
+            granularity: .all
+        )
+
+        let precompiledQuery = try query.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let compiledQuery = try precompiledQuery.compileToRunnableQuery()
+
+        guard case .and(let testModeFilter) = compiledQuery.filter else {
+            XCTFail("Filter is of wrong type")
+            return
+        }
+
+        guard case .and(let appIDsFilter) = testModeFilter.fields.first else {
+            XCTFail("Filter is of wrong type")
+            return
+        }
+
+        guard let orFilter = appIDsFilter.fields.first else {
+            XCTFail("Filter is of wrong type")
+            return
+        }
+
+        switch orFilter {
+        case .or(let orFilterExpression):
+            guard let intervalFilter = orFilterExpression.fields.first else {
+                XCTFail()
+                return
+            }
+
+            switch intervalFilter {
+            case .interval(let filterInterval):
+                XCTAssertNotNil(filterInterval.intervals)
+                XCTAssertFalse(filterInterval.intervals!.isEmpty)
+            default:
+                XCTFail()
+            }
+        default:
+            XCTFail("Filter is of wrong type")
+        }
+    }
+
+    func testAggreggationsSupportRelativeIntervals() throws {
+        let query = CustomQuery(
+            queryType: .timeseries,
+            relativeIntervals: relativeIntervals,
+            granularity: .all,
+            aggregations: [
+                .filtered(
+                    .init(
+                        filter: .interval(
+                            .init(
+                                dimension: "__time",
+                                relativeIntervals: [.init(
+                                    beginningDate: .init(.beginning, of: .month, adding: -6),
+                                    endDate: .init(.end, of: .month, adding: 0)
+                                )]
+                            )
+                        ),
+                        aggregator: .count(.init(name: "appID"))
+                    )
+                ),
+            ]
+        )
+        let precompiledQuery = try query.precompile(organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let compiledQuery = try precompiledQuery.compileToRunnableQuery()
+
+        guard let aggregation = compiledQuery.aggregations?.first else {
+            XCTFail()
+            return
+        }
+
+        guard case .filtered(let filteredAggregator) = aggregation else {
+            XCTFail()
+            return
+        }
+
+        guard case .interval(let filterInterval) = filteredAggregator.filter else {
+            XCTFail()
+            return
+        }
+
+        XCTAssertNotNil(filterInterval.intervals)
+        XCTAssertFalse(filterInterval.intervals!.isEmpty)
     }
 
     func testCompilationStatusIsSetCorrectly() throws {
