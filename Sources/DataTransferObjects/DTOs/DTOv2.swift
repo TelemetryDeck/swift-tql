@@ -200,9 +200,32 @@ public enum DTOv2 {
     }
 
     public struct AppSettings: Codable, Hashable {
+        public init(
+            showExampleData: Bool? = nil,
+            colorScheme: String? = nil,
+            displayMode: DTOv2.AppSettings.DisplayMode? = nil,
+            revenueDisplayMode: DTOv2.AppSettings.RevenueDisplayMode? = nil,
+            navigationAnalyticsShown: Bool? = nil,
+            navigationAnalyticsSignalType: String? = nil,
+            navigationAnalyticsSeparator: String? = nil
+        ) {
+            self.showExampleData = showExampleData
+            self.colorScheme = colorScheme
+            self.displayMode = displayMode
+            self.revenueDisplayMode = revenueDisplayMode
+            self.navigationAnalyticsShown = navigationAnalyticsShown
+            self.navigationAnalyticsSignalType = navigationAnalyticsSignalType
+            self.navigationAnalyticsSeparator = navigationAnalyticsSeparator
+        }
+
         public enum DisplayMode: String, Codable, Hashable {
             case app
             case website
+        }
+
+        public enum RevenueDisplayMode: String, Codable, Hashable {
+            case telemetryDeck
+            case revenueCat
         }
 
         /// If true, the app should display demo content instead of
@@ -219,11 +242,20 @@ public enum DTOv2 {
         /// How should the overview page for this application be layouted?
         public var displayMode: DisplayMode?
 
-        public init(displayMode: DisplayMode? = nil, colorScheme: String? = nil, showExampleData: Bool? = nil) {
-            self.displayMode = displayMode ?? .app
-            self.colorScheme = colorScheme
-            self.showExampleData = showExampleData ?? false
-        }
+        /// How should revenue be displayed?
+        /// - telemetryDeck: Use the revenue data from TelemetryDeck SDK
+        /// - revenueCat: Use the revenue data from RevenueCat
+        /// - nil: Don't display revenue data
+        public var revenueDisplayMode: RevenueDisplayMode?
+
+        /// If true, show navigation analytics. This is a beta feature and should only be enabled for testing
+        public var navigationAnalyticsShown: Bool?
+
+        /// If set, use this string as the signal type for navigation analytics. Default is "TelemetryDeck.Navigation.pathChanged" for apps and "pageview" for websites
+        public var navigationAnalyticsSignalType: String?
+
+        /// If set, use this string as a separator for navigation analytics. Default is "." for apps and "/" for websites
+        public var navigationAnalyticsSeparator: String?
     }
 
     public struct Group: Codable, Hashable, Identifiable {
