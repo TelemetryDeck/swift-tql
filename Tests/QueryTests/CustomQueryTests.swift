@@ -414,11 +414,12 @@ final class CustomQueryTests: XCTestCase {
            "queryType": "scan",
            "dataSource": "wikipedia",
            "columns":[],
-           "limit":3
+           "limit":3,
+            "order": "ascending"
          }
         """.data(using: .utf8)!
 
-        let expectedOutput = CustomQuery(queryType: .scan, dataSource: "wikipedia", limit: 3, columns: [])
+        let expectedOutput = CustomQuery(queryType: .scan, dataSource: "wikipedia", limit: 3, columns: [], order: .ascending)
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: input)
 

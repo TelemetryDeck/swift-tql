@@ -21,6 +21,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
                 threshold: Int? = nil, metric: TopNMetricSpec? = nil,
                 dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
                 columns: [String]? = nil,
+                order: Order? = nil,
                 steps: [NamedFilter]? = nil,
                 sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
     {
@@ -50,6 +51,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.dimension = dimension
         self.dimensions = dimensions
         self.columns = columns
+        self.order = order
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -73,6 +75,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
                 threshold: Int? = nil, metric: TopNMetricSpec? = nil,
                 dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
                 columns: [String]? = nil,
+                order: Order? = nil,
                 steps: [NamedFilter]? = nil,
                 sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
     {
@@ -98,6 +101,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.dimension = dimension
         self.dimensions = dimensions
         self.columns = columns
+        self.order = order
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -116,6 +120,11 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         case funnel
         case experiment
         // case retention
+    }
+
+    public enum Order: String, Codable, CaseIterable {
+        case ascending
+        case descending
     }
 
     public enum CompilationStatus: String, Codable, CaseIterable, Identifiable {
@@ -171,6 +180,9 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     /// Only for scan queries: A String array of dimensions and metrics to scan. If left empty, all dimensions and metrics are returned.
     public var columns: [String]?
 
+    /// Only for scan queries: The ordering of returned rows based on timestamp. Make sure to include the timestamp in the columns list.
+    public var order: Order?
+
     /// Only for funnel Queries: A list of filters that form the steps of the funnel
     public var steps: [NamedFilter]?
 
@@ -218,6 +230,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(dimensions)
         hasher.combine(dimension)
         hasher.combine(columns)
+        hasher.combine(order)
         hasher.combine(steps)
         hasher.combine(sample1)
         hasher.combine(sample2)
@@ -252,6 +265,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         metric = try container.decodeIfPresent(TopNMetricSpec.self, forKey: CustomQuery.CodingKeys.metric)
         dimensions = try container.decodeIfPresent([DimensionSpec].self, forKey: CustomQuery.CodingKeys.dimensions)
         columns = try container.decodeIfPresent([String].self, forKey: CustomQuery.CodingKeys.columns)
+        order = try container.decodeIfPresent(Order.self, forKey: CustomQuery.CodingKeys.order)
         steps = try container.decodeIfPresent([NamedFilter].self, forKey: CustomQuery.CodingKeys.steps)
         sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
         sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)
