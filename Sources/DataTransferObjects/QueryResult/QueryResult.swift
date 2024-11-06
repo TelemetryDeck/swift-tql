@@ -4,6 +4,7 @@ public enum QueryResult: Codable, Hashable, Equatable {
     case timeSeries(TimeSeriesQueryResult)
     case topN(TopNQueryResult)
     case groupBy(GroupByQueryResult)
+    case scan(ScanQueryResult)
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -20,6 +21,8 @@ public enum QueryResult: Codable, Hashable, Equatable {
             self = try .topN(TopNQueryResult(from: decoder))
         case "groupByResult":
             self = try .groupBy(GroupByQueryResult(from: decoder))
+        case "scanResult":
+            self = try .scan(ScanQueryResult(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }
@@ -38,6 +41,9 @@ public enum QueryResult: Codable, Hashable, Equatable {
         case let .groupBy(columnComparison):
             try container.encode("groupByResult", forKey: .type)
             try columnComparison.encode(to: encoder)
+        case .scan(let scan):
+            try container.encode("scanResult", forKey: .type)
+            try scan.encode(to: encoder)
         }
     }
 }
