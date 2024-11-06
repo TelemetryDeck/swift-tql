@@ -407,4 +407,33 @@ final class CustomQueryTests: XCTestCase {
 
         XCTAssertEqual(expectedOutput, decodedOutput)
     }
+
+    func testScanQueryDecoding() throws {
+        let input = """
+         {
+           "queryType": "scan",
+           "dataSource": "wikipedia",
+           "columns":[],
+           "limit":3
+         }
+        """.data(using: .utf8)!
+
+        let expectedOutput = CustomQuery(queryType: .scan, dataSource: "wikipedia", limit: 3, columns: [])
+
+        let decodedOutput = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: input)
+
+        XCTAssertEqual(expectedOutput, decodedOutput)
+    }
+
+    func testScanQueryEncoding() throws {
+        let input = CustomQuery(queryType: .scan, dataSource: "wikipedia", limit: 3, columns: [])
+
+        let expectedOutput = """
+        {"columns":[],"dataSource":"wikipedia","limit":3,"queryType":"scan"}
+        """
+
+        let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
+
+        XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
+    }
 }

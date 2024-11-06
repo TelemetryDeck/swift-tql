@@ -14,11 +14,13 @@ public struct CustomQuery: Codable, Hashable, Equatable {
                 baseFilters: BaseFilters? = nil,
                 testMode: Bool? = nil,
                 intervals: [QueryTimeInterval]? = nil,
-                relativeIntervals: [RelativeTimeInterval]? = nil, granularity: QueryGranularity,
+                relativeIntervals: [RelativeTimeInterval]? = nil,
+                granularity: QueryGranularity? = nil,
                 aggregations: [Aggregator]? = nil, postAggregations: [PostAggregator]? = nil,
                 limit: Int? = nil, context: QueryContext? = nil,
                 threshold: Int? = nil, metric: TopNMetricSpec? = nil,
                 dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
+                columns: [String]? = nil,
                 steps: [NamedFilter]? = nil,
                 sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
     {
@@ -47,6 +49,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.metric = metric
         self.dimension = dimension
         self.dimensions = dimensions
+        self.columns = columns
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -69,6 +72,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
                 limit: Int? = nil, context: QueryContext? = nil,
                 threshold: Int? = nil, metric: TopNMetricSpec? = nil,
                 dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
+                columns: [String]? = nil,
                 steps: [NamedFilter]? = nil,
                 sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
     {
@@ -93,6 +97,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.metric = metric
         self.dimension = dimension
         self.dimensions = dimensions
+        self.columns = columns
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -105,6 +110,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         case timeseries
         case groupBy
         case topN
+        case scan
 
         // derived types
         case funnel
@@ -144,7 +150,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
 
     /// If a relative intervals are set, their calculated output replaces the regular intervals
     public var relativeIntervals: [RelativeTimeInterval]?
-    public let granularity: QueryGranularity
+    public let granularity: QueryGranularity?
     public var aggregations: [Aggregator]?
     public var postAggregations: [PostAggregator]?
     public var limit: Int?
@@ -161,6 +167,9 @@ public struct CustomQuery: Codable, Hashable, Equatable {
 
     /// Only for groupBy Queries: A list of dimensions to do the groupBy over, if queryType is groupBy
     public var dimensions: [DimensionSpec]?
+
+    /// Only for scan queries: A String array of dimensions and metrics to scan. If left empty, all dimensions and metrics are returned.
+    public var columns: [String]?
 
     /// Only for funnel Queries: A list of filters that form the steps of the funnel
     public var steps: [NamedFilter]?
@@ -208,6 +217,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(metric)
         hasher.combine(dimensions)
         hasher.combine(dimension)
+        hasher.combine(columns)
         hasher.combine(steps)
         hasher.combine(sample1)
         hasher.combine(sample2)
@@ -232,7 +242,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         filter = try container.decodeIfPresent(Filter.self, forKey: CustomQuery.CodingKeys.filter)
         appID = try container.decodeIfPresent(UUID.self, forKey: CustomQuery.CodingKeys.appID)
         relativeIntervals = try container.decodeIfPresent([RelativeTimeInterval].self, forKey: CustomQuery.CodingKeys.relativeIntervals)
-        granularity = try container.decode(QueryGranularity.self, forKey: CustomQuery.CodingKeys.granularity)
+        granularity = try container.decodeIfPresent(QueryGranularity.self, forKey: CustomQuery.CodingKeys.granularity)
         aggregations = try container.decodeIfPresent([Aggregator].self, forKey: CustomQuery.CodingKeys.aggregations)
         postAggregations = try container.decodeIfPresent([PostAggregator].self, forKey: CustomQuery.CodingKeys.postAggregations)
         limit = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.limit)
@@ -241,6 +251,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         dimension = try container.decodeIfPresent(DimensionSpec.self, forKey: CustomQuery.CodingKeys.dimension)
         metric = try container.decodeIfPresent(TopNMetricSpec.self, forKey: CustomQuery.CodingKeys.metric)
         dimensions = try container.decodeIfPresent([DimensionSpec].self, forKey: CustomQuery.CodingKeys.dimensions)
+        columns = try container.decodeIfPresent([String].self, forKey: CustomQuery.CodingKeys.columns)
         steps = try container.decodeIfPresent([NamedFilter].self, forKey: CustomQuery.CodingKeys.steps)
         sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
         sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)

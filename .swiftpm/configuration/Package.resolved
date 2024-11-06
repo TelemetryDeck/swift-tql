@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "swift-crypto",
+        "repositoryURL": "https://github.com/apple/swift-crypto.git",
+        "state": {
+          "branch": null,
+          "revision": "60f13f60c4d093691934dc6cfdf5f508ada1f894",
+          "version": "2.6.0"
+        }
+      },
+      {
+        "package": "DateOperations",
+        "repositoryURL": "https://github.com/TelemetryDeck/SwiftDateOperations.git",
+        "state": {
+          "branch": null,
+          "revision": "9baf08c95057688deffe1f14dfcc871ba2ef38d2",
+          "version": "1.0.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

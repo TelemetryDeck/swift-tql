@@ -9,8 +9,7 @@ final class EncodingDecodingTests: XCTestCase {
 
         let expectedOutput = """
         {
-            "displayMode": "app",
-            "showExampleData": false
+            "displayMode": "app"
         }
         """
         .filter { !$0.isWhitespace }
