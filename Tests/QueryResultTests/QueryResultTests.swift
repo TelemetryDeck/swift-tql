@@ -158,4 +158,46 @@ class QueryResultTests: XCTestCase {
 
         XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
     }
+
+    func testDecodingScan() throws {
+        let exampleResult = """
+        [
+            {
+                "segmentId": "telemetry-signals_2024-08-30T00:00:00.000Z_2024-08-31T00:00:00.000Z_2024-08-30T00:00:00.590Z_50",
+                "columns": [
+                    "__time",
+                    "type"
+                ],
+                "events": [
+                    {
+                        "__time": 1725004800000,
+                        "type": "RevenueCat.Events.CANCELLATION"
+                    }
+                ],
+                "rowSignature": [
+                    {
+                        "name": "__time",
+                        "type": "LONG"
+                    },
+                    {
+                        "name": "type",
+                        "type": "STRING"
+                    }
+                ]
+            }
+        ]
+        """
+
+        let decodedResult = try JSONDecoder.telemetryDecoder.decode([ScanQueryResultRow].self, from: exampleResult.data(using: .utf8)!)
+
+        XCTAssertEqual(
+            decodedResult,
+            [.init(
+                segmentId: "telemetry-signals_2024-08-30T00:00:00.000Z_2024-08-31T00:00:00.000Z_2024-08-30T00:00:00.590Z_50",
+                columns: ["__time", "type"],
+                events: [.init(metrics: ["__time": 1725004800000], dimensions: ["type": "RevenueCat.Events.CANCELLATION"])],
+                rowSignature: [.init(name: "__time", type: "LONG"), .init(name: "type", type: "STRING")]
+            )]
+        )
+    }
 }
