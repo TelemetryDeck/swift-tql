@@ -1,6 +1,7 @@
 
 public struct ValueFormatter: Codable, Hashable, Equatable {
     public let locale: String?
+    public let options: ValueFormatterOptions?
 }
 
 /// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#currencydisplay
