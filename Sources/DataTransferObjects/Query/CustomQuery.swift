@@ -3,28 +3,36 @@ import Foundation
 
 /// Custom JSON based  query
 public struct CustomQuery: Codable, Hashable, Equatable {
-    public init(queryType: CustomQuery.QueryType,
-                compilationStatus: CompilationStatus? = nil,
-                restrictions: [QueryTimeInterval]? = nil,
-                dataSource: String? = "telemetry-signals",
-                sampleFactor: Int? = nil,
-                descending: Bool? = nil,
-                filter: Filter? = nil,
-                appID: UUID? = nil,
-                baseFilters: BaseFilters? = nil,
-                testMode: Bool? = nil,
-                intervals: [QueryTimeInterval]? = nil,
-                relativeIntervals: [RelativeTimeInterval]? = nil,
-                granularity: QueryGranularity? = nil,
-                aggregations: [Aggregator]? = nil, postAggregations: [PostAggregator]? = nil,
-                limit: Int? = nil, context: QueryContext? = nil,
-                threshold: Int? = nil, metric: TopNMetricSpec? = nil,
-                dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
-                columns: [String]? = nil,
-                order: Order? = nil,
-                steps: [NamedFilter]? = nil,
-                sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
-    {
+    public init(
+        queryType: CustomQuery.QueryType,
+        compilationStatus: CompilationStatus? = nil,
+        restrictions: [QueryTimeInterval]? = nil,
+        dataSource: String? = "telemetry-signals",
+        sampleFactor: Int? = nil,
+        descending: Bool? = nil,
+        filter: Filter? = nil,
+        appID: UUID? = nil,
+        baseFilters: BaseFilters? = nil,
+        testMode: Bool? = nil,
+        intervals: [QueryTimeInterval]? = nil,
+        relativeIntervals: [RelativeTimeInterval]? = nil,
+        granularity: QueryGranularity? = nil,
+        aggregations: [Aggregator]? = nil,
+        postAggregations: [PostAggregator]? = nil,
+        limit: Int? = nil,
+        context: QueryContext? = nil,
+        valueFormatter: ValueFormatter? = nil,
+        threshold: Int? = nil,
+        metric: TopNMetricSpec? = nil,
+        dimension: DimensionSpec? = nil,
+        dimensions: [DimensionSpec]? = nil,
+        columns: [String]? = nil,
+        order: Order? = nil,
+        steps: [NamedFilter]? = nil,
+        sample1: NamedFilter? = nil,
+        sample2: NamedFilter? = nil,
+        successCriterion: NamedFilter? = nil
+    ) {
         self.queryType = queryType
         self.compilationStatus = compilationStatus
         self.restrictions = restrictions
@@ -46,6 +54,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.postAggregations = postAggregations
         self.limit = limit
         self.context = context
+        self.valueFormatter = valueFormatter
         self.threshold = threshold
         self.metric = metric
         self.dimension = dimension
@@ -58,27 +67,36 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.successCriterion = successCriterion
     }
 
-    public init(queryType: CustomQuery.QueryType,
-                compilationStatus: CompilationStatus? = nil,
-                restrictions: [QueryTimeInterval]? = nil,
-                dataSource: DataSource?,
-                sampleFactor: Int? = nil,
-                descending: Bool? = nil,
-                filter: Filter? = nil,
-                appID: UUID? = nil,
-                baseFilters: BaseFilters? = nil,
-                testMode: Bool? = nil,
-                intervals: [QueryTimeInterval]? = nil,
-                relativeIntervals: [RelativeTimeInterval]? = nil, granularity: QueryGranularity,
-                aggregations: [Aggregator]? = nil, postAggregations: [PostAggregator]? = nil,
-                limit: Int? = nil, context: QueryContext? = nil,
-                threshold: Int? = nil, metric: TopNMetricSpec? = nil,
-                dimension: DimensionSpec? = nil, dimensions: [DimensionSpec]? = nil,
-                columns: [String]? = nil,
-                order: Order? = nil,
-                steps: [NamedFilter]? = nil,
-                sample1: NamedFilter? = nil, sample2: NamedFilter? = nil, successCriterion: NamedFilter? = nil)
-    {
+    public init(
+        queryType: CustomQuery.QueryType,
+        compilationStatus: CompilationStatus? = nil,
+        restrictions: [QueryTimeInterval]? = nil,
+        dataSource: DataSource?,
+        sampleFactor: Int? = nil,
+        descending: Bool? = nil,
+        filter: Filter? = nil,
+        appID: UUID? = nil,
+        baseFilters: BaseFilters? = nil,
+        testMode: Bool? = nil,
+        intervals: [QueryTimeInterval]? = nil,
+        relativeIntervals: [RelativeTimeInterval]? = nil,
+        granularity: QueryGranularity,
+        aggregations: [Aggregator]? = nil,
+        postAggregations: [PostAggregator]? = nil,
+        limit: Int? = nil,
+        context: QueryContext? = nil,
+        valueFormatter: ValueFormatter? = nil,
+        threshold: Int? = nil,
+        metric: TopNMetricSpec? = nil,
+        dimension: DimensionSpec? = nil,
+        dimensions: [DimensionSpec]? = nil,
+        columns: [String]? = nil,
+        order: Order? = nil,
+        steps: [NamedFilter]? = nil,
+        sample1: NamedFilter? = nil,
+        sample2: NamedFilter? = nil,
+        successCriterion: NamedFilter? = nil
+    ) {
         self.queryType = queryType
         self.compilationStatus = compilationStatus
         self.restrictions = restrictions
@@ -96,6 +114,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.postAggregations = postAggregations
         self.limit = limit
         self.context = context
+        self.valueFormatter = valueFormatter
         self.threshold = threshold
         self.metric = metric
         self.dimension = dimension
@@ -164,6 +183,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     public var postAggregations: [PostAggregator]?
     public var limit: Int?
     public var context: QueryContext?
+    public var valueFormatter: ValueFormatter?
 
     /// Only for topN Queries: An integer defining the N in the topN (i.e. how many results you want in the top list)
     public var threshold: Int?
@@ -225,6 +245,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(postAggregations)
         hasher.combine(limit)
         hasher.combine(context)
+        hasher.combine(valueFormatter)
         hasher.combine(threshold)
         hasher.combine(metric)
         hasher.combine(dimensions)
@@ -260,6 +281,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         postAggregations = try container.decodeIfPresent([PostAggregator].self, forKey: CustomQuery.CodingKeys.postAggregations)
         limit = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.limit)
         context = try container.decodeIfPresent(QueryContext.self, forKey: CustomQuery.CodingKeys.context)
+        valueFormatter = try container.decodeIfPresent(ValueFormatter.self, forKey: CustomQuery.CodingKeys.valueFormatter)
         threshold = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.threshold)
         dimension = try container.decodeIfPresent(DimensionSpec.self, forKey: CustomQuery.CodingKeys.dimension)
         metric = try container.decodeIfPresent(TopNMetricSpec.self, forKey: CustomQuery.CodingKeys.metric)
