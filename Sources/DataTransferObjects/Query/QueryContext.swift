@@ -19,6 +19,13 @@ public struct QueryContext: Codable, Hashable {
     /// Timeseries queries normally fill empty interior time buckets with zeroes.
     public var skipEmptyBuckets: Bool?
 
+    /// How long are the results of this query valid for?
+    ///
+    /// This is used to determine whether to use cached results or to re-run the query. Value is in minutes.
+    ///
+    /// The query server may choose to ignore this value.
+    public var cacheValidityDuration: Int?
+
     public init(timeout: String? = nil, priority: Int? = nil, timestampResultField: String? = nil, minTopNThreshold: Int? = nil, grandTotal: Bool? = nil, skipEmptyBuckets: Bool? = nil) {
         self.timeout = timeout
         self.priority = priority
