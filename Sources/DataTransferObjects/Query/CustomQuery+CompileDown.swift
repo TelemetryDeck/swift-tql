@@ -147,7 +147,24 @@ extension CustomQuery {
                 throw QueryGenerationError.notAllowed(reason: "The noFilter base filter is not implemented.")
             }
         } else {
-            query.context = QueryContext(timeout: "200000", skipEmptyBuckets: false)
+            let maxPriority = isSuperOrg ? 5 : 1
+            let minPriority = -1
+            var priority = query.context?.priority ?? 1
+            if priority > maxPriority {
+                priority = maxPriority
+            }
+            if priority < minPriority {
+                priority = minPriority
+            }
+
+            query.context = QueryContext(
+                timeout: "200000",
+                priority: priority,
+                timestampResultField: query.context?.timestampResultField,
+                minTopNThreshold: query.context?.minTopNThreshold,
+                grandTotal: query.context?.grandTotal,
+                skipEmptyBuckets: false
+            )
 
             // Check sampling factor
             switch query.sampleFactor {
