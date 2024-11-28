@@ -149,17 +149,17 @@ extension CustomQuery {
         } else {
             let maxPriority = isSuperOrg ? 5 : 1
             let minPriority = -1
-            var priority = query.context?.priority ?? 1
-            if priority > maxPriority {
-                priority = maxPriority
+            var clampedPriority = query.context?.priority ?? 1
+            if clampedPriority > maxPriority {
+                clampedPriority = maxPriority
             }
-            if priority < minPriority {
-                priority = minPriority
+            if clampedPriority < minPriority {
+                clampedPriority = minPriority
             }
 
             query.context = QueryContext(
                 timeout: "200000",
-                priority: query.context?.priority == nil ? priority : nil,
+                priority: query.context?.priority == nil ? nil : clampedPriority,
                 timestampResultField: query.context?.timestampResultField,
                 minTopNThreshold: query.context?.minTopNThreshold,
                 grandTotal: query.context?.grandTotal,
