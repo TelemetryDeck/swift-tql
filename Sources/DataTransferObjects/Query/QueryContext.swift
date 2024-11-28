@@ -26,12 +26,21 @@ public struct QueryContext: Codable, Hashable {
     /// The query server may choose to ignore this value.
     public var cacheValidityDuration: Int?
 
-    public init(timeout: String? = nil, priority: Int? = nil, timestampResultField: String? = nil, minTopNThreshold: Int? = nil, grandTotal: Bool? = nil, skipEmptyBuckets: Bool? = nil) {
+    public init(
+        timeout: String? = nil,
+        priority: Int? = nil,
+        timestampResultField: String? = nil,
+        minTopNThreshold: Int? = nil,
+        grandTotal: Bool? = nil,
+        skipEmptyBuckets: Bool? = nil,
+        cacheValidityDuration: Int? = nil
+    ) {
         self.timeout = timeout
         self.priority = priority
         self.timestampResultField = timestampResultField
         self.minTopNThreshold = minTopNThreshold
         self.grandTotal = grandTotal
         self.skipEmptyBuckets = skipEmptyBuckets
+        self.cacheValidityDuration = cacheValidityDuration
     }
 }

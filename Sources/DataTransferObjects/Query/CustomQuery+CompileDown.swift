@@ -159,11 +159,12 @@ extension CustomQuery {
 
             query.context = QueryContext(
                 timeout: "200000",
-                priority: priority,
+                priority: query.context?.priority == nil ? priority : nil,
                 timestampResultField: query.context?.timestampResultField,
                 minTopNThreshold: query.context?.minTopNThreshold,
                 grandTotal: query.context?.grandTotal,
-                skipEmptyBuckets: false
+                skipEmptyBuckets: false,
+                cacheValidityDuration: query.context?.cacheValidityDuration
             )
 
             // Check sampling factor
