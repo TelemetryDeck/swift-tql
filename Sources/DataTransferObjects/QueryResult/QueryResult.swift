@@ -41,7 +41,7 @@ public enum QueryResult: Codable, Hashable, Equatable {
         case let .groupBy(columnComparison):
             try container.encode("groupByResult", forKey: .type)
             try columnComparison.encode(to: encoder)
-        case .scan(let scan):
+        case let .scan(scan):
             try container.encode("scanResult", forKey: .type)
             try scan.encode(to: encoder)
         }
@@ -117,7 +117,7 @@ public struct TimeSeriesQueryResultRow: Codable, Hashable, Equatable {
         self.result = result
     }
 
-    public let timestamp: Date
+    public let timestamp: Date?
     public let result: [String: DoubleWrapper?]
 }
 
