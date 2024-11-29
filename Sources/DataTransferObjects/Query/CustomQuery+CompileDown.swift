@@ -167,15 +167,26 @@ extension CustomQuery {
                 cacheValidityDuration: query.context?.cacheValidityDuration
             )
 
-            // Check sampling factor
-            switch query.sampleFactor {
-            case 10:
-                query.dataSource = .init("telemetry-signals-sample10")
-            case 100:
-                query.dataSource = .init("telemetry-signals-sample100")
-            case 1000:
-                query.dataSource = .init("telemetry-signals-sample1000")
-            default:
+            let allowedDataSourceNames = [
+                "telemetry-signals",
+                "com.telemetrydeck.all",
+                "com.telemetrydeck.compacted"
+            ]
+
+            if let sampleFactor = query.sampleFactor {
+                switch sampleFactor {
+                case 10:
+                    query.dataSource = .init("telemetry-signals-sample10")
+                case 100:
+                    query.dataSource = .init("telemetry-signals-sample100")
+                case 1000:
+                    query.dataSource = .init("telemetry-signals-sample1000")
+                default:
+                    query.dataSource = .init("telemetry-signals")
+                }
+            } else if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
+                query.dataSource = .init(dataSource.name)
+            } else {
                 query.dataSource = .init("telemetry-signals")
             }
         }
