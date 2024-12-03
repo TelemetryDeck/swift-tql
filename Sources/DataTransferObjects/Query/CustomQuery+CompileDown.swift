@@ -15,7 +15,7 @@ public extension CustomQuery {
     /// @warn Both precompile AND compileToRunnableQuery need to be run before a query can safely be handed to Druid!
     ///
     /// @see compileToRunnableQuery
-    func precompile(organizationAppIDs: [UUID], isSuperOrg: Bool) throws -> CustomQuery {
+    func precompile(namespace: String? = nil, organizationAppIDs: [UUID], isSuperOrg: Bool) throws -> CustomQuery {
         guard (compilationStatus ?? .notCompiled) == .notCompiled else {
             throw QueryGenerationError.compilationStatusError
         }
@@ -36,7 +36,7 @@ public extension CustomQuery {
         }
 
         // Apply base filters and data source
-        query = try Self.applyBaseFilters(query: query, organizationAppIDs: organizationAppIDs, isSuperOrg: isSuperOrg)
+        query = try Self.applyBaseFilters(namespace: namespace, query: query, organizationAppIDs: organizationAppIDs, isSuperOrg: isSuperOrg)
 
         // Update compilationStatus so the next steps in the pipeline are sure the query has been precompiled
         query.compilationStatus = .precompiled
@@ -136,7 +136,7 @@ public extension CustomQuery {
 }
 
 extension CustomQuery {
-    static func applyBaseFilters(query: CustomQuery, organizationAppIDs: [UUID]?, isSuperOrg: Bool) throws -> CustomQuery {
+    static func applyBaseFilters(namespace: String?, query: CustomQuery, organizationAppIDs: [UUID]?, isSuperOrg: Bool) throws -> CustomQuery {
         // make an editable copy of the query
         var query = query
 
@@ -187,7 +187,11 @@ extension CustomQuery {
             } else if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
                 query.dataSource = .init(dataSource.name)
             } else {
-                query.dataSource = .init("telemetry-signals")
+                if let namespace {
+                    query.dataSource = .init(namespace)
+                } else {
+                    query.dataSource = .init("telemetry-signals")
+                }
             }
         }
 

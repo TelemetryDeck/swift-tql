@@ -331,4 +331,16 @@ final class CompileDownTests: XCTestCase {
         let compiledQuery = try precompiledQuery.compileToRunnableQuery()
         XCTAssertEqual(compiledQuery.dataSource?.name, "telemetry-signals")
     }
+
+    func testNamespace() throws {
+        let intervals: [QueryTimeInterval] = [
+            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
+        ]
+
+        var query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: .day)
+        query.dataSource = nil
+        let precompiledQuery = try query.precompile(namespace: "com.telemetrydeck.test", organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let compiledQuery = try precompiledQuery.compileToRunnableQuery()
+        XCTAssertEqual(compiledQuery.dataSource?.name, "com.telemetrydeck.test")
+    }
 }
