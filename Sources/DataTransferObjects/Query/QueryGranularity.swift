@@ -27,14 +27,14 @@ public enum QueryGranularity: String, Codable, Hashable, CaseIterable {
             type = try keyedContainer.decode(String.self, forKey: .type)
         }
 
-        for possibleCase in Self.allCases where type == possibleCase.rawValue {
+        for possibleCase in Self.allCases where type.lowercased() == possibleCase.rawValue {
             self = possibleCase
             return
         }
 
         throw DecodingError.dataCorrupted(.init(
             codingPath: [],
-            debugDescription: "needs to be a string or a dict",
+            debugDescription: "QueryGranularity needs to be a string or a dict",
             underlyingError: nil
         ))
     }
