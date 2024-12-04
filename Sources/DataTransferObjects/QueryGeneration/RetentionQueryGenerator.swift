@@ -39,7 +39,6 @@ public enum RetentionQueryGenerator {
         // Combine query
         return CustomQuery(
             queryType: .groupBy,
-            dataSource: "telemetry-signals",
             filter: .and(.init(fields: [
                 .selector(.init(dimension: "appID", value: appID)),
                 .selector(.init(dimension: "isTestMode", value: testMode ? "true" : "false")),

@@ -13,7 +13,6 @@ import XCTest
 final class RetentionQueryGenerationTests: XCTestCase {
     let tinyQuery = CustomQuery(
         queryType: .groupBy,
-        dataSource: "telemetry-signals",
         filter: .and(.init(fields: [
             .selector(.init(dimension: "appID", value: "79167A27-EBBF-4012-9974-160624E5D07B")),
             .selector(.init(dimension: "isTestMode", value: "false")),

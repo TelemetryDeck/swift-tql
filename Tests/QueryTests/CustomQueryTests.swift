@@ -387,7 +387,7 @@ final class CustomQueryTests: XCTestCase {
         let input = CustomQuery(queryType: .timeseries, sampleFactor: 10, granularity: .day)
 
         let expectedOutput = """
-        {"dataSource":"telemetry-signals","granularity":"day","queryType":"timeseries","sampleFactor":10}
+        {"granularity":"day","queryType":"timeseries","sampleFactor":10}
         """
 
         let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
@@ -397,7 +397,7 @@ final class CustomQueryTests: XCTestCase {
 
     func testSampleFactorDecoding() throws {
         let input = """
-        {"dataSource":"telemetry-signals","granularity":"day","queryType":"timeseries","sampleFactor":10}
+        {"granularity":"day","queryType":"timeseries","sampleFactor":10}
         """
         .data(using: .utf8)!
 

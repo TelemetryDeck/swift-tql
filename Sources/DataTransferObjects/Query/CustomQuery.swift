@@ -7,7 +7,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         queryType: CustomQuery.QueryType,
         compilationStatus: CompilationStatus? = nil,
         restrictions: [QueryTimeInterval]? = nil,
-        dataSource: String? = "telemetry-signals",
+        dataSource: String? = nil,
         sampleFactor: Int? = nil,
         descending: Bool? = nil,
         filter: Filter? = nil,
@@ -157,7 +157,7 @@ public struct CustomQuery: Codable, Hashable, Equatable {
     public var queryType: QueryType
     public var compilationStatus: CompilationStatus?
     public var restrictions: [QueryTimeInterval]?
-    public var dataSource: DataSource? = .init(type: .table, name: "telemetry-signals")
+    public var dataSource: DataSource?
 
     /// The sample factor to apply to this query
     ///
