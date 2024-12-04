@@ -8,6 +8,16 @@
 ///
 /// Treat __time as a millisecond timestamp: the number of milliseconds since Jan 1, 1970 at midnight UTC.
 public struct TimestampSpec: Codable, Hashable, Equatable {
+    public init(
+        column: String? = nil,
+        format: TimestampSpec.TimestampSpecFormat? = nil,
+        missingValue: String? = nil
+    ) {
+        self.column = column
+        self.format = format
+        self.missingValue = missingValue
+    }
+
     public enum TimestampSpecFormat: String, Codable, CaseIterable {
         case iso
         case posix

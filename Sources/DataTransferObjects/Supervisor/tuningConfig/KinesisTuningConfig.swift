@@ -1,6 +1,72 @@
 /// https://druid.apache.org/docs/latest/ingestion/supervisor/#tuning-configuration
 /// https://druid.apache.org/docs/latest/ingestion/kinesis-ingestion#tuning-configuration
 public struct KinesisTuningConfig: Codable, Hashable, Equatable {
+    public init(
+        skipSequenceNumberAvailabilityCheck: Bool? = nil,
+        recordBufferSizeBytes: Int? = nil,
+        recordBufferOfferTimeout: Int? = nil,
+        recordBufferFullWait: Int? = nil,
+        fetchThreads: Int? = nil,
+        maxBytesPerPoll: Int? = nil,
+        repartitionTransitionDuration: String? = nil,
+        useListShards: Bool? = nil,
+        maxRowsInMemory: Int? = nil,
+        maxBytesInMemory: Int? = nil,
+        skipBytesInMemoryOverheadCheck: Bool? = nil,
+        maxRowsPerSegment: Int? = nil,
+        maxTotalRows: Int? = nil,
+        intermediateHandoffPeriod: String? = nil,
+        intermediatePersistPeriod: String? = nil,
+        maxPendingPersists: Int? = nil,
+        indexSpec: IndexSpec? = nil,
+        indexSpecForIntermediatePersists: IndexSpec? = nil,
+        reportParseExceptions: Bool? = nil,
+        handoffConditionTimeout: Int? = nil,
+        resetOffsetAutomatically: Bool? = nil,
+        workerThreads: Int? = nil,
+        chatRetries: Int? = nil,
+        httpTimeout: String? = nil,
+        shutdownTimeout: String? = nil,
+        offsetFetchPeriod: String? = nil,
+        logParseExceptions: Bool? = nil,
+        maxParseExceptions: Int? = nil,
+        maxSavedParseExceptions: Int? = nil,
+        numPersistThreads: Int? = nil,
+        appendableIndexSpec: AppendableIndexSpec? = nil
+    ) {
+        self.skipSequenceNumberAvailabilityCheck = skipSequenceNumberAvailabilityCheck
+        self.recordBufferSizeBytes = recordBufferSizeBytes
+        self.recordBufferOfferTimeout = recordBufferOfferTimeout
+        self.recordBufferFullWait = recordBufferFullWait
+        self.fetchThreads = fetchThreads
+        self.maxBytesPerPoll = maxBytesPerPoll
+        self.repartitionTransitionDuration = repartitionTransitionDuration
+        self.useListShards = useListShards
+        self.maxRowsInMemory = maxRowsInMemory
+        self.maxBytesInMemory = maxBytesInMemory
+        self.skipBytesInMemoryOverheadCheck = skipBytesInMemoryOverheadCheck
+        self.maxRowsPerSegment = maxRowsPerSegment
+        self.maxTotalRows = maxTotalRows
+        self.intermediateHandoffPeriod = intermediateHandoffPeriod
+        self.intermediatePersistPeriod = intermediatePersistPeriod
+        self.maxPendingPersists = maxPendingPersists
+        self.indexSpec = indexSpec
+        self.indexSpecForIntermediatePersists = indexSpecForIntermediatePersists
+        self.reportParseExceptions = reportParseExceptions
+        self.handoffConditionTimeout = handoffConditionTimeout
+        self.resetOffsetAutomatically = resetOffsetAutomatically
+        self.workerThreads = workerThreads
+        self.chatRetries = chatRetries
+        self.httpTimeout = httpTimeout
+        self.shutdownTimeout = shutdownTimeout
+        self.offsetFetchPeriod = offsetFetchPeriod
+        self.logParseExceptions = logParseExceptions
+        self.maxParseExceptions = maxParseExceptions
+        self.maxSavedParseExceptions = maxSavedParseExceptions
+        self.numPersistThreads = numPersistThreads
+        self.appendableIndexSpec = appendableIndexSpec
+    }
+
     // - MARK: Kinesis Related Properties
     /// Whether to enable checking if the current sequence number is still available in a particular Kinesis shard. If false, the indexing task attempts to reset the current sequence number, depending on the value of resetOffsetAutomatically.
     public let skipSequenceNumberAvailabilityCheck: Bool?

@@ -2,6 +2,24 @@
 ///
 /// https://druid.apache.org/docs/latest/ingestion/ingestion-spec/#indexspec
 public struct IndexSpec: Codable, Hashable, Equatable {
+    public init(
+        bitmap: IndexSpecBitmap? = nil,
+        dimensionCompression: IndexSpec.CompressionType? = nil,
+        stringDictionaryEncoding: StringDictionaryEncoding? = nil,
+        metricCompression: IndexSpec.CompressionType? = nil,
+        longEncoding: IndexSpec.LongEncodingType? = nil,
+        complexMetricCompression: IndexSpec.CompressionType? = nil,
+        jsonCompression: IndexSpec.CompressionType? = nil
+    ) {
+        self.bitmap = bitmap
+        self.dimensionCompression = dimensionCompression
+        self.stringDictionaryEncoding = stringDictionaryEncoding
+        self.metricCompression = metricCompression
+        self.longEncoding = longEncoding
+        self.complexMetricCompression = complexMetricCompression
+        self.jsonCompression = jsonCompression
+    }
+
     public enum CompressionType: String, Codable, CaseIterable {
         case lz4
         case lzf

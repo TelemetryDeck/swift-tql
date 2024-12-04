@@ -1,6 +1,46 @@
 /// https://druid.apache.org/docs/latest/ingestion/supervisor/#io-configuration
 /// https://druid.apache.org/docs/latest/ingestion/kinesis-ingestion#io-configuration
 public struct KinesisIOConfig: Codable, Hashable, Equatable {
+    public init(
+        stream: String,
+        inputFormat: InputFormat,
+        endpoint: String? = nil,
+        taskCount: Int? = nil,
+        replicas: Int? = nil,
+        taskDuration: String? = nil,
+        startDelay: String? = nil,
+        period: String? = nil,
+        useEarliestSequenceNumber: Bool? = nil,
+        completionTimeout: String? = nil,
+        lateMessageRejectionPeriod: String? = nil,
+        earlyMessageRejectionPeriod: String? = nil,
+        lateMessageRejectionStartDateTime: String? = nil,
+        idleConfig: IdleConfig? = nil,
+        stopTaskCount: Int? = nil,
+        fetchDelayMillis: Int? = nil,
+        awsAssumedRoleArn: String? = nil,
+        awsExternalId: String? = nil
+    ) {
+        self.stream = stream
+        self.inputFormat = inputFormat
+        self.endpoint = endpoint
+        self.taskCount = taskCount
+        self.replicas = replicas
+        self.taskDuration = taskDuration
+        self.startDelay = startDelay
+        self.period = period
+        self.useEarliestSequenceNumber = useEarliestSequenceNumber
+        self.completionTimeout = completionTimeout
+        self.lateMessageRejectionPeriod = lateMessageRejectionPeriod
+        self.earlyMessageRejectionPeriod = earlyMessageRejectionPeriod
+        self.lateMessageRejectionStartDateTime = lateMessageRejectionStartDateTime
+        self.idleConfig = idleConfig
+        self.stopTaskCount = stopTaskCount
+        self.fetchDelayMillis = fetchDelayMillis
+        self.awsAssumedRoleArn = awsAssumedRoleArn
+        self.awsExternalId = awsExternalId
+    }
+
     /// The Kinesis stream to read
     public let stream: String
 

@@ -1,5 +1,11 @@
 /// Datasource / Namespace Supervisor definition
 public struct Supervisor: Codable, Hashable, Equatable {
+    public init(type: Supervisor.SupervisorType, spec: SupervisorSpec? = nil, suspended: Bool? = nil) {
+        self.type = type
+        self.spec = spec
+        self.suspended = suspended
+    }
+
     public enum SupervisorType: String, Codable, CaseIterable {
         case kafka
         case kinesis

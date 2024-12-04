@@ -1,5 +1,21 @@
 /// https://druid.apache.org/docs/latest/ingestion/ingestion-spec#dataschema
 public struct DataSchema: Codable, Hashable, Equatable {
+    public init(
+        dataSource: String,
+        timestampSpec: TimestampSpec? = nil,
+        metricsSpec: [Aggregator]? = nil,
+        granularitySpec: GranularitySpec? = nil,
+        transformSpec: TransformSpec? = nil,
+        dimensionsSpec: IngestionDimensionSpec? = nil
+    ) {
+        self.dataSource = dataSource
+        self.timestampSpec = timestampSpec
+        self.metricsSpec = metricsSpec
+        self.granularitySpec = granularitySpec
+        self.transformSpec = transformSpec
+        self.dimensionsSpec = dimensionsSpec
+    }
+
     /// The dataSource is located in dataSchema → dataSource and is simply the name of the datasource that data will be written to. An example dataSource is:
     public let dataSource: String
 

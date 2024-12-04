@@ -1,5 +1,21 @@
 /// https://druid.apache.org/docs/latest/ingestion/ingestion-spec/#dimensionsspec
 public struct IngestionDimensionSpec: Codable, Hashable, Equatable {
+    public init(
+        dimensions: [IngestionDimensionSpecDimension],
+        dimensionExclusions: [String]? = nil,
+        spatialDimensions: [IngestionDimensionSpecSpatialDimension]? = nil,
+        includeAllDimensions: Bool? = nil,
+        useSchemaDiscovery: Bool? = nil,
+        forceSegmentSortByTime: Bool? = nil
+    ) {
+        self.dimensions = dimensions
+        self.dimensionExclusions = dimensionExclusions
+        self.spatialDimensions = spatialDimensions
+        self.includeAllDimensions = includeAllDimensions
+        self.useSchemaDiscovery = useSchemaDiscovery
+        self.forceSegmentSortByTime = forceSegmentSortByTime
+    }
+
     /// A list of dimension names or objects. You cannot include the same column in both dimensions and dimensionExclusions.
     ///
     /// If dimensions and spatialDimensions are both null or empty arrays, Druid treats all columns other than timestamp or metrics
@@ -44,6 +60,18 @@ public struct IngestionDimensionSpec: Codable, Hashable, Equatable {
 }
 
 public struct IngestionDimensionSpecDimension: Codable, Hashable, Equatable {
+    public init(
+        type: IngestionDimensionSpecDimension.DimensionType? = nil,
+        name: String,
+        createBitmapIndex: Bool? = nil,
+        multiValueHandling: IngestionDimensionSpecDimension.MultiValueHandlingOption? = nil
+    ) {
+        self.type = type
+        self.name = name
+        self.createBitmapIndex = createBitmapIndex
+        self.multiValueHandling = multiValueHandling
+    }
+
     public enum DimensionType: String, Codable, Hashable, Equatable {
         case auto
         case string
@@ -80,6 +108,11 @@ public struct IngestionDimensionSpecDimension: Codable, Hashable, Equatable {
 }
 
 public struct IngestionDimensionSpecSpatialDimension: Codable, Hashable, Equatable {
+    public init(dimName: String, dims: [String]? = nil) {
+        self.dimName = dimName
+        self.dims = dims
+    }
+
     public let dimName: String
     public let dims: [String]?
 }

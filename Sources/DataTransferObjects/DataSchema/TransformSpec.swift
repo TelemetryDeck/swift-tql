@@ -3,11 +3,22 @@
 ///
 /// https://druid.apache.org/docs/latest/ingestion/ingestion-spec/#transformspec
 public struct TransformSpec: Codable, Hashable, Equatable {
+    public init(transforms: [TransformSpecTransform]? = nil, filter: Filter? = nil) {
+        self.transforms = transforms
+        self.filter = filter
+    }
+
     public let transforms: [TransformSpecTransform]?
     public let filter: Filter?
 }
 
 public struct TransformSpecTransform: Codable, Hashable, Equatable {
+    public init(type: String, name: String? = nil, expression: String? = nil) {
+        self.type = type
+        self.name = name
+        self.expression = expression
+    }
+
     public let type: String
     public let name: String?
 

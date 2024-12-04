@@ -1,5 +1,19 @@
 /// https://druid.apache.org/docs/latest/ingestion/ingestion-spec/#granularityspec
 public struct GranularitySpec: Codable, Hashable, Equatable {
+    public init(
+        type: GranularitySpec.GranularitySpecType? = nil,
+        segmentGranularity: QueryGranularity? = nil,
+        queryGranularity: QueryGranularity? = nil,
+        rollup: Bool? = nil,
+        intervals: [String]? = nil
+    ) {
+        self.type = type
+        self.segmentGranularity = segmentGranularity
+        self.queryGranularity = queryGranularity
+        self.rollup = rollup
+        self.intervals = intervals
+    }
+
     public enum GranularitySpecType: String, Codable, CaseIterable {
         case uniform
     }
