@@ -43,6 +43,10 @@ public struct IndexSpec: Codable, Hashable, Equatable {
 }
 
 public struct IndexSpecBitmap: Codable, Hashable, Equatable {
+    public init(type: IndexSpecBitmap.IndexSpecBitmapType) {
+        self.type = type
+    }
+
     public enum IndexSpecBitmapType: String, Codable, CaseIterable {
         case roaring
         case concise
@@ -52,6 +56,16 @@ public struct IndexSpecBitmap: Codable, Hashable, Equatable {
 }
 
 public struct StringDictionaryEncoding: Codable, Hashable, Equatable {
+    public init(
+        type: StringDictionaryEncoding.StringDictionaryEncodingType,
+        bucketSize: Int? = nil,
+        formatVersion: Int? = nil
+    ) {
+        self.type = type
+        self.bucketSize = bucketSize
+        self.formatVersion = formatVersion
+    }
+
     public enum StringDictionaryEncodingType: String, Codable, CaseIterable {
         case utf8
         case frontCoded
