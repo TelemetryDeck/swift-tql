@@ -16,16 +16,20 @@ public struct ChartConfiguration: Codable, Equatable {
     /// Applied to every single aggregation and post-aggregation in the chart
     public var aggregationConfiguration: ChartAggregationConfiguration?
 
+    public var explanation: String?
+
     public init(
         displayMode: ChartDisplayMode? = nil,
         darkMode: Bool? = nil,
         options: ChartConfigurationOptions? = nil,
-        aggregationConfiguration: ChartAggregationConfiguration? = nil
+        aggregationConfiguration: ChartAggregationConfiguration? = nil,
+        explanation: String? = nil
     ) {
         self.displayMode = displayMode
         self.darkMode = darkMode
         self.options = options
         self.aggregationConfiguration = aggregationConfiguration
+        self.explanation = explanation
     }
 }
 
