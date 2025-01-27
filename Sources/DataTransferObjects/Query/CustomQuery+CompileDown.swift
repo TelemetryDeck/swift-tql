@@ -173,18 +173,7 @@ extension CustomQuery {
                 "com.telemetrydeck.compacted"
             ]
 
-            if let sampleFactor = query.sampleFactor {
-                switch sampleFactor {
-                case 10:
-                    query.dataSource = .init("telemetry-signals-sample10")
-                case 100:
-                    query.dataSource = .init("telemetry-signals-sample100")
-                case 1000:
-                    query.dataSource = .init("telemetry-signals-sample1000")
-                default:
-                    query.dataSource = .init("telemetry-signals")
-                }
-            } else if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
+            if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
                 query.dataSource = .init(dataSource.name)
             } else {
                 if let namespace {

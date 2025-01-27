@@ -9,7 +9,6 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         restrictions: [QueryTimeInterval]? = nil,
         dataSource: String? = nil,
         virtualColumns: [VirtualColumn]? = nil,
-        sampleFactor: Int? = nil,
         descending: Bool? = nil,
         filter: Filter? = nil,
         having: HavingSpec? = nil,
@@ -45,7 +44,6 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         }
 
         self.virtualColumns = virtualColumns
-        self.sampleFactor = sampleFactor
         self.descending = descending
         self.baseFilters = baseFilters
         self.testMode = testMode
@@ -79,7 +77,6 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         restrictions: [QueryTimeInterval]? = nil,
         dataSource: DataSource?,
         virtualColumns: [VirtualColumn]? = nil,
-        sampleFactor: Int? = nil,
         descending: Bool? = nil,
         filter: Filter? = nil,
         having: HavingSpec? = nil,
@@ -111,7 +108,6 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         self.restrictions = restrictions
         self.dataSource = dataSource
         self.virtualColumns = virtualColumns
-        self.sampleFactor = sampleFactor
         self.descending = descending
         self.baseFilters = baseFilters
         self.testMode = testMode
@@ -173,13 +169,6 @@ public struct CustomQuery: Codable, Hashable, Equatable {
 
     public var virtualColumns: [VirtualColumn]?
 
-    /// The sample factor to apply to this query
-    ///
-    /// To speed up calculation, you can sample e.g. 1/10 or 1/100 of the signals, and get a good idea of the shapre of the available data.
-    ///
-    /// Must be either 1, 10, 100 or 1000. All other values will be treated as 1 (i.e. look at all signals).
-    /// Setting this property will overwrite the dataSource property.
-    public var sampleFactor: Int?
     public var descending: Bool?
     public var baseFilters: BaseFilters?
     public var testMode: Bool?
@@ -249,7 +238,6 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         hasher.combine(restrictions)
         hasher.combine(dataSource)
         hasher.combine(virtualColumns)
-        hasher.combine(sampleFactor)
         hasher.combine(descending)
         hasher.combine(baseFilters)
         hasher.combine(testMode)
@@ -288,7 +276,6 @@ public struct CustomQuery: Codable, Hashable, Equatable {
         restrictions = try container.decodeIfPresent([QueryTimeInterval].self, forKey: CustomQuery.CodingKeys.restrictions)
         dataSource = try container.decodeIfPresent(DataSource.self, forKey: CustomQuery.CodingKeys.dataSource)
         virtualColumns = try container.decodeIfPresent([VirtualColumn].self, forKey: CustomQuery.CodingKeys.virtualColumns)
-        sampleFactor = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.sampleFactor)
         descending = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.descending)
         baseFilters = try container.decodeIfPresent(BaseFilters.self, forKey: CustomQuery.CodingKeys.baseFilters)
         testMode = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.testMode)
