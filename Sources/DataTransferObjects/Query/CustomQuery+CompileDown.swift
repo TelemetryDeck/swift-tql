@@ -175,12 +175,10 @@ extension CustomQuery {
 
             if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
                 query.dataSource = .init(dataSource.name)
+            } else if let namespace {
+                query.dataSource = .init(namespace)
             } else {
-                if let namespace {
-                    query.dataSource = .init(namespace)
-                } else {
-                    query.dataSource = .init("telemetry-signals")
-                }
+                query.dataSource = .init("telemetry-signals")
             }
         }
 
