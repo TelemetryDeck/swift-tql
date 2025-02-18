@@ -9,7 +9,7 @@ import DataTransferObjects
 import XCTest
 
 class QueryResultTests: XCTestCase {
-    let randomDate = Date(timeIntervalSinceReferenceDate: 656_510_400) // Thursday, October 21, 2021 2:00:00 PM GMT+02:00
+    let randomDate = Date(timeIntervalSinceReferenceDate: 656510400) // Thursday, October 21, 2021 2:00:00 PM GMT+02:00
 
     func testEncodingTimeSeries() throws {
         let exampleQueryResult = QueryResult.timeSeries(
@@ -90,7 +90,7 @@ class QueryResultTests: XCTestCase {
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
 
-        XCTAssertEqual(decodedResult.result, ["d0": DoubleWrapper(1_609_459_200_000)])
+        XCTAssertEqual(decodedResult.result, ["d0": DoubleWrapper(1609459200000)])
     }
 
     func testDecodingEmptyTimeSeriesResult() throws {
@@ -198,6 +198,57 @@ class QueryResultTests: XCTestCase {
                 events: [.init(metrics: ["__time": 1725004800000], dimensions: ["type": "RevenueCat.Events.CANCELLATION"])],
                 rowSignature: [.init(name: "__time", type: "LONG"), .init(name: "type", type: "STRING")]
             )]
+        )
+    }
+
+    func testDecodingTimeBoundaryResult() throws {
+        let exampleResult = """
+        [ {
+          "timestamp" : "2013-05-09T18:24:00.000Z",
+          "result" : {
+            "minTime" : "2013-05-09T18:24:00.000Z",
+            "maxTime" : "2013-05-09T18:37:00.000Z"
+          }
+        } ]
+        """
+
+        let decodedResult = try JSONDecoder.telemetryDecoder.decode([TimeBoundaryResult].self, from: exampleResult.data(using: .utf8)!)
+        XCTAssertEqual(
+            decodedResult,
+            [.init(
+                timestamp: .init(iso8601String: "2013-05-09T18:24:00.000Z")!,
+                result: [
+                    "minTime": .init(iso8601String: "2013-05-09T18:24:00.000Z")!,
+                    "maxTime": .init(iso8601String: "2013-05-09T18:37:00.000Z")!,
+                ]
+            )]
+        )
+    }
+
+    func testEncodingTimeBoundaryResult() throws {
+        let expectedResult = """
+        [ {
+          "result" : {
+            "maxTime" : "2013-05-09T18:37:00+0000",
+            "minTime" : "2013-05-09T18:24:00+0000"
+          },
+          "timestamp" : "2013-05-09T18:24:00+0000"
+        } ]
+        """
+
+        let exampleResult: [TimeBoundaryResult] = [.init(
+            timestamp: .init(iso8601String: "2013-05-09T18:24:00.000Z")!,
+            result: [
+                "minTime": .init(iso8601String: "2013-05-09T18:24:00.000Z")!,
+                "maxTime": .init(iso8601String: "2013-05-09T18:37:00.000Z")!,
+            ]
+        )]
+
+        let encodedResult = try JSONEncoder.telemetryEncoder.encode(exampleResult)
+
+        XCTAssertEqual(
+            expectedResult.filter { !$0.isWhitespace },
+            String(data: encodedResult, encoding: .utf8)!
         )
     }
 }
