@@ -212,7 +212,7 @@ class QueryResultTests: XCTestCase {
         } ]
         """
 
-        let decodedResult = try JSONDecoder.telemetryDecoder.decode([TimeBoundaryResult].self, from: exampleResult.data(using: .utf8)!)
+        let decodedResult = try JSONDecoder.telemetryDecoder.decode([TimeBoundaryResultRow].self, from: exampleResult.data(using: .utf8)!)
         XCTAssertEqual(
             decodedResult,
             [.init(
@@ -236,7 +236,7 @@ class QueryResultTests: XCTestCase {
         } ]
         """
 
-        let exampleResult: [TimeBoundaryResult] = [.init(
+        let exampleResult: [TimeBoundaryResultRow] = [.init(
             timestamp: .init(iso8601String: "2013-05-09T18:24:00.000Z")!,
             result: [
                 "minTime": .init(iso8601String: "2013-05-09T18:24:00.000Z")!,

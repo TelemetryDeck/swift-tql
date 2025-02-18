@@ -5,7 +5,7 @@ public enum QueryResult: Codable, Hashable, Equatable {
     case topN(TopNQueryResult)
     case groupBy(GroupByQueryResult)
     case scan(ScanQueryResult)
-    case timeBoundary([TimeBoundaryResult])
+    case timeBoundary(TimeBoundaryResult)
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -25,7 +25,7 @@ public enum QueryResult: Codable, Hashable, Equatable {
         case "scanResult":
             self = try .scan(ScanQueryResult(from: decoder))
         case "timeBoundaryResult":
-            self = try .timeBoundary([TimeBoundaryResult](from: decoder))
+            self = try .timeBoundary(TimeBoundaryResult(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }
@@ -277,6 +277,16 @@ public struct AdaptableQueryResultItem: Codable, Hashable, Equatable {
 }
 
 public struct TimeBoundaryResult: Codable, Hashable, Equatable {
+    public init(rows: [TimeBoundaryResultRow], restrictions: [QueryTimeInterval]? = nil) {
+        self.restrictions = restrictions
+        self.rows = rows
+    }
+
+    public let restrictions: [QueryTimeInterval]?
+    public let rows: [TimeBoundaryResultRow]
+}
+
+public struct TimeBoundaryResultRow: Codable, Hashable, Equatable {
     public init(timestamp: Date, result: [String: Date]) {
         self.timestamp = timestamp
         self.result = result
