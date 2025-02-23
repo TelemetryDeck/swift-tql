@@ -255,4 +255,85 @@ final class AggregatorTests: XCTestCase {
 
         XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, expectedEncodedAggregators)
     }
+
+
+    func testUserCountAggregator() throws {
+        let stringRepresentation = """
+        [
+            {
+              "type": "userCount"
+            }
+          ]
+        """
+        .filter { !$0.isWhitespace }
+
+        let swiftRepresentation = [Aggregator.userCount(.init())]
+
+        let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
+        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+
+        let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
+        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+    }
+
+    func testEventCountAggregator() throws {
+        let stringRepresentation = """
+        [
+            {
+              "type": "eventCount"
+            }
+          ]
+        """
+        .filter { !$0.isWhitespace }
+
+        let swiftRepresentation = [Aggregator.eventCount(.init())]
+
+        let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
+        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+
+        let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
+        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+    }
+
+    func testHistogramAggregatorWithDefaults() throws {
+        let stringRepresentation = """
+        [
+            {
+              "type": "histogram"
+            }
+          ]
+        """
+        .filter { !$0.isWhitespace }
+
+        let swiftRepresentation = [Aggregator.histogram(.init())]
+
+        let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
+        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+
+        let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
+        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+    }
+
+    func testHistogramAggregatorWithParameters() throws {
+        let stringRepresentation = """
+        [
+            {
+              "fieldName": "anotherNumericalField",
+              "k": 512,
+              "name": "MyVeryCoolHistogram",
+              "numBins": 25,
+              "type": "histogram"
+            }
+          ]
+        """
+        .filter { !$0.isWhitespace }
+
+        let swiftRepresentation = [Aggregator.histogram(.init(name: "MyVeryCoolHistogram", fieldName: "anotherNumericalField", splitPoints: nil, numBins: 25, k: 512))]
+
+        let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
+        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+
+        let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
+        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+    }
 }

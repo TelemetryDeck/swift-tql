@@ -162,6 +162,14 @@ public indirect enum PostAggregator: Codable, Hashable, Equatable {
             try postAggregator.encode(to: encoder)
         }
     }
+
+    /// Precompile any convenience post-aggregators
+    func precompile() -> (aggregators: [Aggregator], postAggregators: [PostAggregator])? {
+        switch self {
+        default:
+            return nil
+        }
+    }
 }
 
 public enum PostAggregatorType: String, Codable, Hashable {
@@ -491,7 +499,7 @@ public struct QuantilesDoublesSketchToHistogramPostAggregator: Codable, Hashable
     /// array of split points (optional)
     public let splitPoints: [Double]?
 
-    /// <number of bins (optional, defaults to 10)
+    /// Number of bins (optional, defaults to 10)
     public let numBins: Int?
 }
 

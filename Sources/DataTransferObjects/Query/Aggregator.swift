@@ -6,6 +6,17 @@ import Foundation
 ///
 /// https://druid.apache.org/docs/latest/querying/aggregations.html
 public indirect enum Aggregator: Codable, Hashable, Equatable {
+    // Convenience Aggregators
+
+    /// Counts the number of unique users in a query.
+    case userCount(UserCountAggregator)
+
+    /// Counts the number of unique events in a query.
+    case eventCount(EventCountAggregator)
+
+    // Produces a histogram over a numerical value (floatValue by default)
+    case histogram(HistogramAggregator)
+
     // Exact aggregations
 
     /// count computes the count of rows that match the filters.
@@ -133,6 +144,12 @@ public indirect enum Aggregator: Codable, Hashable, Equatable {
         let type = try values.decode(String.self, forKey: .type)
 
         switch type {
+        case "userCount":
+            self = try .userCount(UserCountAggregator(from: decoder))
+        case "eventCount":
+            self = try .eventCount(EventCountAggregator(from: decoder))
+        case "histogram":
+            self = try .histogram(HistogramAggregator(from: decoder))
         case "count":
             self = try .count(CountAggregator(from: decoder))
         case "cardinality":
@@ -197,6 +214,15 @@ public indirect enum Aggregator: Codable, Hashable, Equatable {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         switch self {
+        case let .userCount(selector):
+            try container.encode("userCount", forKey: .type)
+            try selector.encode(to: encoder)
+        case let .eventCount(selector):
+            try container.encode("eventCount", forKey: .type)
+            try selector.encode(to: encoder)
+        case let .histogram(selector):
+            try container.encode("histogram", forKey: .type)
+            try selector.encode(to: encoder)
         case let .count(selector):
             try container.encode("count", forKey: .type)
             try selector.encode(to: encoder)
@@ -280,6 +306,20 @@ public indirect enum Aggregator: Codable, Hashable, Equatable {
             try selector.encode(to: encoder)
         }
     }
+
+    /// Precompile any convenience aggregators
+    func precompile() -> (aggregators: [Aggregator], postAggregators: [PostAggregator])? {
+        switch self {
+        case let .userCount(aggregator):
+            return aggregator.precompile()
+        case let .eventCount(aggregator):
+            return aggregator.precompile()
+        case let .histogram(aggregator):
+            return aggregator.precompile()
+        default:
+            return nil
+        }
+    }
 }
 
 public struct CountAggregator: Codable, Hashable {
@@ -350,6 +390,12 @@ public struct GenericTimeColumnAggregator: Codable, Hashable {
 }
 
 public enum AggregatorType: String, Codable, Hashable {
+    // Convenience Aggregators
+    case userCount
+    case eventCount
+    case histogram
+
+    // Native Aggregators
     case count
     case cardinality
     case longSum
@@ -376,7 +422,6 @@ public enum AggregatorType: String, Codable, Hashable {
     case stringAny
     case thetaSketch
     case quantilesDoublesSketch
-
     case filtered
 
     // JavaScript aggregator missing
@@ -451,4 +496,94 @@ public struct QuantilesDoublesSketchAggregator: Codable, Hashable {
     ///
     ///  defaults to true
     public let shouldFinalize: Bool?
+}
+
+/// Convenience Aggregator that counts the number of unique users in a query.
+///
+/// Compiles to a theta sketch aggregator.
+public struct UserCountAggregator: Codable, Hashable, PrecompilableAggregator {
+    public init(name: String? = nil) {
+        self.name = name
+    }
+
+    public let name: String?
+
+    public func precompile() -> (aggregators: [Aggregator], postAggregators: [PostAggregator]) {
+        let aggregators = [Aggregator.thetaSketch(.init(type: .thetaSketch, name: name ?? "Users", fieldName: "clientUser"))]
+
+        return (aggregators: aggregators, postAggregators: [])
+    }
+}
+
+/// Convenience Aggregator that counts the number of unique events in a query.
+///
+/// Compiles to a longSum aggregator.
+public struct EventCountAggregator: Codable, Hashable, PrecompilableAggregator {
+    public init(name: String? = nil) {
+        self.name = name
+    }
+
+    public let name: String?
+
+    public func precompile() -> (aggregators: [Aggregator], postAggregators: [PostAggregator]) {
+        let aggregators = [Aggregator.longSum(.init(type: .longSum, name: "Events", fieldName: "count"))]
+
+        return (aggregators: aggregators, postAggregators: [])
+    }
+}
+
+/// Convenience Aggregator that implements a histogram over floatValue using DataSketches Quantiles
+public struct HistogramAggregator: Codable, Hashable, PrecompilableAggregator {
+    public init(name: String? = nil, fieldName: String? = nil, splitPoints: [Double]? = nil, numBins: Int? = nil, k: Int? = nil) {
+        self.name = name
+        self.fieldName = fieldName
+        self.splitPoints = splitPoints
+        self.numBins = numBins
+        self.k = k
+    }
+
+    /// String representing the output column to store sketch values (defaults to "Histogram")
+    public let name: String?
+
+    /// A string for the name of the input field (defaults to `floatvalue`)
+    public let fieldName: String?
+
+    /// array of split points (optional)
+    public let splitPoints: [Double]?
+
+    /// Number of bins (optional, defaults to 10)
+    public let numBins: Int?
+
+    /// Parameter that determines the accuracy and size of the sketch. Higher k means higher accuracy but more space to store
+    /// sketches. Must be a power of 2 from 2 to 32768.
+    ///
+    ///  Defaults to 1024 in the TelemetryDeck implementation
+    public let k: Int?
+
+    public func precompile() -> (aggregators: [Aggregator], postAggregators: [PostAggregator]) {
+        let aggregators = [
+            Aggregator.quantilesDoublesSketch(
+                .init(
+                    name: "_histogramSketch",
+                    fieldName: fieldName ?? "floatValue",
+                    k: k ?? 1024
+                )
+            ),
+            Aggregator.longMin(.init(type: .longMin, name: "_quantilesMinValue", fieldName: fieldName ?? "floatValue")),
+            Aggregator.longMax(.init(type: .longMax, name: "_quantilesMaxValue", fieldName: fieldName ?? "floatValue")),
+        ]
+
+        let postAggregators = [
+            PostAggregator.quantilesDoublesSketchToHistogram(
+                .init(
+                    name: name ?? "Histogram",
+                    field: .fieldAccess(.init(type: .fieldAccess, fieldName: "_histogramSketch")),
+                    splitPoints: splitPoints,
+                    numBins: numBins
+                )
+            ),
+        ]
+
+        return (aggregators: aggregators, postAggregators: postAggregators)
+    }
 }
