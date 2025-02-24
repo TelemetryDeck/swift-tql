@@ -526,7 +526,7 @@ public struct EventCountAggregator: Codable, Hashable, PrecompilableAggregator {
     public let name: String?
 
     public func precompile() -> (aggregators: [Aggregator], postAggregators: [PostAggregator]) {
-        let aggregators = [Aggregator.longSum(.init(type: .longSum, name: "Events", fieldName: "count"))]
+        let aggregators = [Aggregator.longSum(.init(type: .longSum, name: name ?? "Events", fieldName: "count"))]
 
         return (aggregators: aggregators, postAggregators: [])
     }
