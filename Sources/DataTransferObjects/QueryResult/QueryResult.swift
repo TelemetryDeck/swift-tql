@@ -302,7 +302,7 @@ public struct ScanQueryRowSignatureRow: Codable, Hashable, Equatable {
     }
 
     public let name: String
-    public let type: String
+    public let type: String?
 }
 
 /// Represents a JSON object that can contain string values (dimensions), double values (dimensions) and null values.
