@@ -64,6 +64,51 @@ public struct TimeSeriesQueryResult: Codable, Hashable, Equatable {
     public let rows: [TimeSeriesQueryResultRow]
 }
 
+/// Wrapper that can resolve either into a String or an Array of Strings
+public enum StringWrapper: Codable, Hashable, Equatable {
+    case single(String)
+    case array([String])
+
+    public init(_ string: String) {
+        self = .single(string)
+    }
+
+    public init(_ string: [String]) {
+        self = .array(string)
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if let stringValue = try? container.decode(String.self) {
+            self = .single(stringValue)
+        } else {
+            let arrayValue = try container.decode([String].self)
+            self = .array(arrayValue)
+        }
+    }
+
+    public var stringValue: String? {
+        switch self {
+        case let .single(value):
+            return value
+        default:
+            return nil
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+
+        switch self {
+        case let .single(double):
+            try container.encode(double)
+        case let .array(array):
+            try container.encode(array)
+        }
+    }
+}
+
 /// Wrapper that can resolve either into a Double or an Array of Doubles
 public enum DoubleWrapper: Codable, Hashable, Equatable {
     case single(DoublePlusInfinity)
@@ -262,26 +307,26 @@ public struct ScanQueryRowSignatureRow: Codable, Hashable, Equatable {
 
 /// Represents a JSON object that can contain string values (dimensions), double values (dimensions) and null values.
 public struct AdaptableQueryResultItem: Codable, Hashable, Equatable {
-    public init(metrics: [String: Double], dimensions: [String: String], nullValues: [String] = []) {
+    public init(metrics: [String: DoubleWrapper], dimensions: [String: StringWrapper], nullValues: [String] = []) {
         self.metrics = metrics
         self.dimensions = dimensions
         self.nullValues = nullValues
     }
 
-    public let metrics: [String: Double]
-    public let dimensions: [String: String]
+    public let metrics: [String: DoubleWrapper]
+    public let dimensions: [String: StringWrapper]
     public let nullValues: [String]
 
     public init(from decoder: Decoder) throws {
-        var metrics = [String: Double]()
-        var dimensions = [String: String]()
+        var metrics = [String: DoubleWrapper]()
+        var dimensions = [String: StringWrapper]()
         var nullValues = [String]()
 
         let container = try decoder.container(keyedBy: CodingKeys.self)
         for key in container.allKeys {
-            if let stringElement = try? container.decode(String.self, forKey: key) {
+            if let stringElement = try? container.decode(StringWrapper.self, forKey: key) {
                 dimensions[key.stringValue] = stringElement
-            } else if let doubleElement = try? container.decode(Double.self, forKey: key) {
+            } else if let doubleElement = try? container.decode(DoubleWrapper.self, forKey: key) {
                 metrics[key.stringValue] = doubleElement
             } else {
                 nullValues.append(key.stringValue)

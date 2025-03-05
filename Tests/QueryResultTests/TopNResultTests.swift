@@ -73,14 +73,14 @@ class TopNResultTests: XCTestCase {
 
     let decodedExampleResult = [
         TopNQueryResultRow(timestamp: firstMonthDate, result: [
-            .init(metrics: ["count": 1], dimensions: ["appVersion": "276"]),
-            .init(metrics: ["count": 1], dimensions: ["appVersion": "324"]),
-            .init(metrics: ["count": 35], dimensions: ["appVersion": "408"]),
+            .init(metrics: ["count": .init(1)], dimensions: ["appVersion": .init("276")]),
+            .init(metrics: ["count": .init(1)], dimensions: ["appVersion": .init("324")]),
+            .init(metrics: ["count": .init(35)], dimensions: ["appVersion": .init("408")]),
         ]),
         TopNQueryResultRow(timestamp: secondMonthDate, result: [
-            .init(metrics: ["count": 2], dimensions: [:], nullValues: ["appVersion"]),
-            .init(metrics: ["count": 6], dimensions: ["appVersion": "411"]),
-            .init(metrics: ["count": 9], dimensions: ["appVersion": "448"]),
+            .init(metrics: ["count": .init(2)], dimensions: [:], nullValues: ["appVersion"]),
+            .init(metrics: ["count": .init(6)], dimensions: ["appVersion": .init("411")]),
+            .init(metrics: ["count": .init(9)], dimensions: ["appVersion": .init("448")]),
         ]),
     ]
 
@@ -92,7 +92,7 @@ class TopNResultTests: XCTestCase {
     """
     .filter { !$0.isWhitespace }
 
-    let resultRowItemNullExample = AdaptableQueryResultItem(metrics: ["count": 2], dimensions: [:], nullValues: ["appVersion"])
+    let resultRowItemNullExample = AdaptableQueryResultItem(metrics: ["count": .init(2)], dimensions: [:], nullValues: ["appVersion"])
 
     let resultRowItemOneEntry = """
       {
@@ -102,7 +102,7 @@ class TopNResultTests: XCTestCase {
     """
     .filter { !$0.isWhitespace }
 
-    let resultRowItemOneItemExample = AdaptableQueryResultItem(metrics: ["count": 2], dimensions: ["appVersion": "335"])
+    let resultRowItemOneItemExample = AdaptableQueryResultItem(metrics: ["count": .init(2)], dimensions: ["appVersion": .init("335")])
 
     let resultRowItemManyEntries = """
       {
@@ -114,7 +114,14 @@ class TopNResultTests: XCTestCase {
     """
     .filter { !$0.isWhitespace }
 
-    let resultRowItemManyEntriesExample = AdaptableQueryResultItem(metrics: ["count": 88, "some_metrics": 28344, "average": 1.25], dimensions: ["dim1": "another_dim1_val"])
+    let resultRowItemManyEntriesExample = AdaptableQueryResultItem(
+        metrics: [
+            "count": .init(88),
+            "some_metrics": .init(28344),
+            "average": .init(1.25),
+        ],
+        dimensions: ["dim1": .init("another_dim1_val")]
+    )
 
     func testDecodingEmptyResult() throws {
         let decodedRows = try JSONDecoder.telemetryDecoder.decode([TopNQueryResultRow].self, from: emptyResult.data(using: .utf8)!)

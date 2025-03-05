@@ -52,7 +52,6 @@ class QueryResultTests: XCTestCase {
             )
         )
 
-
         let stringResult = """
         {
             "rows": [
@@ -73,7 +72,20 @@ class QueryResultTests: XCTestCase {
     }
 
     func testEncodingGroupBy() throws {
-        let exampleQueryResult = QueryResult.groupBy(.init(rows: [GroupByQueryResultRow(timestamp: randomDate, event: .init(metrics: [:], dimensions: ["abc": "def", "uno": "due"]))]))
+        let exampleQueryResult = QueryResult.groupBy(
+            .init(
+                rows: [GroupByQueryResultRow(
+                    timestamp: randomDate,
+                    event: .init(
+                        metrics: [:],
+                        dimensions: [
+                            "abc": .init("def"),
+                            "uno": .init("due"),
+                        ]
+                    )
+                )]
+            )
+        )
         let encodedQueryResult = try JSONEncoder.telemetryEncoder.encode(exampleQueryResult)
         let expectedResult = """
         {
@@ -94,7 +106,7 @@ class QueryResultTests: XCTestCase {
         let expectedResult = QueryResult.groupBy(GroupByQueryResult(
             rows: [GroupByQueryResultRow(
                 timestamp: randomDate,
-                event: .init(metrics: ["count": 12], dimensions: ["abc": "def", "uno": "due"])
+                event: .init(metrics: ["count": .init(12)], dimensions: ["abc": .init("def"), "uno": .init("due")])
             )]))
         let groupByResult = """
         {
@@ -226,7 +238,7 @@ class QueryResultTests: XCTestCase {
             [.init(
                 segmentId: "telemetry-signals_2024-08-30T00:00:00.000Z_2024-08-31T00:00:00.000Z_2024-08-30T00:00:00.590Z_50",
                 columns: ["__time", "type"],
-                events: [.init(metrics: ["__time": 1725004800000], dimensions: ["type": "RevenueCat.Events.CANCELLATION"])],
+                events: [.init(metrics: ["__time": .init(1725004800000)], dimensions: ["type": .init("RevenueCat.Events.CANCELLATION")])],
                 rowSignature: [.init(name: "__time", type: "LONG"), .init(name: "type", type: "STRING")]
             )]
         )
