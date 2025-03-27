@@ -248,6 +248,7 @@ extension CustomQuery {
 
         case .thisApp:
             guard let appID = query.appID else { throw QueryGenerationError.keyMissing(reason: "Missing key 'appID'") }
+            guard isSuperOrg || (organizationAppIDs ?? []).contains(appID) else { throw QueryGenerationError.notAllowed(reason: "AppID not in organization") }
             query.filter = try query.filter && appIDFilter(for: [appID]) && testModeFilter(for: query)
             return query
 
