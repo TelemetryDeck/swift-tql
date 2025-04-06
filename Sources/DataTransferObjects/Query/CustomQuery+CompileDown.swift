@@ -230,11 +230,17 @@ extension CustomQuery {
             }
 
             // Decide the data source based on the data source property and namespaces
-            if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
-                query.dataSource = .init(dataSource.name)
-            } else if let namespace, (namespaceAvailableAfter ?? Date.distantPast) < earliestIntervalDate {
+            if let namespace, (namespaceAvailableAfter ?? Date.distantPast) < earliestIntervalDate {
+                // If a namespace is available, use the namespace, even if another data source is specified.
+                // This allows us to specify com.telemetrydeck.all for global queries and still use the customer's
+                // name space if they have one.
                 query.dataSource = .init(namespace)
+            } else if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
+                // If no namespace is available and the customer requested a specific data source, use it
+                // if it is in the list of allowed data sources.
+                query.dataSource = .init(dataSource.name)
             } else {
+                // Else fall back to telemetry-signals
                 query.dataSource = .init("telemetry-signals")
             }
         }
