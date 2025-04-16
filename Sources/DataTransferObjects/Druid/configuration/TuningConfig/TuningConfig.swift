@@ -1,6 +1,7 @@
 public indirect enum TuningConfig: Codable, Hashable, Equatable {
     case kinesis(KinesisTuningConfig)
-    // space for Kafka
+    case indexParallel(IndexParallelTuningConfig)
+    // case kafka not implemented
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -13,6 +14,8 @@ public indirect enum TuningConfig: Codable, Hashable, Equatable {
         switch type {
         case "kinesis":
             self = try .kinesis(KinesisTuningConfig(from: decoder))
+        case "index_parallel":
+            self = try .indexParallel(IndexParallelTuningConfig(from: decoder))
 
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
@@ -26,6 +29,9 @@ public indirect enum TuningConfig: Codable, Hashable, Equatable {
         case let .kinesis(ioConfig):
             try container.encode("kinesis", forKey: .type)
             try ioConfig.encode(to: encoder)
+        case let .indexParallel(tuningConfig):
+            try container.encode("index_parallel", forKey: .type)
+            try tuningConfig.encode(to: encoder)
         }
     }
 }
