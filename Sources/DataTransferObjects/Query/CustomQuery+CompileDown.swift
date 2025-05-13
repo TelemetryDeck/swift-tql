@@ -17,7 +17,6 @@ public extension CustomQuery {
     /// @see compileToRunnableQuery
     func precompile(
         namespace: String? = nil,
-        namespaceAvailableAfter: Date? = nil,
         organizationAppIDs: [UUID],
         isSuperOrg: Bool
     ) throws -> CustomQuery {
@@ -75,7 +74,6 @@ public extension CustomQuery {
         // Apply base filters and data source
         query = try Self.applyBaseFilters(
             namespace: namespace,
-            namespaceAvailableAfter: namespaceAvailableAfter,
             query: query,
             organizationAppIDs: organizationAppIDs,
             isSuperOrg: isSuperOrg
@@ -181,7 +179,6 @@ public extension CustomQuery {
 extension CustomQuery {
     static func applyBaseFilters(
         namespace: String?,
-        namespaceAvailableAfter: Date?,
         query: CustomQuery,
         organizationAppIDs: [UUID]?,
         isSuperOrg: Bool
@@ -218,22 +215,11 @@ extension CustomQuery {
 
             let allowedDataSourceNames = [
                 "telemetry-signals",
-                "com.telemetrydeck.all",
-                "com.telemetrydeck.compacted"
+                "com.telemetrydeck.all"
             ]
 
-            // Calculate earliest interval date, to compare against namespaceAvailableAfter
-            var earliestIntervalDate = Date.distantFuture
-            for interval in query.intervals ?? [] {
-                earliestIntervalDate = min(interval.beginningDate, earliestIntervalDate)
-            }
-            for relativeInterval in query.relativeIntervals ?? [] {
-                let interval = QueryTimeInterval.from(relativeTimeInterval: relativeInterval)
-                earliestIntervalDate = min(interval.beginningDate, earliestIntervalDate)
-            }
-
             // Decide the data source based on the data source property and namespaces
-            if let namespace, (namespaceAvailableAfter ?? Date.distantPast) < earliestIntervalDate {
+            if let namespace {
                 // If a namespace is available, use the namespace, even if another data source is specified.
                 // This allows us to specify com.telemetrydeck.all for global queries and still use the customer's
                 // name space if they have one.
