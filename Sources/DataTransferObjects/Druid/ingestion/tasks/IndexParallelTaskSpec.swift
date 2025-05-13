@@ -15,6 +15,11 @@
 ///
 /// https://druid.apache.org/docs/latest/ingestion/native-batch
 public struct IndexParallelTaskSpec: Codable, Hashable, Equatable {
+    public init(id: String? = nil, spec: ParallelIndexIngestionSpec) {
+        self.id = id
+        self.spec = spec
+    }
+
     /// The task ID. If omitted, Druid generates the task ID using the task type, data source name, interval, and date-time stamp.
     public let id: String?
 
