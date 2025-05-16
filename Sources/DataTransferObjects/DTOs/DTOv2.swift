@@ -291,15 +291,8 @@ public enum DTOv2 {
     }
 
     /// Defines an insight as saved to the database, no calculation results
+    @available(*, deprecated, message: "Use V3InsightsController.Insight instead")
     public struct Insight: Codable, Hashable, Identifiable {
-        public enum InsightType: String, Codable, Hashable {
-            case timeseries
-            case topN
-            case customQuery
-            case funnel
-            case experiment
-        }
-
         public var id: UUID
         public var groupID: UUID
 
@@ -308,7 +301,7 @@ public enum DTOv2 {
         public var title: String
 
         /// What kind of insight is this?
-        public var type: InsightType
+        public var type: String
 
         /// If set, display the chart with this accent color, otherwise fall back to default color
         public var accentColor: String?
@@ -348,7 +341,7 @@ public enum DTOv2 {
             groupID: UUID,
             order: Double?,
             title: String,
-            type: InsightType,
+            type: String,
             accentColor: String? = nil,
             widgetable _: Bool? = false,
             customQuery: CustomQuery? = nil,
@@ -577,7 +570,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "New Time Series Insight",
-            type: .timeseries,
+            type: "timeseries",
             customQuery: nil,
             signalType: nil,
             uniqueUser: false,
@@ -597,7 +590,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: title ?? "New Breakdown Insight",
-            type: .topN,
+            type: "topN",
             customQuery: nil,
             signalType: nil,
             uniqueUser: false,
@@ -617,7 +610,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Daily Active Users",
-            type: .timeseries,
+            type: "timeseries",
             customQuery: nil,
             signalType: nil,
             uniqueUser: true,
@@ -637,7 +630,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Weekly Active Users",
-            type: .timeseries,
+            type: "timeseries",
             customQuery: nil,
             signalType: nil,
             uniqueUser: true,
@@ -657,7 +650,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Active Users this Month",
-            type: .timeseries,
+            type: "timeseries",
             customQuery: nil,
             signalType: nil,
             uniqueUser: true,
@@ -677,7 +670,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Signals by Day",
-            type: .timeseries,
+            type: "timeseries",
             customQuery: nil,
             signalType: nil,
             uniqueUser: false,
@@ -707,7 +700,7 @@ public extension DTOv2.Insight {
             groupID: groupID,
             order: nil,
             title: "Custom Query",
-            type: .customQuery,
+            type: "timeseries",
             customQuery: customQuery,
             signalType: nil,
             uniqueUser: false,
