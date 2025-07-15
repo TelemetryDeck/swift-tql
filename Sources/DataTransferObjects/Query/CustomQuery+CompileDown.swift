@@ -17,6 +17,7 @@ public extension CustomQuery {
     /// @see compileToRunnableQuery
     func precompile(
         namespace: String? = nil,
+        useNamespace: Bool,
         organizationAppIDs: [UUID],
         isSuperOrg: Bool
     ) throws -> CustomQuery {
@@ -74,6 +75,7 @@ public extension CustomQuery {
         // Apply base filters and data source
         query = try Self.applyBaseFilters(
             namespace: namespace,
+            useNamespace: useNamespace,
             query: query,
             organizationAppIDs: organizationAppIDs,
             isSuperOrg: isSuperOrg
@@ -179,6 +181,7 @@ public extension CustomQuery {
 extension CustomQuery {
     static func applyBaseFilters(
         namespace: String?,
+        useNamespace: Bool,
         query: CustomQuery,
         organizationAppIDs: [UUID]?,
         isSuperOrg: Bool
@@ -213,21 +216,23 @@ extension CustomQuery {
                 cacheValidityDuration: query.context?.cacheValidityDuration
             )
 
-            let allowedDataSourceNames = [
+            var allowedDataSourceNames = [
                 "telemetry-signals",
                 "com.telemetrydeck.all"
             ]
 
-            // Decide the data source based on the data source property and namespaces
             if let namespace {
-                // If a namespace is available, use the namespace, even if another data source is specified.
-                // This allows us to specify com.telemetrydeck.all for global queries and still use the customer's
-                // name space if they have one.
-                query.dataSource = .init(namespace)
-            } else if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
-                // If no namespace is available and the customer requested a specific data source, use it
+                allowedDataSourceNames.append(namespace)
+            }
+
+            // Decide the data source based on the data source property and namespaces
+            if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
+                // If the customer requested a specific data source, use it
                 // if it is in the list of allowed data sources.
                 query.dataSource = .init(dataSource.name)
+            } else if let namespace, useNamespace {
+                // If a namespace is set, use it as the data source
+                query.dataSource = .init(namespace)
             } else {
                 // Else fall back to telemetry-signals
                 query.dataSource = .init("telemetry-signals")
