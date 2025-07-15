@@ -242,6 +242,10 @@ extension CustomQuery {
         // Apply filters according to the basefilters property
         switch baseFilters {
         case .thisOrganization:
+            if let namespace, query.dataSource?.name == namespace {
+                return query
+            }
+
             guard let organizationAppIDs = organizationAppIDs else { throw QueryGenerationError.keyMissing(reason: "Missing organization app IDs") }
             query.filter = try query.filter && appIDFilter(for: organizationAppIDs) && testModeFilter(for: query)
             return query
