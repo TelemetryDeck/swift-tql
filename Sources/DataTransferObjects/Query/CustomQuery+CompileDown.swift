@@ -125,6 +125,8 @@ public extension CustomQuery {
         if let applicableRestrictions = Self.getApplicableRestrictions(from: query) {
             query.restrictions = applicableRestrictions
             query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: applicableRestrictions))))
+        } else {
+            query.restrictions = nil
         }
 
         // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
