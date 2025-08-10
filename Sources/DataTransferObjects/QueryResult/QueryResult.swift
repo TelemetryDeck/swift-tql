@@ -388,11 +388,11 @@ public struct TimeBoundaryResultRow: Codable, Hashable, Equatable, Sendable {
 
 // MARK: - Legacy Structs
 
-public enum LegacyDruidResultType: String, Codable {
+public enum LegacyDruidResultType: String, Codable, Sendable {
     case timeSeries
 }
 
-public struct LegacyDruidResultWrapper: Codable {
+public struct LegacyDruidResultWrapper: Codable, Sendable {
     public let resultType: LegacyDruidResultType
     public let timeSeriesResults: [TimeSeriesQueryResultRow]
 

@@ -1,7 +1,7 @@
 import Foundation
 
 /// A request, sent to `DRUID-URL/druid/v2/sql` to generate a Druid query from the supplied SQL query.
-public struct SQLQueryConversionRequest: Codable {
+public struct SQLQueryConversionRequest: Codable, Sendable {
     public init(query: String) {
         self.query = query
     }
@@ -9,7 +9,7 @@ public struct SQLQueryConversionRequest: Codable {
     public let query: String
 }
 
-public struct SQLQueryConversionResponseItem: Codable, Equatable {
+public struct SQLQueryConversionResponseItem: Codable, Equatable, Sendable {
     struct PlanContainerItem: Codable, Equatable {
         let query: CustomQuery
     }

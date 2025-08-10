@@ -3,7 +3,7 @@
 
 import Foundation
 
-struct Links: Codable {
+struct Links: Codable, Sendable {
     var current: String?
     var next: String?
     var last: String?
