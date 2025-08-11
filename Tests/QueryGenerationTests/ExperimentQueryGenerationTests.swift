@@ -12,7 +12,7 @@ final class ExperimentQueryGenerationTests: XCTestCase {
         endDate: .init(.end, of: .month, adding: 0)
     )
 
-    let organizationAppIDs: [UUID] = [.empty]
+    let organizationAppIDs: [UUID] = [UUID(uuidString: "00000000-0000-0000-0000-000000000000")!]
 
     let tinyQuery = CustomQuery(
         queryType: .groupBy,
