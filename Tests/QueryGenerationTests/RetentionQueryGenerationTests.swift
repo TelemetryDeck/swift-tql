@@ -13,6 +13,7 @@ import XCTest
 final class RetentionQueryGenerationTests: XCTestCase {
     let tinyQuery = CustomQuery(
         queryType: .groupBy,
+        dataSource: .init("com.telemetrydeck.all"),
         filter: .and(.init(fields: [
             .selector(.init(dimension: "appID", value: "79167A27-EBBF-4012-9974-160624E5D07B")),
             .selector(.init(dimension: "isTestMode", value: "false")),
@@ -120,14 +121,15 @@ final class RetentionQueryGenerationTests: XCTestCase {
         let end_august = Date(iso8601String: "2022-08-31T23:59:59.999Z")!
         let end_september = Date(iso8601String: "2022-09-30T23:59:59.999Z")!
 
-        XCTAssertThrowsError(try RetentionQueryGenerator.generateRetentionQuery(appID: "", testMode: false, beginDate: begin_august, endDate: mid_august))
-        XCTAssertThrowsError(try RetentionQueryGenerator.generateRetentionQuery(appID: "", testMode: false, beginDate: begin_august, endDate: end_august))
-        XCTAssertNoThrow(try RetentionQueryGenerator.generateRetentionQuery(appID: "", testMode: false, beginDate: begin_august, endDate: end_september))
-        XCTAssertThrowsError(try RetentionQueryGenerator.generateRetentionQuery(appID: "", testMode: false, beginDate: end_september, endDate: begin_august))
+        XCTAssertThrowsError(try RetentionQueryGenerator.generateRetentionQuery(dataSource: "com.telemetrydeck.all", appID: "", testMode: false, beginDate: begin_august, endDate: mid_august))
+        XCTAssertThrowsError(try RetentionQueryGenerator.generateRetentionQuery(dataSource: "com.telemetrydeck.all", appID: "", testMode: false, beginDate: begin_august, endDate: end_august))
+        XCTAssertNoThrow(try RetentionQueryGenerator.generateRetentionQuery(dataSource: "com.telemetrydeck.all", appID: "", testMode: false, beginDate: begin_august, endDate: end_september))
+        XCTAssertThrowsError(try RetentionQueryGenerator.generateRetentionQuery(dataSource: "com.telemetrydeck.all", appID: "", testMode: false, beginDate: end_september, endDate: begin_august))
     }
 
     func testExample() throws {
         let generatedTinyQuery = try RetentionQueryGenerator.generateRetentionQuery(
+            dataSource: "com.telemetrydeck.all",
             appID: "79167A27-EBBF-4012-9974-160624E5D07B",
             testMode: false,
             beginDate: Date(iso8601String: "2022-08-01T00:00:00.000Z")!,

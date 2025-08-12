@@ -13,7 +13,13 @@ public enum RetentionQueryGenerator {
         case datesTooClose
     }
 
-    public static func generateRetentionQuery(appID: String, testMode: Bool, beginDate: Date, endDate: Date) throws -> CustomQuery {
+    public static func generateRetentionQuery(
+        dataSource: String,
+        appID: String,
+        testMode: Bool,
+        beginDate: Date,
+        endDate: Date
+    ) throws -> CustomQuery {
         // If beginDate and endDate are less than 1m apart, this does not make sense as a query
         let components = Calendar.current.dateComponents([.month], from: beginDate, to: endDate)
         if (components.month ?? 0) < 1 {
@@ -39,6 +45,7 @@ public enum RetentionQueryGenerator {
         // Combine query
         return CustomQuery(
             queryType: .groupBy,
+            dataSource: .init(dataSource),
             filter: .and(.init(fields: [
                 .selector(.init(dimension: "appID", value: appID)),
                 .selector(.init(dimension: "isTestMode", value: testMode ? "true" : "false")),
