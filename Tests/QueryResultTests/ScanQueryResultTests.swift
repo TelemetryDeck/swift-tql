@@ -1,8 +1,10 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class ScanQueryResultTests: XCTestCase {
-    func testRegularScanQueryResult() throws {
+struct ScanQueryResultTests {
+    @Test("Regular scan query result encoding and decoding")
+    func regularScanQueryResult() throws {
         let stringRepresentation = """
         [{
             "columns": ["__time", "clientUser"],
@@ -32,13 +34,14 @@ class ScanQueryResultTests: XCTestCase {
         ]
 
         let decoded = try JSONDecoder.telemetryDecoder.decode([ScanQueryResultRow].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decoded, swiftRepresentation)
+        #expect(decoded == swiftRepresentation)
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encoded, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testScanQueryResultWithMultiDimValues() throws {
+    @Test("Scan query result with multi-dimensional values")
+    func scanQueryResultWithMultiDimValues() throws {
         let stringRepresentation = """
         [{
             "columns": ["__time", "payload"],
@@ -81,9 +84,9 @@ class ScanQueryResultTests: XCTestCase {
         ]
 
         let decoded = try JSONDecoder.telemetryDecoder.decode([ScanQueryResultRow].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decoded, swiftRepresentation)
+        #expect(decoded == swiftRepresentation)
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encoded, encoding: .utf8)! == stringRepresentation)
     }
 }

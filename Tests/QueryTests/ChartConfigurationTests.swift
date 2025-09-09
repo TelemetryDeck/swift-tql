@@ -1,8 +1,9 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class ChartConfigurationTests: XCTestCase {
-    func testChartConfiguration() throws {
+struct ChartConfigurationTests {
+    @Test("Chart configuration") func chartConfiguration() throws {
         let chartConfiguration = ChartConfiguration(
             displayMode: .barChart,
             darkMode: false,
@@ -25,9 +26,9 @@ class ChartConfigurationTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(chartConfiguration)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedChartConfiguration)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedChartConfiguration)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(ChartConfiguration.self, from: encoded)
-        XCTAssertEqual(chartConfiguration, decoded)
+        #expect(chartConfiguration == decoded)
     }
 }

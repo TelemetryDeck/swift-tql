@@ -1,7 +1,8 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class TopNQueryTests: XCTestCase {
+struct TopNQueryTests {
     let exampleTopNQueryString = """
         {
             "aggregations": [{"name":"count","type":"count"}],
@@ -32,13 +33,15 @@ class TopNQueryTests: XCTestCase {
         dimension: .default(.init(dimension: "appVersion", outputName: "appVersion"))
     )
 
-    func testEncoding() throws {
+    @Test("Encoding")
+    func encoding() throws {
         let encodedQuery = try JSONEncoder.telemetryEncoder.encode(exampleTopNQuery)
-        XCTAssertEqual(String(data: encodedQuery, encoding: .utf8)!, exampleTopNQueryString.filter { !$0.isWhitespace })
+        #expect(String(data: encodedQuery, encoding: .utf8)! == exampleTopNQueryString.filter { !$0.isWhitespace })
     }
 
-    func testDecoding() throws {
+    @Test("Decoding")
+    func decoding() throws {
         let decodedQuery = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: exampleTopNQueryString.data(using: .utf8)!)
-        XCTAssertEqual(decodedQuery, exampleTopNQuery)
+        #expect(decodedQuery == exampleTopNQuery)
     }
 }

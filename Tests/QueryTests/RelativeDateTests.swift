@@ -1,8 +1,10 @@
-@testable import DataTransferObjects
-import XCTest
+@testable import SwiftTQL
+import Testing
+import Foundation
 
-final class RelativeDateTests: XCTestCase {
-    func testParseRelativeDate() throws {
+struct RelativeDateTests {
+    @Test("Parse relative date")
+    func parseRelativeDate() throws {
         let beginningOfLastMonth = try decoded(json: """
         {
             "component": "month",
@@ -11,9 +13,9 @@ final class RelativeDateTests: XCTestCase {
         }
         """)
 
-        XCTAssertEqual(beginningOfLastMonth.component, .month)
-        XCTAssertEqual(beginningOfLastMonth.offset, -1)
-        XCTAssertEqual(beginningOfLastMonth.position, .beginning)
+        #expect(beginningOfLastMonth.component == .month)
+        #expect(beginningOfLastMonth.offset == -1)
+        #expect(beginningOfLastMonth.position == .beginning)
 
         let endOfThisMonth = try decoded(json: """
         {
@@ -23,9 +25,9 @@ final class RelativeDateTests: XCTestCase {
         }
         """)
 
-        XCTAssertEqual(endOfThisMonth.component, .month)
-        XCTAssertEqual(endOfThisMonth.offset, 0)
-        XCTAssertEqual(endOfThisMonth.position, .end)
+        #expect(endOfThisMonth.component == .month)
+        #expect(endOfThisMonth.offset == 0)
+        #expect(endOfThisMonth.position == .end)
 
         let beginningOfNextWeek = try decoded(json: """
         {
@@ -35,9 +37,9 @@ final class RelativeDateTests: XCTestCase {
         }
         """)
 
-        XCTAssertEqual(beginningOfNextWeek.component, .week)
-        XCTAssertEqual(beginningOfNextWeek.offset, 1)
-        XCTAssertEqual(beginningOfNextWeek.position, .beginning)
+        #expect(beginningOfNextWeek.component == .week)
+        #expect(beginningOfNextWeek.offset == 1)
+        #expect(beginningOfNextWeek.position == .beginning)
 
         let endOfToday = try decoded(json: """
         {
@@ -47,9 +49,9 @@ final class RelativeDateTests: XCTestCase {
         }
         """)
 
-        XCTAssertEqual(endOfToday.component, .day)
-        XCTAssertEqual(endOfToday.offset, 0)
-        XCTAssertEqual(endOfToday.position, .end)
+        #expect(endOfToday.component == .day)
+        #expect(endOfToday.offset == 0)
+        #expect(endOfToday.position == .end)
 
         let in30Hours = try decoded(json: """
         {
@@ -59,9 +61,9 @@ final class RelativeDateTests: XCTestCase {
         }
         """)
 
-        XCTAssertEqual(in30Hours.component, .hour)
-        XCTAssertEqual(in30Hours.offset, 30)
-        XCTAssertEqual(in30Hours.position, .beginning)
+        #expect(in30Hours.component == .hour)
+        #expect(in30Hours.offset == 30)
+        #expect(in30Hours.position == .beginning)
     }
 
     private func decoded(json: String) throws -> RelativeDate {
@@ -71,7 +73,8 @@ final class RelativeDateTests: XCTestCase {
         return try JSONDecoder.telemetryDecoder.decode(RelativeDate.self, from: data)
     }
 
-    func testParseRelativeTimeInterval() throws {
+    @Test("Parse relative time interval")
+    func parseRelativeTimeInterval() throws {
         let relativeTimeIntervals = """
         [
             {
@@ -93,12 +96,13 @@ final class RelativeDateTests: XCTestCase {
 
         let decodedIntervals = try JSONDecoder.telemetryDecoder.decode([RelativeTimeInterval].self, from: relativeTimeIntervals)
 
-        XCTAssertEqual(decodedIntervals.count, 1)
-        XCTAssertEqual(decodedIntervals.first?.beginningDate.component, .month)
-        XCTAssertEqual(decodedIntervals.first?.endDate.position, .end)
+        #expect(decodedIntervals.count == 1)
+        #expect(decodedIntervals.first?.beginningDate.component == .month)
+        #expect(decodedIntervals.first?.endDate.position == .end)
     }
 
-    func testEncodeRelativeTimeIntervals() throws {
+    @Test("Encode relative time intervals")
+    func encodeRelativeTimeIntervals() throws {
         let relativeTimeIntervals = [
             RelativeTimeInterval(
                 beginningDate: RelativeDate(.beginning, of: .month, adding: -1),
@@ -127,37 +131,39 @@ final class RelativeDateTests: XCTestCase {
         let encodedIntervals = try JSONEncoder.telemetryEncoder.encode(relativeTimeIntervals)
         let encodedIntervalsString = String(data: encodedIntervals, encoding: .utf8)
 
-        XCTAssertEqual(encodedIntervalsString, expectedOutput)
+        #expect(encodedIntervalsString == expectedOutput)
     }
 
-    func testDateFromRelativeDate() throws {
+    @Test("Date from relative date")
+    func dateFromRelativeDate() throws {
         let beginningOfLastMonthRelative = RelativeDate(.beginning, of: .month, adding: -1)
         let beginningOfLastMonthAbsolute = Date().calendar.date(byAdding: .month, value: -1, to: Date())!.beginning(of: .month)
 
-        XCTAssertEqual(beginningOfLastMonthAbsolute, Date.from(relativeDate: beginningOfLastMonthRelative))
+        #expect(beginningOfLastMonthAbsolute == Date.from(relativeDate: beginningOfLastMonthRelative))
 
         let endOfThisMonthRelative = RelativeDate(.end, of: .month, adding: 0)
         let endOfThisMonthAbsolute = Date().end(of: .month)
 
-        XCTAssertEqual(endOfThisMonthAbsolute, Date.from(relativeDate: endOfThisMonthRelative))
+        #expect(endOfThisMonthAbsolute == Date.from(relativeDate: endOfThisMonthRelative))
 
         let beginningOfNextWeekRelative = RelativeDate(.beginning, of: .week, adding: 1)
         let beginningOfNextWeekAbsolute = Date().calendar.date(byAdding: .weekOfYear, value: 1, to: Date())!.beginning(of: .weekOfYear)!
 
-        XCTAssertEqual(beginningOfNextWeekAbsolute, Date.from(relativeDate: beginningOfNextWeekRelative))
+        #expect(beginningOfNextWeekAbsolute == Date.from(relativeDate: beginningOfNextWeekRelative))
 
         let endOfTodayRelative = RelativeDate(.end, of: .day, adding: 0)
         let endOfTodayAbsolute = Date().end(of: .day)
 
-        XCTAssertEqual(endOfTodayAbsolute, Date.from(relativeDate: endOfTodayRelative))
+        #expect(endOfTodayAbsolute == Date.from(relativeDate: endOfTodayRelative))
 
         let in30HoursRelative = RelativeDate(.beginning, of: .hour, adding: 30)
         let in30HoursAbsolute = Date().startOfHour.adding(.hour, value: 30).startOfHour
 
-        XCTAssertEqual(in30HoursAbsolute, Date.from(relativeDate: in30HoursRelative))
+        #expect(in30HoursAbsolute == Date.from(relativeDate: in30HoursRelative))
     }
 
-    func testWeekBeginsOnMonday() throws {
+    @Test("Week begins on Monday")
+    func weekBeginsOnMonday() throws {
         let beginningOfNextWeekRelative = RelativeDate(.beginning, of: .week, adding: 1)
         let beginningOfNextWeekAbsolute = Date.from(relativeDate: beginningOfNextWeekRelative)
 
@@ -165,6 +171,6 @@ final class RelativeDateTests: XCTestCase {
         dateFormatter.dateFormat = "EEEE"
         let weekDay = dateFormatter.string(from: beginningOfNextWeekAbsolute)
 
-        XCTAssertEqual("Monday", weekDay)
+        #expect("Monday" == weekDay)
     }
 }

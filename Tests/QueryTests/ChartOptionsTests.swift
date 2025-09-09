@@ -1,8 +1,9 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class ChartOptionsTests: XCTestCase {
-    func testAxiOptions() throws {
+struct ChartOptionsTests {
+    @Test("Axis options") func axiOptions() throws {
         let axisOptions = AxisOptions(show: false, position: .bottom, type: .time, name: "testAxis", inverse: false)
 
         let encodedAxisOptions = """
@@ -17,13 +18,13 @@ class ChartOptionsTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(axisOptions)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedAxisOptions)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedAxisOptions)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(AxisOptions.self, from: encoded)
-        XCTAssertEqual(axisOptions, decoded)
+        #expect(axisOptions == decoded)
     }
 
-    func testGridConfiguration() throws {
+    @Test("Grid configuration") func gridConfiguration() throws {
         let gridConfiguration = GridConfiguration(top: 12, bottom: 13, left: 14, right: 15, containLabel: false)
 
         let encodedGridConfiguration = """
@@ -38,13 +39,13 @@ class ChartOptionsTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(gridConfiguration)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedGridConfiguration)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedGridConfiguration)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(GridConfiguration.self, from: encoded)
-        XCTAssertEqual(gridConfiguration, decoded)
+        #expect(gridConfiguration == decoded)
     }
 
-    func testTooltipConfiguration() throws {
+    @Test("Tooltip configuration") func tooltipConfiguration() throws {
         let tooltipConfiguration = ToolTipConfiguration(show: true)
 
         let encodedTooltipConfiguration = """
@@ -55,13 +56,13 @@ class ChartOptionsTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(tooltipConfiguration)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedTooltipConfiguration)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedTooltipConfiguration)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(ToolTipConfiguration.self, from: encoded)
-        XCTAssertEqual(tooltipConfiguration, decoded)
+        #expect(tooltipConfiguration == decoded)
     }
 
-    func testChartConfigurationOptions() throws {
+    @Test("Chart configuration options") func chartConfigurationOptions() throws {
         let chartConfigurationOptions = ChartConfigurationOptions(
             animation: true,
             animationDuration: 2500,
@@ -99,9 +100,9 @@ class ChartOptionsTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(chartConfigurationOptions)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedChartConfigurationOptions)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedChartConfigurationOptions)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(ChartConfigurationOptions.self, from: encoded)
-        XCTAssertEqual(chartConfigurationOptions, decoded)
+        #expect(chartConfigurationOptions == decoded)
     }
 }

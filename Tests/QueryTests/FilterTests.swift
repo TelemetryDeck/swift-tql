@@ -1,13 +1,14 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class FilterTests: XCTestCase {
-    func testEncoding() throws {
+struct FilterTests {
+    @Test("Encoding") func encoding() throws {
         let exampleFilter = Filter.not(FilterNot(field: Filter.selector(FilterSelector(dimension: "test", value: "abc"))))
         _ = try JSONEncoder.telemetryEncoder.encode(exampleFilter)
     }
 
-    func testFilterInterval() throws {
+    @Test("Filter interval") func filterInterval() throws {
         let exampleFilterIntervalString = """
         {
             "dimension" : "__time",
@@ -34,11 +35,11 @@ class FilterTests: XCTestCase {
 
         let encodedFilterInterval = try JSONEncoder.telemetryEncoder.encode(exampleFilterInterval)
 
-        XCTAssertEqual(exampleFilterInterval, decodedFilterInterval)
-        XCTAssertEqual(exampleFilterIntervalString, String(data: encodedFilterInterval, encoding: .utf8))
+        #expect(exampleFilterInterval == decodedFilterInterval)
+        #expect(exampleFilterIntervalString == String(data: encodedFilterInterval, encoding: .utf8))
     }
 
-    func testFilterRangeStringComparison() throws {
+    @Test("Filter range string comparison") func filterRangeStringComparison() throws {
         // WHERE 'foo' <= name <= 'hoo'
         let filterJSON = """
         {
@@ -67,11 +68,11 @@ class FilterTests: XCTestCase {
 
         let encodedFilterInterval = try JSONEncoder.telemetryEncoder.encode(filterRange)
 
-        XCTAssertEqual(filterRange, decodedFilter)
-        XCTAssertEqual(filterJSON, String(data: encodedFilterInterval, encoding: .utf8))
+        #expect(filterRange == decodedFilter)
+        #expect(filterJSON == String(data: encodedFilterInterval, encoding: .utf8))
     }
 
-    func testFilterRangeNumberComparison() throws {
+    @Test("Filter range number comparison") func filterRangeNumberComparison() throws {
         // WHERE 21 < age < 31
         let filterJSON = """
         {
@@ -104,11 +105,11 @@ class FilterTests: XCTestCase {
 
         let encodedFilterInterval = try JSONEncoder.telemetryEncoder.encode(filterRange)
 
-        XCTAssertEqual(filterRange, decodedFilter)
-        XCTAssertEqual(filterJSON, String(data: encodedFilterInterval, encoding: .utf8))
+        #expect(filterRange == decodedFilter)
+        #expect(filterJSON == String(data: encodedFilterInterval, encoding: .utf8))
     }
 
-    func testFilterRangeNumberComparisonUpper() throws {
+    @Test("Filter range number comparison upper") func filterRangeNumberComparisonUpper() throws {
         // WHERE age < 31
         let filterJSON = """
         {
@@ -137,11 +138,11 @@ class FilterTests: XCTestCase {
 
         let encodedFilterInterval = try JSONEncoder.telemetryEncoder.encode(filterRange)
 
-        XCTAssertEqual(filterRange, decodedFilter)
-        XCTAssertEqual(filterJSON, String(data: encodedFilterInterval, encoding: .utf8))
+        #expect(filterRange == decodedFilter)
+        #expect(filterJSON == String(data: encodedFilterInterval, encoding: .utf8))
     }
 
-    func testFilterRangeNumberComparisonLower() throws {
+    @Test("Filter range number comparison lower") func filterRangeNumberComparisonLower() throws {
         // WHERE age >= 18
         let filterJSON = """
         {
@@ -168,11 +169,11 @@ class FilterTests: XCTestCase {
 
         let encodedFilterInterval = try JSONEncoder.telemetryEncoder.encode(filterRange)
 
-        XCTAssertEqual(filterRange, decodedFilter)
-        XCTAssertEqual(filterJSON, String(data: encodedFilterInterval, encoding: .utf8))
+        #expect(filterRange == decodedFilter)
+        #expect(filterJSON == String(data: encodedFilterInterval, encoding: .utf8))
     }
 
-    func testFilterRelativeInterval() throws {
+    @Test("Filter relative interval") func filterRelativeInterval() throws {
         let exampleFilterIntervalString = """
         {
           "dimension": "__time",
@@ -214,7 +215,7 @@ class FilterTests: XCTestCase {
 
         let encodedFilterInterval = try JSONEncoder.telemetryEncoder.encode(exampleFilterInterval)
 
-        XCTAssertEqual(exampleFilterInterval, decodedFilterInterval)
-        XCTAssertEqual(exampleFilterIntervalString, String(data: encodedFilterInterval, encoding: .utf8))
+        #expect(exampleFilterInterval == decodedFilterInterval)
+        #expect(exampleFilterIntervalString == String(data: encodedFilterInterval, encoding: .utf8))
     }
 }

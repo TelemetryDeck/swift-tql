@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class FunnelQueryGenerationTests: XCTestCase {
+struct FunnelQueryGenerationTests {
     let steps: [NamedFilter] = [
         .init(filter: .selector(.init(dimension: "type", value: "appLaunchedRegularly")), name: "Regular Launch"),
         .init(filter: .selector(.init(dimension: "type", value: "dataEntered")), name: "Data Entered"),
@@ -130,16 +131,18 @@ final class FunnelQueryGenerationTests: XCTestCase {
         ]
     )
 
-    func testExample() throws {
+    @Test("Funnel query generation generates correct basic query structure")
+    func example() throws {
         let startingQuery = CustomQuery(queryType: .funnel, granularity: .all, steps: steps)
         let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
 
-        XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
-        XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
-        XCTAssertEqual(tinyQuery.postAggregations, generatedTinyQuery.postAggregations)
+        #expect(tinyQuery.filter == generatedTinyQuery.filter)
+        #expect(tinyQuery.aggregations == generatedTinyQuery.aggregations)
+        #expect(tinyQuery.postAggregations == generatedTinyQuery.postAggregations)
     }
 
-    func testWithAdditionalFilters() throws {
+    @Test("Funnel query generation with additional filters combines filters correctly")
+    func withAdditionalFilters() throws {
         let additionalFilter = Filter.selector(.init(dimension: "something", value: "other"))
 
         let startingQuery = CustomQuery(queryType: .funnel, filter: additionalFilter, granularity: .all, steps: steps)
@@ -155,12 +158,13 @@ final class FunnelQueryGenerationTests: XCTestCase {
             ])),
         ]))
 
-        XCTAssertEqual(expectedFilter, generatedTinyQuery.filter)
-        XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
-        XCTAssertEqual(tinyQuery.postAggregations, generatedTinyQuery.postAggregations)
+        #expect(expectedFilter == generatedTinyQuery.filter)
+        #expect(tinyQuery.aggregations == generatedTinyQuery.aggregations)
+        #expect(tinyQuery.postAggregations == generatedTinyQuery.postAggregations)
     }
 
-    func testFunnelQueryGenerationKeepsRelativeIntervals() throws {
+    @Test("Funnel query generation preserves relative time intervals")
+    func funnelQueryGenerationKeepsRelativeIntervals() throws {
         let relativeTimeIntervals = [
             RelativeTimeInterval(
                 beginningDate: RelativeDate(.beginning, of: .month, adding: -1),
@@ -171,10 +175,11 @@ final class FunnelQueryGenerationTests: XCTestCase {
         let startingQuery = CustomQuery(queryType: .funnel, relativeIntervals: relativeTimeIntervals, granularity: .all, steps: steps)
         let generatedTinyQuery = try startingQuery.precompiledFunnelQuery()
 
-        XCTAssertEqual(startingQuery.relativeIntervals, generatedTinyQuery.relativeIntervals)
+        #expect(startingQuery.relativeIntervals == generatedTinyQuery.relativeIntervals)
     }
 
-    func testFunnelWithEmptyFilter() throws {
+    @Test("Funnel query generation handles empty filter steps correctly")
+    func funnelWithEmptyFilter() throws {
         var stepsWithEmpty = steps
         stepsWithEmpty.append(.init(name: "Empty Step"))
 
@@ -183,8 +188,8 @@ final class FunnelQueryGenerationTests: XCTestCase {
 
         try print(String(data: JSONEncoder.telemetryEncoder.encode(generatedTinyQuery), encoding: .utf8)!)
 
-        XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
-        XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
-        XCTAssertEqual(tinyQuery.postAggregations, generatedTinyQuery.postAggregations)
+        #expect(tinyQuery.filter == generatedTinyQuery.filter)
+        #expect(tinyQuery.aggregations == generatedTinyQuery.aggregations)
+        #expect(tinyQuery.postAggregations == generatedTinyQuery.postAggregations)
     }
 }

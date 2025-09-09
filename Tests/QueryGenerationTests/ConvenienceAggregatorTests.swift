@@ -1,22 +1,26 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class ConvenienceAggregatorTests: XCTestCase {
-    func testUserCountQueryGetsPrecompiled() throws {
+struct ConvenienceAggregatorTests {
+    @Test("User count query gets precompiled")
+    func userCountQueryGetsPrecompiled() throws {
         let query = CustomQuery(queryType: .timeseries, aggregations: [.userCount(.init())])
         let precompiled = try query.precompile(useNamespace: true, organizationAppIDs: [UUID()], isSuperOrg: false)
         let expectedAggregations: [Aggregator] = [.thetaSketch(.init(name: "Users", fieldName: "clientUser"))]
-        XCTAssertEqual(precompiled.aggregations, expectedAggregations)
+        #expect(precompiled.aggregations == expectedAggregations)
     }
 
-    func testEventCountQueryGetsPrecompiled() throws {
+    @Test("Event count query gets precompiled")
+    func eventCountQueryGetsPrecompiled() throws {
         let query = CustomQuery(queryType: .timeseries, aggregations: [.eventCount(.init())])
         let precompiled = try query.precompile(useNamespace: true, organizationAppIDs: [UUID()], isSuperOrg: false)
         let expectedAggregations: [Aggregator] = [.longSum(.init(type: .longSum, name: "Events", fieldName: "count"))]
-        XCTAssertEqual(precompiled.aggregations, expectedAggregations)
+        #expect(precompiled.aggregations == expectedAggregations)
     }
 
-    func testHistogramQueryGetsPrecompiled() throws {
+    @Test("Histogram query gets precompiled")
+    func histogramQueryGetsPrecompiled() throws {
         let query = CustomQuery(queryType: .timeseries, aggregations: [.histogram(.init())])
         let precompiled = try query.precompile(useNamespace: true, organizationAppIDs: [UUID()], isSuperOrg: false)
         let expectedAggregations: [Aggregator] = [
@@ -32,7 +36,7 @@ final class ConvenienceAggregatorTests: XCTestCase {
                 numBins: nil
             )
         )]
-        XCTAssertEqual(precompiled.aggregations, expectedAggregations)
-        XCTAssertEqual(precompiled.postAggregations, expectedPostAggregations)
+        #expect(precompiled.aggregations == expectedAggregations)
+        #expect(precompiled.postAggregations == expectedPostAggregations)
     }
 }

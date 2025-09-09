@@ -1,10 +1,12 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class QueryResultTests: XCTestCase {
+struct QueryResultTests {
     let randomDate = Date(timeIntervalSinceReferenceDate: 656510400) // Thursday, October 21, 2021 2:00:00 PM GMT+02:00
 
-    func testEncodingTimeSeries() throws {
+    @Test("Encoding time series query result")
+    func encodingTimeSeries() throws {
         let exampleQueryResult = QueryResult.timeSeries(
             TimeSeriesQueryResult(rows:
                 [
@@ -31,10 +33,11 @@ class QueryResultTests: XCTestCase {
         """
         .filter { !$0.isWhitespace }
 
-        XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
+        #expect(String(data: encodedQueryResult, encoding: .utf8)! == expectedResult)
     }
 
-    func testEncodingMultiDimTimeSeries() throws {
+    @Test("Encoding multi-dimensional time series query result")
+    func encodingMultiDimTimeSeries() throws {
         let swiftResult = QueryResult.timeSeries(
             TimeSeriesQueryResult(rows:
                 [
@@ -60,11 +63,12 @@ class QueryResultTests: XCTestCase {
         let encodedQueryResult = try JSONEncoder.telemetryEncoder.encode(swiftResult)
         let decodedQueryResult = try JSONDecoder.telemetryDecoder.decode(QueryResult.self, from: stringResult.data(using: .utf8)!)
 
-        XCTAssertEqual(stringResult, String(data: encodedQueryResult, encoding: .utf8)!)
-        XCTAssertEqual(swiftResult, decodedQueryResult)
+        #expect(stringResult == String(data: encodedQueryResult, encoding: .utf8)!)
+        #expect(swiftResult == decodedQueryResult)
     }
 
-    func testEncodingGroupBy() throws {
+    @Test("Encoding group by query result")
+    func encodingGroupBy() throws {
         let exampleQueryResult = QueryResult.groupBy(
             .init(
                 rows: [GroupByQueryResultRow(
@@ -92,10 +96,11 @@ class QueryResultTests: XCTestCase {
         """
         .filter { !$0.isWhitespace }
 
-        XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
+        #expect(String(data: encodedQueryResult, encoding: .utf8)! == expectedResult)
     }
 
-    func testDecodingGroupBy() throws {
+    @Test("Decoding group by query result")
+    func decodingGroupBy() throws {
         let expectedResult = QueryResult.groupBy(GroupByQueryResult(
             rows: [GroupByQueryResultRow(
                 timestamp: randomDate,
@@ -115,10 +120,11 @@ class QueryResultTests: XCTestCase {
         """
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode(QueryResult.self, from: groupByResult.data(using: .utf8)!)
-        XCTAssertEqual(expectedResult, decodedResult)
+        #expect(expectedResult == decodedResult)
     }
 
-    func testDecodingTimeSeriesResult() throws {
+    @Test("Decoding time series result row")
+    func decodingTimeSeriesResult() throws {
         let exampleResult = """
         {"timestamp":"2021-01-01T00:00:00.000Z","result":{"d0":1609459200000}}
         """
@@ -126,10 +132,11 @@ class QueryResultTests: XCTestCase {
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
 
-        XCTAssertEqual(decodedResult.result, ["d0": DoubleWrapper(1609459200000)])
+        #expect(decodedResult.result == ["d0": DoubleWrapper(1609459200000)])
     }
 
-    func testDecodingEmptyTimeSeriesResult() throws {
+    @Test("Decoding empty time series result")
+    func decodingEmptyTimeSeriesResult() throws {
         let exampleResult = """
         { "timestamp": "2023-09-01T00:00:00.000Z", "result": { "count": null } }
         """
@@ -137,10 +144,11 @@ class QueryResultTests: XCTestCase {
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode(TimeSeriesQueryResultRow.self, from: exampleResult.data(using: .utf8)!)
 
-        XCTAssertEqual(decodedResult.result, ["count": nil])
+        #expect(decodedResult.result == ["count": nil])
     }
 
-    func testDecodingInfinity() throws {
+    @Test("Decoding infinity values")
+    func decodingInfinity() throws {
         let exampleResult = """
             [
               {"timestamp":"2022-12-19T00:00:00.000Z","result":{"min":"Infinity","max":"-Infinity","mean":0.0}},
@@ -151,20 +159,21 @@ class QueryResultTests: XCTestCase {
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode([TimeSeriesQueryResultRow].self, from: exampleResult.data(using: .utf8)!)
 
-        XCTAssertEqual(decodedResult.first?.result, [
+        #expect(decodedResult.first?.result == [
             "mean": DoubleWrapper(0.0),
             "max": DoubleWrapper(-Double.infinity),
             "min": DoubleWrapper(Double.infinity),
         ])
 
-        XCTAssertEqual(decodedResult.last?.result, [
+        #expect(decodedResult.last?.result == [
             "mean": DoubleWrapper(938.24),
             "max": DoubleWrapper(5775.11),
             "min": DoubleWrapper(0.02),
         ])
     }
 
-    func testEncodingTimeSeriesWithRestricted() throws {
+    @Test("Encoding time series with restrictions")
+    func encodingTimeSeriesWithRestricted() throws {
         let exampleQueryResult = QueryResult.timeSeries(
             TimeSeriesQueryResult(rows:
                 [
@@ -192,10 +201,11 @@ class QueryResultTests: XCTestCase {
         """
         .filter { !$0.isWhitespace }
 
-        XCTAssertEqual(String(data: encodedQueryResult, encoding: .utf8)!, expectedResult)
+        #expect(String(data: encodedQueryResult, encoding: .utf8)! == expectedResult)
     }
 
-    func testDecodingScan() throws {
+    @Test("Decoding scan query result")
+    func decodingScan() throws {
         let exampleResult = """
         [
             {
@@ -226,8 +236,8 @@ class QueryResultTests: XCTestCase {
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode([ScanQueryResultRow].self, from: exampleResult.data(using: .utf8)!)
 
-        XCTAssertEqual(
-            decodedResult,
+        #expect(
+            decodedResult ==
             [.init(
                 segmentId: "telemetry-signals_2024-08-30T00:00:00.000Z_2024-08-31T00:00:00.000Z_2024-08-30T00:00:00.590Z_50",
                 columns: ["__time", "type"],
@@ -237,7 +247,8 @@ class QueryResultTests: XCTestCase {
         )
     }
 
-    func testDecodingTimeBoundaryResult() throws {
+    @Test("Decoding time boundary result")
+    func decodingTimeBoundaryResult() throws {
         let exampleResult = """
         [ {
           "timestamp" : "2013-05-09T18:24:00.000Z",
@@ -249,8 +260,8 @@ class QueryResultTests: XCTestCase {
         """
 
         let decodedResult = try JSONDecoder.telemetryDecoder.decode([TimeBoundaryResultRow].self, from: exampleResult.data(using: .utf8)!)
-        XCTAssertEqual(
-            decodedResult,
+        #expect(
+            decodedResult ==
             [.init(
                 timestamp: .init(iso8601String: "2013-05-09T18:24:00.000Z")!,
                 result: [
@@ -261,7 +272,8 @@ class QueryResultTests: XCTestCase {
         )
     }
 
-    func testEncodingTimeBoundaryResult() throws {
+    @Test("Encoding time boundary result")
+    func encodingTimeBoundaryResult() throws {
         let expectedResult = """
         [ {
           "result" : {
@@ -282,8 +294,8 @@ class QueryResultTests: XCTestCase {
 
         let encodedResult = try JSONEncoder.telemetryEncoder.encode(exampleResult)
 
-        XCTAssertEqual(
-            expectedResult.filter { !$0.isWhitespace },
+        #expect(
+            expectedResult.filter { !$0.isWhitespace } ==
             String(data: encodedResult, encoding: .utf8)!
         )
     }

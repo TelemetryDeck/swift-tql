@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class AggregatorTests: XCTestCase {
+struct AggregatorTests {
     let exampleDruidAggregatorsThetaSketch = """
     [
         {
@@ -65,13 +66,13 @@ final class AggregatorTests: XCTestCase {
     .filter { !$0.isWhitespace }
     .data(using: .utf8)!
 
-    func testThetaSketchAggregatorDecoding() throws {
+    @Test("ThetaSketch aggregator decoding") func thetaSketchAggregatorDecoding() throws {
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: exampleDruidAggregatorsThetaSketch)
 
-        XCTAssertEqual(decodedAggregators, [Aggregator.thetaSketch(.init(name: "count", fieldName: "clientUser"))])
+        #expect(decodedAggregators == [Aggregator.thetaSketch(.init(name: "count", fieldName: "clientUser"))])
     }
 
-    func testQuantilesDoublesSketchAggregator() throws {
+    @Test("QuantilesDoublesSketch aggregator") func quantilesDoublesSketchAggregator() throws {
         let stringRepresentation = """
         [
             {
@@ -87,19 +88,19 @@ final class AggregatorTests: XCTestCase {
         let swiftRepresentation = [Aggregator.quantilesDoublesSketch(.init(name: "count", fieldName: "clientUser", k: 1024))]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+        #expect(decodedAggregators == swiftRepresentation)
 
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testLongSumAggregatorDecoding() throws {
+    @Test("LongSum aggregator decoding") func longSumAggregatorDecoding() throws {
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: exampleDruidAggregatorsCountSum)
 
-        XCTAssertEqual(decodedAggregators, [Aggregator.longSum(.init(type: .longSum, name: "count", fieldName: "count"))])
+        #expect(decodedAggregators == [Aggregator.longSum(.init(type: .longSum, name: "count", fieldName: "count"))])
     }
 
-    func testCardinalityAggregator() throws {
+    @Test("Cardinality aggregator") func cardinalityAggregator() throws {
         let exampleAggregatorsString = """
         [
           {
@@ -115,15 +116,15 @@ final class AggregatorTests: XCTestCase {
 
         let exampleAggregators = [Aggregator.cardinality(.init(name: "a0", fields: ["clientUser"], round: true))]
 
-        XCTAssertEqual(try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: exampleAggregatorsString.data(using: .utf8)!), exampleAggregators)
+        #expect(try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: exampleAggregatorsString.data(using: .utf8)!) == exampleAggregators)
 
-        XCTAssertEqual(try String(data: JSONEncoder.telemetryEncoder.encode(exampleAggregators), encoding: .utf8)!, exampleAggregatorsString)
+        #expect(try String(data: JSONEncoder.telemetryEncoder.encode(exampleAggregators), encoding: .utf8)! == exampleAggregatorsString)
     }
 
-    func testFilteredAggregatorDecoding() throws {
+    @Test("Filtered aggregator decoding") func filteredAggregatorDecoding() throws {
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: exampleDruidAggregatorsFiltered)
 
-        XCTAssertEqual(decodedAggregators, [
+        #expect(decodedAggregators == [
             .filtered(
                 .init(
                     filter: .selector(
@@ -166,7 +167,7 @@ final class AggregatorTests: XCTestCase {
         ])
     }
 
-    func testFilteredAggregatorEncoding() throws {
+    @Test("Filtered aggregator encoding") func filteredAggregatorEncoding() throws {
         let aggregators: [Aggregator] = [
             .filtered(
                 .init(
@@ -249,10 +250,10 @@ final class AggregatorTests: XCTestCase {
         """
         .filter { !$0.isWhitespace }
 
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, expectedEncodedAggregators)
+        #expect(String(data: encodedAggregators, encoding: .utf8)! == expectedEncodedAggregators)
     }
 
-    func testUserCountAggregator() throws {
+    @Test("UserCount aggregator") func userCountAggregator() throws {
         let stringRepresentation = """
         [
             {
@@ -265,13 +266,13 @@ final class AggregatorTests: XCTestCase {
         let swiftRepresentation = [Aggregator.userCount(.init())]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+        #expect(decodedAggregators == swiftRepresentation)
 
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testEventCountAggregator() throws {
+    @Test("EventCount aggregator") func eventCountAggregator() throws {
         let stringRepresentation = """
         [
             {
@@ -284,13 +285,13 @@ final class AggregatorTests: XCTestCase {
         let swiftRepresentation = [Aggregator.eventCount(.init())]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+        #expect(decodedAggregators == swiftRepresentation)
 
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testHistogramAggregatorWithDefaults() throws {
+    @Test("Histogram aggregator with defaults") func histogramAggregatorWithDefaults() throws {
         let stringRepresentation = """
         [
             {
@@ -303,13 +304,13 @@ final class AggregatorTests: XCTestCase {
         let swiftRepresentation = [Aggregator.histogram(.init())]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+        #expect(decodedAggregators == swiftRepresentation)
 
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testHistogramAggregatorWithParameters() throws {
+    @Test("Histogram aggregator with parameters") func histogramAggregatorWithParameters() throws {
         let stringRepresentation = """
         [
             {
@@ -326,9 +327,9 @@ final class AggregatorTests: XCTestCase {
         let swiftRepresentation = [Aggregator.histogram(.init(name: "MyVeryCoolHistogram", fieldName: "anotherNumericalField", splitPoints: nil, numBins: 25, k: 512))]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([Aggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedAggregators, swiftRepresentation)
+        #expect(decodedAggregators == swiftRepresentation)
 
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedAggregators, encoding: .utf8)! == stringRepresentation)
     }
 }

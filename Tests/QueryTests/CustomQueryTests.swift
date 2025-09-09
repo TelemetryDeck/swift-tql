@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class CustomQueryTests: XCTestCase {
+struct CustomQueryTests {
     let randomDate = Date(timeIntervalSinceReferenceDate: 656_510_400) // Thursday, October 21, 2021 2:00:00 PM GMT+02:00
 
     let exampleDruidRegexJSON = """
@@ -39,7 +40,7 @@ final class CustomQueryTests: XCTestCase {
     .filter { !$0.isWhitespace }
     .data(using: .utf8)!
 
-    func testRegexQueryDecoding() throws {
+    @Test("Regex query decoding") func regexQueryDecoding() throws {
         let regexQuery = CustomQuery(
             queryType: .groupBy,
             dataSource: "telemetry-signals",
@@ -71,18 +72,18 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedQuery = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: exampleDruidRegexJSON)
 
-        XCTAssertEqual(regexQuery.intervals, decodedQuery.intervals)
-        XCTAssertEqual(regexQuery.queryType, decodedQuery.queryType)
-        XCTAssertEqual(regexQuery.dataSource, decodedQuery.dataSource)
-        XCTAssertEqual(regexQuery.descending, decodedQuery.descending)
-        XCTAssertEqual(regexQuery.filter, decodedQuery.filter)
-        XCTAssertEqual(regexQuery.granularity, decodedQuery.granularity)
-        XCTAssertEqual(regexQuery.limit, decodedQuery.limit)
-        XCTAssertEqual(regexQuery.dimensions, decodedQuery.dimensions)
-        XCTAssertEqual(regexQuery, decodedQuery)
+        #expect(regexQuery.intervals == decodedQuery.intervals)
+        #expect(regexQuery.queryType == decodedQuery.queryType)
+        #expect(regexQuery.dataSource == decodedQuery.dataSource)
+        #expect(regexQuery.descending == decodedQuery.descending)
+        #expect(regexQuery.filter == decodedQuery.filter)
+        #expect(regexQuery.granularity == decodedQuery.granularity)
+        #expect(regexQuery.limit == decodedQuery.limit)
+        #expect(regexQuery.dimensions == decodedQuery.dimensions)
+        #expect(regexQuery == decodedQuery)
     }
 
-    func testDimensionSpecEncoding() throws {
+    @Test("Dimension spec encoding") func dimensionSpecEncoding() throws {
         let dimensionSpec = DimensionSpec.default(.init(dimension: "test", outputName: "test", outputType: .string))
 
         let encodedJSON = try JSONEncoder.telemetryEncoder.encode(dimensionSpec)
@@ -91,10 +92,10 @@ final class CustomQueryTests: XCTestCase {
         {"dimension":"test","outputName":"test","outputType":"STRING","type":"default"}
         """
 
-        XCTAssertEqual(expectedOutput, String(data: encodedJSON, encoding: .utf8)!)
+        #expect(expectedOutput == String(data: encodedJSON, encoding: .utf8)!)
     }
 
-    func testDimensionSpecDecoding() throws {
+    @Test("Dimension spec decoding") func dimensionSpecDecoding() throws {
         let expectedOutput = DimensionSpec.default(.init(dimension: "test", outputName: "test", outputType: .string))
 
         let input = """
@@ -103,10 +104,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(DimensionSpec.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testRegularExpressionExtractionFunctionEncoding() throws {
+    @Test("Regular expression extraction function encoding") func regularExpressionExtractionFunctionEncoding() throws {
         let input = ExtractionFunction.regex(.init(expr: "abc", replaceMissingValue: false, replaceMissingValueWith: nil))
 
         let expectedOutput = """
@@ -115,10 +116,10 @@ final class CustomQueryTests: XCTestCase {
 
         let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
 
-        XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
+        #expect(expectedOutput == String(data: encodedOutput, encoding: .utf8)!)
     }
 
-    func testRegularExpressionExtractionFunctionDecoding() throws {
+    @Test("Regular expression extraction function decoding") func regularExpressionExtractionFunctionDecoding() throws {
         let input = """
         {"type":"regex","expr":"abc","index":1,"replaceMissingValue":true,"replaceMissingValueWith":"foobar"}
         """
@@ -128,10 +129,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(ExtractionFunction.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testRegularExpressionExtractionFunctionRawDecoding() throws {
+    @Test("Regular expression extraction function raw decoding") func regularExpressionExtractionFunctionRawDecoding() throws {
         let input = """
         {"type":"regex","expr":"abc","index":1,"replaceMissingValue":true,"replaceMissingValueWith":"foobar"}
         """
@@ -141,11 +142,11 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(RegularExpressionExtractionFunction.self, from: input)
 
-        XCTAssertTrue(decodedOutput.replaceMissingValue)
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(decodedOutput.replaceMissingValue)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testRegisteredLookupExtractionFunctionEncodingDefault() throws {
+    @Test("Registered lookup extraction function encoding default") func registeredLookupExtractionFunctionEncodingDefault() throws {
         let input = ExtractionFunction.registeredLookup(.init(lookup: "apps", retainMissingValue: true))
 
         let expectedOutput = """
@@ -154,10 +155,10 @@ final class CustomQueryTests: XCTestCase {
 
         let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
 
-        XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
+        #expect(expectedOutput == String(data: encodedOutput, encoding: .utf8)!)
     }
 
-    func testRegisteredLookupExtractionFunctionDecodingDefault() throws {
+    @Test("Registered lookup extraction function decoding default") func registeredLookupExtractionFunctionDecodingDefault() throws {
         let input = """
         {
           "type": "registeredLookup",
@@ -171,10 +172,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(ExtractionFunction.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testInlineLookupExtractionFunctionEncodingDefault() throws {
+    @Test("Inline lookup extraction function encoding default") func inlineLookupExtractionFunctionEncodingDefault() throws {
         let input = ExtractionFunction.inlineLookup(InlineLookupExtractionFunction(lookupMap: ["foo": "bar", "baz": "bat"]))
 
         let expectedOutput = """
@@ -183,10 +184,10 @@ final class CustomQueryTests: XCTestCase {
 
         let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
 
-        XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
+        #expect(expectedOutput == String(data: encodedOutput, encoding: .utf8)!)
     }
 
-    func testInlineLookupExtractionFunctionDecodingDefault() throws {
+    @Test("Inline lookup extraction function decoding default") func inlineLookupExtractionFunctionDecodingDefault() throws {
         let input = """
         {
           "type":"lookup",
@@ -204,10 +205,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(ExtractionFunction.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testInlineLookupExtractionFunctionEncodingNonInjective() throws {
+    @Test("Inline lookup extraction function encoding non-injective") func inlineLookupExtractionFunctionEncodingNonInjective() throws {
         let input = ExtractionFunction.inlineLookup(.init(lookupMap: ["foo": "bar", "baz": "bat"], retainMissingValue: false, injective: false, replaceMissingValueWith: "MISSING"))
 
         let expectedOutput = """
@@ -216,10 +217,10 @@ final class CustomQueryTests: XCTestCase {
 
         let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
 
-        XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
+        #expect(expectedOutput == String(data: encodedOutput, encoding: .utf8)!)
     }
 
-    func testInlineLookupExtractionFunctionDecodingNonInjective() throws {
+    @Test("Inline lookup extraction function decoding non-injective") func inlineLookupExtractionFunctionDecodingNonInjective() throws {
         let input = """
         {
           "type":"lookup",
@@ -238,10 +239,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(ExtractionFunction.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testRegisteredLookupDimensionDecoding() throws {
+    @Test("Registered lookup dimension decoding") func registeredLookupDimensionDecoding() throws {
         let input = """
         {
             "dimension": "appID",
@@ -260,10 +261,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(DimensionSpec.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testExpandedGranularityDefinition() throws {
+    @Test("Expanded granularity definition") func expandedGranularityDefinition() throws {
         let exampleJSON = """
         {
             "queryType": "groupBy",
@@ -314,10 +315,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedQuery = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: exampleJSON)
 
-        XCTAssertEqual(regexQuery.granularity, decodedQuery.granularity)
+        #expect(regexQuery.granularity == decodedQuery.granularity)
     }
 
-    func testExpandedDataSourceDefinition() throws {
+    @Test("Expanded data source definition") func expandedDataSourceDefinition() throws {
         let exampleJSON = """
         {
             "queryType": "groupBy",
@@ -368,10 +369,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedQuery = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: exampleJSON)
 
-        XCTAssertEqual(regexQuery.dataSource, decodedQuery.dataSource)
+        #expect(regexQuery.dataSource == decodedQuery.dataSource)
     }
 
-    func testMinimalCustomQueryForFunnels() throws {
+    @Test("Minimal custom query for funnels") func minimalCustomQueryForFunnels() throws {
         // just ensuring this compiles
         _ = CustomQuery(
             queryType: .funnel,
@@ -383,7 +384,7 @@ final class CustomQueryTests: XCTestCase {
         )
     }
 
-    func testScanQueryDecoding() throws {
+    @Test("Scan query decoding") func scanQueryDecoding() throws {
         let input = """
          {
            "queryType": "scan",
@@ -398,10 +399,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testScanQueryEncoding() throws {
+    @Test("Scan query encoding") func scanQueryEncoding() throws {
         let input = CustomQuery(queryType: .scan, dataSource: "wikipedia", limit: 3, columns: [])
 
         let expectedOutput = """
@@ -410,10 +411,10 @@ final class CustomQueryTests: XCTestCase {
 
         let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
 
-        XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
+        #expect(expectedOutput == String(data: encodedOutput, encoding: .utf8)!)
     }
 
-    func testTimeBoundaryQueryDecoding() throws {
+    @Test("Time boundary query decoding") func timeBoundaryQueryDecoding() throws {
         let input = """
          {
            "queryType": "timeBoundary",
@@ -425,10 +426,10 @@ final class CustomQueryTests: XCTestCase {
 
         let decodedOutput = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: input)
 
-        XCTAssertEqual(expectedOutput, decodedOutput)
+        #expect(expectedOutput == decodedOutput)
     }
 
-    func testTimeBoundaryQueryEncoding() throws {
+    @Test("Time boundary query encoding") func timeBoundaryQueryEncoding() throws {
         let input = CustomQuery(queryType: .timeBoundary, dataSource: "wikipedia")
 
         let expectedOutput = """
@@ -437,10 +438,10 @@ final class CustomQueryTests: XCTestCase {
 
         let encodedOutput = try JSONEncoder.telemetryEncoder.encode(input)
 
-        XCTAssertEqual(expectedOutput, String(data: encodedOutput, encoding: .utf8)!)
+        #expect(expectedOutput == String(data: encodedOutput, encoding: .utf8)!)
     }
 
-    func testChartConfiguration() throws {
+    @Test("Chart configuration") func chartConfiguration() throws {
         let customQuery = CustomQuery(
             queryType: .timeseries,
             dataSource: "telemetry-signals",
@@ -462,13 +463,13 @@ final class CustomQueryTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(customQuery)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedCustomQuery)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedCustomQuery)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: encoded)
-        XCTAssertEqual(customQuery, decoded)
+        #expect(customQuery == decoded)
     }
 
-    func testChartConfigurationDisabledAxis() throws {
+    @Test("Chart configuration disabled axis") func chartConfigurationDisabledAxis() throws {
         let customQuery = CustomQuery(
             queryType: .timeseries,
             dataSource: "telemetry-signals",
@@ -493,9 +494,9 @@ final class CustomQueryTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(customQuery)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedCustomQuery)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedCustomQuery)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: encoded)
-        XCTAssertEqual(customQuery, decoded)
+        #expect(customQuery == decoded)
     }
 }

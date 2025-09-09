@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class IdleConfigTests: XCTestCase {
+struct IdleConfigTests {
     let tdValueString = """
     {
         "enabled": true,
@@ -14,13 +15,15 @@ final class IdleConfigTests: XCTestCase {
 
     let testedType = IdleConfig.self
 
-    func testDecodingTelemetryDeckExample() throws {
+    @Test("Decoding TelemetryDeck example should match expected value")
+    func decodingTelemetryDeckExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: tdValueString.data(using: .utf8)!)
-        XCTAssertEqual(tdValue, decodedValue)
+        #expect(tdValue == decodedValue)
     }
 
-    func testEncodingTelemetryDeckExample() throws {
+    @Test("Encoding TelemetryDeck example should match expected JSON string")
+    func encodingTelemetryDeckExample() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(tdValue)
-        XCTAssertEqual(tdValueString, String(data: encodedValue, encoding: .utf8)!)
+        #expect(tdValueString == String(data: encodedValue, encoding: .utf8)!)
     }
 }
