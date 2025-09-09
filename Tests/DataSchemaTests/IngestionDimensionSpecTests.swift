@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class IngestionDimensionSpecTests: XCTestCase {
+struct IngestionDimensionSpecTests {
     let docsValueString = """
     {
       "dimensionExclusions" : [],
@@ -87,25 +88,29 @@ final class IngestionDimensionSpecTests: XCTestCase {
 
     let testedType = DimensionsSpec.self
 
-    func testDecodingDocsExample() throws {
+    @Test("Decoding docs example")
+    func decodingDocsExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: docsValueString.data(using: .utf8)!)
-        XCTAssertEqual(docsValue, decodedValue)
+        #expect(docsValue == decodedValue)
     }
 
-    func testEncodingDocsExample() throws {
+    @Test("Encoding docs example")
+    func encodingDocsExample() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(docsValue)
-        XCTAssertEqual(docsValueString, String(data: encodedValue, encoding: .utf8)!)
+        #expect(docsValueString == String(data: encodedValue, encoding: .utf8)!)
     }
 
-    func testDecodingTelemetryDeckExample() throws {
+    @Test("Decoding TelemetryDeck example")
+    func decodingTelemetryDeckExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: tdValueString.data(using: .utf8)!)
-        XCTAssertEqual(tdValue, decodedValue)
+        #expect(tdValue == decodedValue)
     }
 
-    func testEncodingTelemetryDeckExample() throws {
+    @Test("Encoding TelemetryDeck example")
+    func encodingTelemetryDeckExample() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(tdValue)
-        XCTAssertEqual(
-            tdValueString.replacingOccurrences(of: "SORTED_ARRAY", with: "sorted_array"),
+        #expect(
+            tdValueString.replacingOccurrences(of: "SORTED_ARRAY", with: "sorted_array") ==
             String(
                 data: encodedValue,
                 encoding: .utf8

@@ -1,7 +1,8 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class RetentionQueryTests: XCTestCase {
+struct RetentionQueryTests {
     static let aggregations: [Aggregator] = [
         .filtered(.init(
             filter: .interval(.init(
@@ -271,16 +272,18 @@ class RetentionQueryTests: XCTestCase {
     }
     """
 
-    func testDecoding() throws {
+    @Test("Decoding")
+    func decoding() throws {
         let decodedQuery = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: retentionQueryExampleString.data(using: .utf8)!)
-        XCTAssertEqual(decodedQuery, retentionQueryExample)
+        #expect(decodedQuery == retentionQueryExample)
     }
 
-    func testEncoding() throws {
+    @Test("Encoding")
+    func encoding() throws {
         let queryData = retentionQueryExampleString
             .filter { !$0.isWhitespace }
 
         let encodedQuery = try JSONEncoder.telemetryEncoder.encode(retentionQueryExample)
-        XCTAssertEqual(String(data: encodedQuery, encoding: .utf8), queryData)
+        #expect(String(data: encodedQuery, encoding: .utf8) == queryData)
     }
 }

@@ -1,8 +1,9 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class ChartAggregtionConfigurationTests: XCTestCase {
-    func testChartAggregationConfiguration() throws {
+struct ChartAggregtionConfigurationTests {
+    @Test("Chart aggregation configuration") func chartAggregationConfiguration() throws {
         let aggregationConfiguration = ChartAggregationConfiguration(
             startAngle: 12,
             endAngle: 13,
@@ -23,9 +24,9 @@ class ChartAggregtionConfigurationTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(aggregationConfiguration)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedAggregationConfiguration)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedAggregationConfiguration)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(ChartAggregationConfiguration.self, from: encoded)
-        XCTAssertEqual(aggregationConfiguration, decoded)
+        #expect(aggregationConfiguration == decoded)
     }
 }

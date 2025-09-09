@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class ExperimentQueryGenerationTests: XCTestCase {
+struct ExperimentQueryGenerationTests {
     let cohort1: NamedFilter = .init(filter: .selector(.init(dimension: "type", value: "payScreenALaunched")), name: "Payscreen A")
     let cohort2: NamedFilter = .init(filter: .selector(.init(dimension: "type", value: "payScreenBLaunched")), name: "Payscreen B")
 
@@ -126,7 +127,8 @@ final class ExperimentQueryGenerationTests: XCTestCase {
         ]
     )
 
-    func testExample() throws {
+    @Test("Experiment query generation generates correct query structure")
+    func example() throws {
         let startingQuery = CustomQuery(
             queryType: .experiment,
             relativeIntervals: [relativeInterval],
@@ -137,8 +139,8 @@ final class ExperimentQueryGenerationTests: XCTestCase {
         )
         let generatedTinyQuery = try startingQuery.precompile(useNamespace: false, organizationAppIDs: organizationAppIDs, isSuperOrg: false)
 
-        XCTAssertEqual(tinyQuery.filter, generatedTinyQuery.filter)
-        XCTAssertEqual(tinyQuery.aggregations, generatedTinyQuery.aggregations)
-        XCTAssertEqual(tinyQuery.postAggregations, generatedTinyQuery.postAggregations)
+        #expect(tinyQuery.filter == generatedTinyQuery.filter)
+        #expect(tinyQuery.aggregations == generatedTinyQuery.aggregations)
+        #expect(tinyQuery.postAggregations == generatedTinyQuery.postAggregations)
     }
 }

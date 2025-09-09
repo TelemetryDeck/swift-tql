@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class SupervisorTests: XCTestCase {
+struct SupervisorTests {
     let tdValueString = """
     {
       "type": "kinesis",
@@ -13,8 +14,9 @@ final class SupervisorTests: XCTestCase {
 
     let testedType = Supervisor.self
 
-    func testDecodingTelemetryDeckExample() throws {
+    @Test("Decoding TelemetryDeck example should match expected suspended value")
+    func decodingTelemetryDeckExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: tdValueString.data(using: .utf8)!)
-        XCTAssertEqual(decodedValue.suspended, false)
+        #expect(decodedValue.suspended == false)
     }
 }

@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class VirtualColumnTests: XCTestCase {
+struct VirtualColumnTests {
     let tdValueString = """
     {
       "aggregations": [
@@ -50,18 +51,20 @@ final class VirtualColumnTests: XCTestCase {
 
     let testedType = CustomQuery.self
 
-    func testDecodingDocsExample() throws {
+    @Test("Decoding docs example")
+    func decodingDocsExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: tdValueString.data(using: .utf8)!)
-        XCTAssertEqual(tdValue, decodedValue)
+        #expect(tdValue == decodedValue)
     }
 
-    func testEncodingDocsExample() throws {
+    @Test("Encoding docs example")
+    func encodingDocsExample() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(tdValue)
-        XCTAssertEqual(tdValueString, String(data: encodedValue, encoding: .utf8)!)
+        #expect(tdValueString == String(data: encodedValue, encoding: .utf8)!)
     }
 }
 
-final class ExpressionVirtualColumnTests: XCTestCase {
+struct ExpressionVirtualColumnTests {
     let docsValueString = """
     {
       "expression": "<rowexpression>",
@@ -78,18 +81,20 @@ final class ExpressionVirtualColumnTests: XCTestCase {
 
     let testedType = VirtualColumn.self
 
-    func testDecodingDocsExample() throws {
+    @Test("Decoding docs example")
+    func decodingDocsExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: docsValueString.data(using: .utf8)!)
-        XCTAssertEqual(docsValue, decodedValue)
+        #expect(docsValue == decodedValue)
     }
 
-    func testEncodingDocsExample() throws {
+    @Test("Encoding docs example")
+    func encodingDocsExample() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(docsValue)
-        XCTAssertEqual(docsValueString, String(data: encodedValue, encoding: .utf8)!)
+        #expect(docsValueString == String(data: encodedValue, encoding: .utf8)!)
     }
 }
 
-final class ListFilteredVirtualColumnTests: XCTestCase {
+struct ListFilteredVirtualColumnTests {
     let docsValueString = """
     {
       "delegate": "dim3",
@@ -112,13 +117,15 @@ final class ListFilteredVirtualColumnTests: XCTestCase {
 
     let testedType = VirtualColumn.self
 
-    func testDecodingDocsExample() throws {
+    @Test("Decoding docs example")
+    func decodingDocsExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: docsValueString.data(using: .utf8)!)
-        XCTAssertEqual(docsValue, decodedValue)
+        #expect(docsValue == decodedValue)
     }
 
-    func testEncodingDocsExample() throws {
+    @Test("Encoding docs example")
+    func encodingDocsExample() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(docsValue)
-        XCTAssertEqual(docsValueString, String(data: encodedValue, encoding: .utf8)!)
+        #expect(docsValueString == String(data: encodedValue, encoding: .utf8)!)
     }
 }

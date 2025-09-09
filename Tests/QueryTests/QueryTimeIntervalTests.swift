@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class QueryTimeIntervalTests: XCTestCase {
+struct QueryTimeIntervalTests {
     let exampleData = """
     {
       "type": "intervals",
@@ -10,11 +11,11 @@ final class QueryTimeIntervalTests: XCTestCase {
       ]
     }
     """
-
     .filter { !$0.isWhitespace }
     .data(using: .utf8)!
 
-    func testDecodingQueryTimeInterval() throws {
+    @Test("Decoding query time interval")
+    func decodingQueryTimeInterval() throws {
         _ = try JSONDecoder.telemetryDecoder.decode(QueryTimeIntervalsContainer.self, from: exampleData)
     }
 }

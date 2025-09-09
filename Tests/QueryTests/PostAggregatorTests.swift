@@ -1,8 +1,10 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class PostAggregatorTests: XCTestCase {
-    func testThetaSketchAggregatorDecoding() throws {
+struct PostAggregatorTests {
+    @Test("ThetaSketch aggregator decoding")
+    func thetaSketchAggregatorDecoding() throws {
         let examplePostAggregatorThetaSketchEstimate = """
         [
           {
@@ -31,8 +33,8 @@ final class PostAggregatorTests: XCTestCase {
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: examplePostAggregatorThetaSketchEstimate)
 
-        XCTAssertEqual(
-            decodedAggregators,
+        #expect(
+            decodedAggregators ==
             [
                 .thetaSketchEstimate(.init(
                     name: "app_launched_and_data_entered_count",
@@ -49,7 +51,8 @@ final class PostAggregatorTests: XCTestCase {
         )
     }
 
-    func testPercentageArithmeticDecoding() throws {
+    @Test("Percentage arithmetic decoding")
+    func percentageArithmeticDecoding() throws {
         let examplePostAggregatorPercentage = """
         [{
             "type"   : "arithmetic",
@@ -73,8 +76,8 @@ final class PostAggregatorTests: XCTestCase {
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: examplePostAggregatorPercentage)
 
-        XCTAssertEqual(
-            decodedAggregators,
+        #expect(
+            decodedAggregators ==
             [
                 PostAggregator.arithmetic(.init(
                     name: "part_percentage",
@@ -94,7 +97,8 @@ final class PostAggregatorTests: XCTestCase {
         )
     }
 
-    func testPostAggregatorExpressionDecoding() throws {
+    @Test("PostAggregator expression decoding")
+    func postAggregatorExpressionDecoding() throws {
         let examplePostAggregatorExpression = """
         [{
             "type"       : "expression",
@@ -107,15 +111,16 @@ final class PostAggregatorTests: XCTestCase {
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: examplePostAggregatorExpression)
 
-        XCTAssertEqual(
-            decodedAggregators,
+        #expect(
+            decodedAggregators ==
             [
                 .expression(.init(name: "part_percentage", expression: "100*(part/tot)")),
             ]
         )
     }
 
-    func testPostAggregatorArithmeticDecoding() throws {
+    @Test("PostAggregator arithmetic decoding")
+    func postAggregatorArithmeticDecoding() throws {
         let examplePostAggregatorArithmetic = """
         [{
             "type"   : "arithmetic",
@@ -132,7 +137,7 @@ final class PostAggregatorTests: XCTestCase {
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: examplePostAggregatorArithmetic)
 
-        XCTAssertEqual(decodedAggregators, [
+        #expect(decodedAggregators == [
             PostAggregator.arithmetic(.init(
                 name: "average",
                 function: .division,
@@ -144,7 +149,8 @@ final class PostAggregatorTests: XCTestCase {
         ])
     }
 
-    func testHyperUniqueDecoding() throws {
+    @Test("HyperUnique decoding")
+    func hyperUniqueDecoding() throws {
         let exampleHyperUnique = """
         [{
             "type"   : "arithmetic",
@@ -161,7 +167,7 @@ final class PostAggregatorTests: XCTestCase {
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: exampleHyperUnique)
 
-        XCTAssertEqual(decodedAggregators, [
+        #expect(decodedAggregators == [
             PostAggregator.arithmetic(.init(
                 name: "average_users_per_row",
                 function: .division,
@@ -173,7 +179,8 @@ final class PostAggregatorTests: XCTestCase {
         ])
     }
 
-    func testZScore2SampleCodable() throws {
+    @Test("ZScore 2 sample codable")
+    func zScore2SampleCodable() throws {
         let example = """
         [{
             "name": "zscore",
@@ -221,13 +228,14 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: example.data(using: .utf8)!)
-        XCTAssertEqual(decodedAggregators, postAggregators)
+        #expect(decodedAggregators == postAggregators)
 
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(postAggregators)
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8), example)
+        #expect(String(data: encodedAggregators, encoding: .utf8) == example)
     }
 
-    func testPValueCodable() throws {
+    @Test("P-value codable")
+    func pValueCodable() throws {
         let example = """
         [{
             "name": "pvalue",
@@ -248,13 +256,14 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: example.data(using: .utf8)!)
-        XCTAssertEqual(decodedAggregators, postAggregators)
+        #expect(decodedAggregators == postAggregators)
 
         let encodedAggregators = try JSONEncoder.telemetryEncoder.encode(postAggregators)
-        XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8), example)
+        #expect(String(data: encodedAggregators, encoding: .utf8) == example)
     }
 
-    func testQuantilesDoublesSketchToQuantilePostAggregator() throws {
+    @Test("Quantiles doubles sketch to quantile post aggregator")
+    func quantilesDoublesSketchToQuantilePostAggregator() throws {
         let stringRepresentation = """
         [{
             "field":  { "fieldName" : "someFieldName", "name" : "someField", "type" : "fieldAccess" },
@@ -274,13 +283,14 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedPostAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedPostAggregators, swiftRepresentation)
+        #expect(decodedPostAggregators == swiftRepresentation)
 
         let encodedPostAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedPostAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedPostAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testQuantilesDoublesSketchToQuantilesPostAggregator() throws {
+    @Test("Quantiles doubles sketch to quantiles post aggregator")
+    func quantilesDoublesSketchToQuantilesPostAggregator() throws {
         let stringRepresentation = """
         [{
             "field":  { "fieldName" : "someFieldName", "name" : "someField", "type" : "fieldAccess" },
@@ -300,13 +310,14 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedPostAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedPostAggregators, swiftRepresentation)
+        #expect(decodedPostAggregators == swiftRepresentation)
 
         let encodedPostAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedPostAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedPostAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testQuantilesDoublesSketchToHistogramPostAggregator() throws {
+    @Test("Quantiles doubles sketch to histogram post aggregator")
+    func quantilesDoublesSketchToHistogramPostAggregator() throws {
         let stringRepresentation = """
         [{
             "field":  { "fieldName" : "someFieldName", "name" : "someField", "type" : "fieldAccess" },
@@ -326,13 +337,14 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedPostAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedPostAggregators, swiftRepresentation)
+        #expect(decodedPostAggregators == swiftRepresentation)
 
         let encodedPostAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedPostAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedPostAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testQuantilesDoublesSketchToRankPostAggregator() throws {
+    @Test("Quantiles doubles sketch to rank post aggregator")
+    func quantilesDoublesSketchToRankPostAggregator() throws {
         let stringRepresentation = """
         [{
             "field":  { "fieldName" : "someFieldName", "name" : "someField", "type" : "fieldAccess" },
@@ -352,13 +364,14 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedPostAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedPostAggregators, swiftRepresentation)
+        #expect(decodedPostAggregators == swiftRepresentation)
 
         let encodedPostAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedPostAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedPostAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testQuantilesDoublesSketchToCDFPostAggregator() throws {
+    @Test("Quantiles doubles sketch to CDF post aggregator")
+    func quantilesDoublesSketchToCDFPostAggregator() throws {
         let stringRepresentation = """
         [{
             "field":  { "fieldName" : "someFieldName", "name" : "someField", "type" : "fieldAccess" },
@@ -378,13 +391,14 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedPostAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedPostAggregators, swiftRepresentation)
+        #expect(decodedPostAggregators == swiftRepresentation)
 
         let encodedPostAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedPostAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedPostAggregators, encoding: .utf8)! == stringRepresentation)
     }
 
-    func testQuantilesDoublesSketchToStringPostAggregator() throws {
+    @Test("Quantiles doubles sketch to string post aggregator")
+    func quantilesDoublesSketchToStringPostAggregator() throws {
         let stringRepresentation = """
         [{
             "field":  { "fieldName" : "someFieldName", "name" : "someField", "type" : "fieldAccess" },
@@ -402,9 +416,9 @@ final class PostAggregatorTests: XCTestCase {
         ]
 
         let decodedPostAggregators = try JSONDecoder.telemetryDecoder.decode([PostAggregator].self, from: stringRepresentation.data(using: .utf8)!)
-        XCTAssertEqual(decodedPostAggregators, swiftRepresentation)
+        #expect(decodedPostAggregators == swiftRepresentation)
 
         let encodedPostAggregators = try JSONEncoder.telemetryEncoder.encode(swiftRepresentation)
-        XCTAssertEqual(String(data: encodedPostAggregators, encoding: .utf8)!, stringRepresentation)
+        #expect(String(data: encodedPostAggregators, encoding: .utf8)! == stringRepresentation)
     }
 }

@@ -1,8 +1,9 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class HavingTests: XCTestCase {
-    func testCustomQuery() throws {
+struct HavingTests {
+    @Test("Custom query") func customQuery() throws {
         let customQuery = CustomQuery(
             queryType: .groupBy,
             dataSource: "sample_datasource",
@@ -23,13 +24,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(customQuery)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedCustomQuery)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedCustomQuery)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: encoded)
-        XCTAssertEqual(customQuery, decoded)
+        #expect(customQuery == decoded)
     }
 
-    func testQueryFilter() throws {
+    @Test("Query filter") func queryFilter() throws {
         let havingSpec = HavingSpec.filter(.init(filter: .selector(.init(dimension: "test", value: "true"))))
 
         let encodedHavingSpec = """
@@ -45,13 +46,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 
-    func testEqualTo() throws {
+    @Test("Equal to") func equalTo() throws {
         let havingSpec = HavingSpec.equalTo(.init(aggregation: "test", value: 12))
 
         let encodedHavingSpec = """
@@ -64,13 +65,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 
-    func testGreaterThan() throws {
+    @Test("Greater than") func greaterThan() throws {
         let havingSpec = HavingSpec.greaterThan(.init(aggregation: "test", value: 12))
 
         let encodedHavingSpec = """
@@ -83,13 +84,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 
-    func testLessThan() throws {
+    @Test("Less than") func lessThan() throws {
         let havingSpec = HavingSpec.lessThan(.init(aggregation: "test", value: 12))
 
         let encodedHavingSpec = """
@@ -102,13 +103,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 
-    func testDimensionSelector() throws {
+    @Test("Dimension selector") func dimensionSelector() throws {
         let havingSpec = HavingSpec.dimensionSelector(.init(dimension: "test", value: "itsATest"))
 
         let encodedHavingSpec = """
@@ -121,13 +122,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 
-    func testAnd() throws {
+    @Test("And") func and() throws {
         let havingSpec = HavingSpec.and(.init(havingSpecs: [
             .equalTo(.init(aggregation: "test", value: 12)),
             .dimensionSelector(.init(dimension: "test", value: "itsATest"))
@@ -153,13 +154,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 
-    func testOr() throws {
+    @Test("Or") func or() throws {
         let havingSpec = HavingSpec.or(.init(havingSpecs: [
             .equalTo(.init(aggregation: "test", value: 12)),
             .dimensionSelector(.init(dimension: "test", value: "itsATest"))
@@ -185,13 +186,13 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 
-    func testNot() throws {
+    @Test("Not") func not() throws {
         let havingSpec = HavingSpec.not(.init(havingSpec: .equalTo(.init(aggregation: "test", value: 12))))
 
         let encodedHavingSpec = """
@@ -207,9 +208,9 @@ class HavingTests: XCTestCase {
         .filter { !$0.isWhitespace }
 
         let encoded = try JSONEncoder.telemetryEncoder.encode(havingSpec)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, encodedHavingSpec)
+        #expect(String(data: encoded, encoding: .utf8)! == encodedHavingSpec)
 
         let decoded = try JSONDecoder.telemetryDecoder.decode(HavingSpec.self, from: encoded)
-        XCTAssertEqual(havingSpec, decoded)
+        #expect(havingSpec == decoded)
     }
 }

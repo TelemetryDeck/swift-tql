@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class SupervisorKinesisSpecTests: XCTestCase {
+struct SupervisorSpecTests {
     let tdValueString = """
     {
         "dataSchema": {
@@ -528,8 +529,9 @@ final class SupervisorKinesisSpecTests: XCTestCase {
 
     let testedType = ParallelIndexIngestionSpec.self
 
-    func testDecodingTelemetryDeckExample() throws {
+    @Test("Decoding TelemetryDeck example should match expected data source")
+    func decodingTelemetryDeckExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: tdValueString.data(using: .utf8)!)
-        XCTAssertEqual(decodedValue.dataSchema?.dataSource, "telemetry-signals")
+        #expect(decodedValue.dataSchema?.dataSource == "telemetry-signals")
     }
 }

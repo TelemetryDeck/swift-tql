@@ -1,9 +1,10 @@
 import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-class TopNResultTests: XCTestCase {
-    static let firstMonthDate: Date = Formatter.iso8601().date(from: "2021-12-01T00:00:00.000Z")!
-    static let secondMonthDate: Date = Formatter.iso8601().date(from: "2022-01-01T00:00:00.000Z")!
+struct TopNResultTests {
+    static let firstMonthDate: Date = Formatter.iso8601.date(from: "2021-12-01T00:00:00.000Z")!
+    static let secondMonthDate: Date = Formatter.iso8601.date(from: "2022-01-01T00:00:00.000Z")!
 
     let emptyResult = """
     [
@@ -116,53 +117,63 @@ class TopNResultTests: XCTestCase {
         dimensions: ["dim1": .init("another_dim1_val")]
     )
 
-    func testDecodingEmptyResult() throws {
+    @Test("Decoding empty TopN result")
+    func decodingEmptyResult() throws {
         let decodedRows = try JSONDecoder.telemetryDecoder.decode([TopNQueryResultRow].self, from: emptyResult.data(using: .utf8)!)
-        XCTAssertEqual(decodedRows, decodedEmptyExampleResult)
+        #expect(decodedRows == decodedEmptyExampleResult)
     }
 
-    func testEncodingEmptyResult() throws {
+    @Test("Encoding empty TopN result")
+    func encodingEmptyResult() throws {
         let encoded = try JSONEncoder.telemetryEncoder.encode(decodedEmptyExampleResult)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, emptyResult)
+        #expect(String(data: encoded, encoding: .utf8)! == emptyResult)
     }
 
-    func testDecoding() throws {
+    @Test("Decoding TopN query result")
+    func decoding() throws {
         let decodedRows = try JSONDecoder.telemetryDecoder.decode([TopNQueryResultRow].self, from: exampleResult.data(using: .utf8)!)
-        XCTAssertEqual(decodedRows, decodedExampleResult)
+        #expect(decodedRows == decodedExampleResult)
     }
 
-    func testEncoding() throws {
+    @Test("Encoding TopN query result")
+    func encoding() throws {
         let encoded = try JSONEncoder.telemetryEncoder.encode(decodedExampleResult)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, exampleResult)
+        #expect(String(data: encoded, encoding: .utf8)! == exampleResult)
     }
 
-    func testDecodingTopNQueryResultRowItemNullEntry() throws {
+    @Test("Decoding TopN query result row item with null entry")
+    func decodingTopNQueryResultRowItemNullEntry() throws {
         let decoded = try JSONDecoder.telemetryDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemNull.data(using: .utf8)!)
-        XCTAssertEqual(decoded, resultRowItemNullExample)
+        #expect(decoded == resultRowItemNullExample)
     }
 
-    func testDecodingTopNQueryResultRowItemOneEntry() throws {
+    @Test("Decoding TopN query result row item with one entry")
+    func decodingTopNQueryResultRowItemOneEntry() throws {
         let decoded = try JSONDecoder.telemetryDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemOneEntry.data(using: .utf8)!)
-        XCTAssertEqual(decoded, resultRowItemOneItemExample)
+        #expect(decoded == resultRowItemOneItemExample)
     }
 
-    func testDecodingTopNQueryResultRowItemManyEntries() throws {
+    @Test("Decoding TopN query result row item with many entries")
+    func decodingTopNQueryResultRowItemManyEntries() throws {
         let decoded = try JSONDecoder.telemetryDecoder.decode(AdaptableQueryResultItem.self, from: resultRowItemManyEntries.data(using: .utf8)!)
-        XCTAssertEqual(decoded, resultRowItemManyEntriesExample)
+        #expect(decoded == resultRowItemManyEntriesExample)
     }
 
-    func testEncodingTopNQueryResultRowItemNullEntry() throws {
+    @Test("Encoding TopN query result row item with null entry")
+    func encodingTopNQueryResultRowItemNullEntry() throws {
         let encoded = try JSONEncoder.telemetryEncoder.encode(resultRowItemNullExample)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, resultRowItemNull)
+        #expect(String(data: encoded, encoding: .utf8)! == resultRowItemNull)
     }
 
-    func testEncodingTopNQueryResultRowItemOneEntry() throws {
+    @Test("Encoding TopN query result row item with one entry")
+    func encodingTopNQueryResultRowItemOneEntry() throws {
         let encoded = try JSONEncoder.telemetryEncoder.encode(resultRowItemOneItemExample)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, resultRowItemOneEntry)
+        #expect(String(data: encoded, encoding: .utf8)! == resultRowItemOneEntry)
     }
 
-    func testEncodingTopNQueryResultRowItemManyEntries() throws {
+    @Test("Encoding TopN query result row item with many entries")
+    func encodingTopNQueryResultRowItemManyEntries() throws {
         let encoded = try JSONEncoder.telemetryEncoder.encode(resultRowItemManyEntriesExample)
-        XCTAssertEqual(String(data: encoded, encoding: .utf8)!, resultRowItemManyEntries)
+        #expect(String(data: encoded, encoding: .utf8)! == resultRowItemManyEntries)
     }
 }

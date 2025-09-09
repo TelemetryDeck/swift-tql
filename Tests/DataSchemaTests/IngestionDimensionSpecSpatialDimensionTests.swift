@@ -1,7 +1,8 @@
 @testable import SwiftTQL
-import XCTest
+import Testing
+import Foundation
 
-final class IngestionDimensionSpecSpatialDimensionTests: XCTestCase {
+struct IngestionDimensionSpecSpatialDimensionTests {
     let docsValueString = """
     {
       "dimName": "coordinates",
@@ -17,13 +18,15 @@ final class IngestionDimensionSpecSpatialDimensionTests: XCTestCase {
 
     let testedType = IngestionDimensionSpecSpatialDimension.self
 
-    func testDecodingDocsExample() throws {
+    @Test("Decoding docs example")
+    func decodingDocsExample() throws {
         let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: docsValueString.data(using: .utf8)!)
-        XCTAssertEqual(docsValue, decodedValue)
+        #expect(docsValue == decodedValue)
     }
 
-    func testEncodingDocsExample() throws {
+    @Test("Encoding docs example")
+    func encodingDocsExample() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(docsValue)
-        XCTAssertEqual(docsValueString, String(data: encodedValue, encoding: .utf8)!)
+        #expect(docsValueString == String(data: encodedValue, encoding: .utf8)!)
     }
 }
