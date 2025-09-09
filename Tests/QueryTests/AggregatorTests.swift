@@ -1,4 +1,4 @@
-@testable import DataTransferObjects
+@testable import SwiftTQL
 import XCTest
 
 final class AggregatorTests: XCTestCase {
@@ -251,7 +251,6 @@ final class AggregatorTests: XCTestCase {
 
         XCTAssertEqual(String(data: encodedAggregators, encoding: .utf8)!, expectedEncodedAggregators)
     }
-
 
     func testUserCountAggregator() throws {
         let stringRepresentation = """

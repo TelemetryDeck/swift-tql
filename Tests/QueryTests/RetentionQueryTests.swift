@@ -1,11 +1,4 @@
-//
-//  RetentionQueryTests.swift
-//
-//
-//  Created by Daniel Jilg on 25.11.22.
-//
-
-import DataTransferObjects
+import SwiftTQL
 import XCTest
 
 class RetentionQueryTests: XCTestCase {

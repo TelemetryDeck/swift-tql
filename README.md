@@ -1,3 +1,3 @@
-# DataTransferObjects
+# TelemetryDeck Query Language
 
-This repository contains Swift structs that are used both by the TelemetryDeck server and by the [TelemetryDeck Viewer App](https://github.com/TelemetryDeck/TelemetryViewer/). 
+Swift Implementation of the TelemetryDeck Query Language. Also includes a Swift Client for Apache Druid's API.

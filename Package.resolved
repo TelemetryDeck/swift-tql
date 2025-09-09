@@ -1,34 +1,32 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "swift-asn1",
-        "repositoryURL": "https://github.com/apple/swift-asn1.git",
-        "state": {
-          "branch": null,
-          "revision": "ae33e5941bb88d88538d0a6b19ca0b01e6c76dcf",
-          "version": "1.3.1"
-        }
-      },
-      {
-        "package": "swift-crypto",
-        "repositoryURL": "https://github.com/apple/swift-crypto.git",
-        "state": {
-          "branch": null,
-          "revision": "ff0f781cf7c6a22d52957e50b104f5768b50c779",
-          "version": "3.10.0"
-        }
-      },
-      {
-        "package": "DateOperations",
-        "repositoryURL": "https://github.com/TelemetryDeck/SwiftDateOperations.git",
-        "state": {
-          "branch": null,
-          "revision": "b7fb45d047c95eafa87b357e17b7555dc18719be",
-          "version": "1.0.5"
-        }
+  "pins" : [
+    {
+      "identity" : "swift-asn1",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-asn1.git",
+      "state" : {
+        "revision" : "ae33e5941bb88d88538d0a6b19ca0b01e6c76dcf",
+        "version" : "1.3.1"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "swift-crypto",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-crypto.git",
+      "state" : {
+        "revision" : "ff0f781cf7c6a22d52957e50b104f5768b50c779",
+        "version" : "3.10.0"
+      }
+    },
+    {
+      "identity" : "swiftdateoperations",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TelemetryDeck/SwiftDateOperations.git",
+      "state" : {
+        "revision" : "b7fb45d047c95eafa87b357e17b7555dc18719be",
+        "version" : "1.0.5"
+      }
+    }
+  ],
+  "version" : 2
 }

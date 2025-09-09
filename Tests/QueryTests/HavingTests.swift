@@ -1,11 +1,4 @@
-//
-//  HavingTests.swift
-//  DataTransferObjects
-//
-//  Created by Daniel Jilg on 09.01.25.
-//
-
-import DataTransferObjects
+import SwiftTQL
 import XCTest
 
 class HavingTests: XCTestCase {

@@ -1,11 +1,4 @@
-//
-//  TopNQueryTests.swift
-//
-//
-//  Created by Daniel Jilg on 03.01.22.
-//
-
-import DataTransferObjects
+import SwiftTQL
 import XCTest
 
 class TopNQueryTests: XCTestCase {
