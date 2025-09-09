@@ -1,11 +1,4 @@
-//
-//  FilterTests.swift
-//
-//
-//  Created by Daniel Jilg on 22.12.21.
-//
-
-import DataTransferObjects
+import SwiftTQL
 import XCTest
 
 class FilterTests: XCTestCase {

@@ -1,13 +1,6 @@
-//
-//  SQLQueryConversionTests.swift
-//
-//
-//  Created by Daniel Jilg on 21.12.22.
-//
-
 // swiftlint:disable line_length
 
-import DataTransferObjects
+import SwiftTQL
 import XCTest
 
 final class SQLQueryConversionTests: XCTestCase {

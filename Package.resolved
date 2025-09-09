@@ -1,13 +1,12 @@
 {
-  "originHash" : "d4b2d263e046baf7bb3ab0b81f6eedd85d4d027cf47962c255a7fff09651b51a",
   "pins" : [
     {
       "identity" : "swift-asn1",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-asn1.git",
       "state" : {
-        "revision" : "810496cf121e525d660cd0ea89a758740476b85f",
-        "version" : "1.5.1"
+        "revision" : "ae33e5941bb88d88538d0a6b19ca0b01e6c76dcf",
+        "version" : "1.3.1"
       }
     },
     {
@@ -15,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-crypto.git",
       "state" : {
-        "revision" : "95ba0316a9b733e92bb6b071255ff46263bbe7dc",
-        "version" : "3.15.1"
+        "revision" : "ff0f781cf7c6a22d52957e50b104f5768b50c779",
+        "version" : "3.10.0"
       }
     },
     {
@@ -24,10 +23,10 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/TelemetryDeck/SwiftDateOperations.git",
       "state" : {
-        "revision" : "ae414202ac985cf9bb78244ba365e82d1d9e7a4c",
-        "version" : "2.0.1"
+        "revision" : "b7fb45d047c95eafa87b357e17b7555dc18719be",
+        "version" : "1.0.5"
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

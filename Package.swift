@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "DataTransferObjects",
+    name: "SwiftTQL",
     platforms: [
         .macOS(.v13),
         .iOS(.v14),
@@ -12,8 +12,8 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
-            name: "DataTransferObjects",
-            targets: ["DataTransferObjects"]
+            name: "SwiftTQL",
+            targets: ["SwiftTQL"]
         ),
     ],
     dependencies: [
@@ -26,35 +26,31 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "DataTransferObjects",
+            name: "SwiftTQL",
             dependencies: [
                 .product(name: "DateOperations", package: "SwiftDateOperations"),
                 .product(name: "Crypto", package: "swift-crypto"),
             ]
         ),
         .testTarget(
-            name: "DataTransferObjectsTests",
-            dependencies: ["DataTransferObjects"]
-        ),
-        .testTarget(
             name: "QueryTests",
-            dependencies: ["DataTransferObjects"]
+            dependencies: ["SwiftTQL"]
         ),
         .testTarget(
             name: "QueryResultTests",
-            dependencies: ["DataTransferObjects"]
+            dependencies: ["SwiftTQL"]
         ),
         .testTarget(
             name: "QueryGenerationTests",
-            dependencies: ["DataTransferObjects"]
+            dependencies: ["SwiftTQL"]
         ),
         .testTarget(
             name: "SupervisorTests",
-            dependencies: ["DataTransferObjects"]
+            dependencies: ["SwiftTQL"]
         ),
         .testTarget(
             name: "DataSchemaTests",
-            dependencies: ["DataTransferObjects"]
+            dependencies: ["SwiftTQL"]
         ),
     ]
 )

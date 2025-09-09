@@ -4,110 +4,78 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SwiftDataTransferObjects is a Swift Package Manager library containing Data Transfer Objects (DTOs) used by the TelemetryDeck Server. The project started out as a way for various projects to share code, but now it is mainly used to develop Swift struct representations of Apache Druid data structures and query generation. Most other code is mostly unused. The main consumer of this library is a Swift Vapor server application that handles telemetry data processing and analytics.
+SwiftTQL is a Swift implementation of the TelemetryDeck Query Language that includes a Swift client for Apache Druid's API. The library provides comprehensive query building, data ingestion, and result handling capabilities for interacting with Apache Druid.
 
-## Development Commands
+## Build and Test Commands
 
-### Building and Testing
 ```bash
-# Build the project
+# Build the package
 swift build
 
 # Run all tests
 swift test
 
 # Run specific test target
-swift test --filter DataTransferObjectsTests
 swift test --filter QueryTests
 swift test --filter QueryResultTests
 swift test --filter QueryGenerationTests
 swift test --filter SupervisorTests
 swift test --filter DataSchemaTests
 
-# Build in release mode
-swift build -c release
-```
-
-### Package Management
-```bash
-# Clean build artifacts
-swift package clean
-
-# Update dependencies
-swift package update
-
-# Generate Xcode project (optional)
-swift package generate-xcodeproj
+# Run a specific test case
+swift test --filter CustomQueryTests.testRegexQueryDecoding
 ```
 
 ## Architecture Overview
 
-### Query System (`Query/`)
-- **CustomQuery**: Main query builder for Apache Druid integration
-  - Query types: `timeseries`, `groupBy`, `topN`, `scan`, `timeBoundary`, `funnel`, `experiment`, `retention`
-  - Handles filters, aggregations, post-aggregations, and time intervals
-- **Query Components**:
-  - `Aggregator`: Aggregation functions (sum, count, etc.)
-  - `Filter`: Query filtering logic
-  - `DimensionSpec`: Dimension specifications for grouping
-  - `QueryGranularity`: Time granularity (day, week, month)
-  - `VirtualColumn`: Computed columns
-  - `PostAggregator`: Post-aggregation calculations
-  - `Datasource`: Data source configuration
+### Core Components
 
-### Query Generation (`QueryGeneration/`)
-- **CustomQuery+Funnel**: Funnel analysis query generation
-- **CustomQuery+Experiment**: A/B experiment queries
-- **CustomQuery+Retention**: Retention analysis queries
-- **Precompilable**: Query precompilation protocol
-- **SQLQueryConversion**: SQL conversion utilities
+1. **Query System** (`Sources/SwiftTQL/Query/`)
+   - `CustomQuery` - Main query builder supporting multiple query types (groupBy, topN, scan, etc.)
+   - `Filter`, `Aggregator`, `PostAggregator` - Query building blocks
+   - `DimensionSpec`, `VirtualColumn` - Dimension and virtual column specifications
+   - Query compilation and optimization through `CustomQuery+CompileDown`
 
-### Query Results (`QueryResult/`)
-- **QueryResult**: Polymorphic enum for different result types
-- **TimeSeriesQueryResult**: Time-based query results
-- **TopNQueryResult**: Top-N dimension results
-- **GroupByQueryResult**: Grouped aggregation results
-- **ScanQueryResult**: Raw data scanning results
-- **TimeBoundaryResult**: Time boundary query results
-- Helper types: `StringWrapper`, `DoubleWrapper`, `DoublePlusInfinity`
+2. **Druid Integration** (`Sources/SwiftTQL/Druid/`)
+   - **Data Ingestion**: Specs for batch and streaming ingestion (Kinesis support)
+   - **Configuration**: Tuning configs, compaction configs, IO configs
+   - **Schema Management**: DataSchema, GranularitySpec, TransformSpec
+   - **Supervisor Support**: Supervisor configurations for streaming ingestion
 
-### Druid Configuration (`Druid/`)
-- `configuration/`: TuningConfig, AutoCompactionConfig
-- `data/input/`: Input formats and dimension specs
-- `indexer/`: Granularity specs
-- `indexing/`: Kinesis streaming, parallel batch indexing
-- `ingestion/`: Task specs, native batch, ingestion specs
-- `segment/`: Data schema and transform specs
+3. **Query Generation** (`Sources/SwiftTQL/QueryGeneration/`)
+   - Specialized query generators for analytics patterns:
+     - `CustomQuery+Experiment` - A/B testing queries
+     - `CustomQuery+Funnel` - Funnel analysis
+     - `CustomQuery+Retention` - Retention analysis
+   - SQL query conversion capabilities
 
-### Supervisor (`Supervisor/`)
-- Kafka/Kinesis streaming supervision DTOs
+4. **Result Processing** (`Sources/SwiftTQL/QueryResult/`)
+   - `QueryResult` - Generic result handling
+   - Type-safe result parsing for different query types
 
-### Chart Configuration (`Chart Configuration/`)
-- **ChartConfiguration**: Display settings for analytics charts
-- **ChartAggregationConfiguration**: Aggregation configuration
-- **ChartConfigurationOptions**: Chart options
+5. **Chart Configuration** (`Sources/SwiftTQL/Chart Configuration/`)
+   - Chart aggregation and configuration for visualization
 
-## Key Dependencies
+### Key Design Patterns
 
-- **SwiftDateOperations**: Date manipulation utilities
-- **Apple Swift Crypto**: Cryptographic hashing for query stability
+- **Codable Protocol**: All query and configuration types conform to Codable for JSON serialization
+- **Builder Pattern**: CustomQuery uses extensive initialization parameters for flexible query construction
+- **Type Safety**: Strong typing throughout with enums for query types, granularities, etc.
+- **Hashable/Equatable**: Most types support these protocols for testing and caching
 
-## Development Notes
+### Test Organization
 
-### Query Hashing
-CustomQuery implements stable hashing using SHA256 for caching and query deduplication. The `stableHashValue` property provides consistent query identification.
+Tests are organized by functional area with comprehensive coverage:
+- Each major component has its own test target
+- Tests use XCTest framework
+- JSON serialization/deserialization tests validate Druid API compatibility
 
-### Test Structure
-Tests are organized by functionality:
-- **DataTransferObjectsTests**: Basic DTO serialization/deserialization
-- **QueryTests**: Query building and validation
-- **QueryResultTests**: Result parsing and handling
-- **QueryGenerationTests**: Advanced query generation (funnels, experiments, retention)
-- **SupervisorTests**: Druid supervisor configuration
-- **DataSchemaTests**: Data ingestion schema validation
+## Dependencies
 
-### Encoding/Decoding
-The library uses custom JSON encoding/decoding with:
-- `JSONEncoder.telemetryEncoder`: Consistent date formatting
-- Custom wrappers (`StringWrapper`, `DoubleWrapper`) for flexible JSON parsing
-- `DoublePlusInfinity`: Handles infinity values in query results
+- **SwiftDateOperations** (1.0.5+): Date manipulation utilities
+- **swift-crypto** (3.8.0+): Cryptographic operations for hashing
+
+## Platform Requirements
+
+- macOS 11.0+
+- Swift 5.9+

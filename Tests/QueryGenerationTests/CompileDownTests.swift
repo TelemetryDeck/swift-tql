@@ -1,4 +1,4 @@
-import DataTransferObjects
+import SwiftTQL
 import XCTest
 
 final class CompileDownTests: XCTestCase {

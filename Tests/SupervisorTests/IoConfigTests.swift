@@ -1,4 +1,4 @@
-@testable import DataTransferObjects
+@testable import SwiftTQL
 import XCTest
 
 final class IoConfigTests: XCTestCase {

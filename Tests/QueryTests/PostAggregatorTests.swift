@@ -1,11 +1,4 @@
-//
-//  PostAggregatorTests.swift
-//
-//
-//  Created by Daniel Jilg on 22.09.22.
-//
-
-@testable import DataTransferObjects
+@testable import SwiftTQL
 import XCTest
 
 final class PostAggregatorTests: XCTestCase {
