@@ -17,8 +17,8 @@ public struct QueryTimeInterval: Codable, Hashable, Equatable, Comparable, Senda
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
-        let date1 = Formatter.iso8601.string(from: beginningDate)
-        let date2 = Formatter.iso8601.string(from: endDate)
+        let date1 = Formatter.iso8601().string(from: beginningDate)
+        let date2 = Formatter.iso8601().string(from: endDate)
 
         try container.encode(date1 + "/" + date2)
     }
@@ -31,8 +31,8 @@ public struct QueryTimeInterval: Codable, Hashable, Equatable, Comparable, Senda
 
         guard let beginningString = intervalArray.first,
               let endString = intervalArray.last,
-              let beginningDate = Formatter.iso8601.date(from: beginningString) ?? Formatter.iso8601noFS.date(from: beginningString) ?? Formatter.iso8601dateOnly.date(from: beginningString),
-              let endDate = Formatter.iso8601.date(from: endString) ?? Formatter.iso8601noFS.date(from: endString) ?? Formatter.iso8601dateOnly.date(from: endString)
+              let beginningDate = Formatter.iso8601().date(from: beginningString) ?? Formatter.iso8601noFS().date(from: beginningString) ?? Formatter.iso8601dateOnly().date(from: beginningString),
+              let endDate = Formatter.iso8601().date(from: endString) ?? Formatter.iso8601noFS().date(from: endString) ?? Formatter.iso8601dateOnly().date(from: endString)
         else {
             throw DecodingError.dataCorrupted(.init(
                 codingPath: [],

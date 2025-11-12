@@ -25,8 +25,8 @@ class TopNQueryTests: XCTestCase {
         }
     """
 
-    static let beginDate: Date = Formatter.iso8601.date(from: "2021-12-03T00:00:00.000Z")!
-    static let endDate: Date = Formatter.iso8601.date(from: "2022-01-31T22:59:59.999Z")!
+    static let beginDate: Date = Formatter.iso8601().date(from: "2021-12-03T00:00:00.000Z")!
+    static let endDate: Date = Formatter.iso8601().date(from: "2022-01-31T22:59:59.999Z")!
 
     let exampleTopNQuery = CustomQuery(
         queryType: .topN,

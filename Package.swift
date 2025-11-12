@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "DataTransferObjects",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v13),
         .iOS(.v14),
     ],
     products: [
@@ -19,7 +19,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-        .package(url: "https://github.com/TelemetryDeck/SwiftDateOperations.git", from: "1.0.5"),
+        .package(url: "https://github.com/TelemetryDeck/SwiftDateOperations.git", from: "2.0.0"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.8.0"),
     ],
     targets: [

@@ -26,8 +26,8 @@ class FilterTests: XCTestCase {
         """
         .filter { !$0.isWhitespace }
 
-        let beginDate: Date = Formatter.iso8601.date(from: "2014-10-01T00:00:00.000Z")!
-        let endDate: Date = Formatter.iso8601.date(from: "2014-10-07T00:00:00.000Z")!
+        let beginDate: Date = Formatter.iso8601().date(from: "2014-10-01T00:00:00.000Z")!
+        let endDate: Date = Formatter.iso8601().date(from: "2014-10-07T00:00:00.000Z")!
 
         let exampleFilterInterval = Filter.interval(FilterInterval(
             dimension: "__time",
