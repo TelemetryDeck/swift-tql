@@ -1,7 +1,7 @@
 @testable import DataTransferObjects
 import XCTest
 
-final class SupervisorSpecTests: XCTestCase {
+final class SupervisorKinesisSpecTests: XCTestCase {
     let tdValueString = """
     {
         "dataSchema": {

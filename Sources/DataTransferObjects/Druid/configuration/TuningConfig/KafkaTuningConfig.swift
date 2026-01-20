@@ -1,6 +1,6 @@
 /// https://druid.apache.org/docs/latest/ingestion/supervisor/#tuning-configuration
-/// https://druid.apache.org/docs/latest/ingestion/kinesis-ingestion#tuning-configuration
-public struct KinesisTuningConfig: Codable, Hashable, Equatable, Sendable {
+/// https://druid.apache.org/docs/latest/ingestion/kafka-ingestion#tuning-configuration
+public struct KafkaTuningConfig: Codable, Hashable, Equatable, Sendable {
     public init(
         skipSequenceNumberAvailabilityCheck: Bool? = nil,
         recordBufferSizeBytes: Int? = nil,
@@ -164,5 +164,3 @@ public struct KinesisTuningConfig: Codable, Hashable, Equatable, Sendable {
     /// Used by druid, but not documented
     public let appendableIndexSpec: AppendableIndexSpec?
 }
-
-

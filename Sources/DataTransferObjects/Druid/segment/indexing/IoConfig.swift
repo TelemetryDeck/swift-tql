@@ -1,6 +1,7 @@
 /// https://github.com/apache/druid/blob/master/server/src/main/java/org/apache/druid/segment/indexing/IOConfig.java
 public indirect enum IoConfig: Codable, Hashable, Equatable, Sendable {
     case kinesis(KinesisIndexTaskIOConfig)
+    case kafka(KafkaIndexTaskIOConfig)
     case indexParallel(ParallelIndexIOConfig)
 
     enum CodingKeys: String, CodingKey {
@@ -14,6 +15,8 @@ public indirect enum IoConfig: Codable, Hashable, Equatable, Sendable {
         switch type {
         case "kinesis":
             self = try .kinesis(KinesisIndexTaskIOConfig(from: decoder))
+        case "kafka":
+            self = try .kafka(KafkaIndexTaskIOConfig(from: decoder))
         case "index_parallel":
             self = try .indexParallel(ParallelIndexIOConfig(from: decoder))
 
@@ -28,6 +31,9 @@ public indirect enum IoConfig: Codable, Hashable, Equatable, Sendable {
         switch self {
         case let .kinesis(ioConfig):
             try container.encode("kinesis", forKey: .type)
+            try ioConfig.encode(to: encoder)
+        case let .kafka(ioConfig):
+            try container.encode("kafka", forKey: .type)
             try ioConfig.encode(to: encoder)
         case let .indexParallel(ioConfig):
             try container.encode("index_parallel", forKey: .type)
