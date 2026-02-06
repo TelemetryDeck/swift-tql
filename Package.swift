@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftTQL",
+    name: "swift-tql",
     platforms: [
         .macOS(.v13),
         .iOS(.v14),
