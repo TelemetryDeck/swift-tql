@@ -164,5 +164,3 @@ public struct KinesisTuningConfig: Codable, Hashable, Equatable, Sendable {
     /// Used by druid, but not documented
     public let appendableIndexSpec: AppendableIndexSpec?
 }
-
-

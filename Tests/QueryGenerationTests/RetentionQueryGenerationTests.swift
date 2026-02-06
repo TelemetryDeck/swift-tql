@@ -122,7 +122,7 @@ struct RetentionQueryGenerationTests {
             granularity: .month
         )
         #expect(throws: (any Error).self) { try monthQuery1.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
-        
+
         let monthQuery2 = CustomQuery(
             queryType: .retention,
             dataSource: "com.telemetrydeck.all",
@@ -130,7 +130,7 @@ struct RetentionQueryGenerationTests {
             granularity: .month
         )
         #expect(throws: (any Error).self) { try monthQuery2.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
-        
+
         let monthQuery3 = CustomQuery(
             queryType: .retention,
             dataSource: "com.telemetrydeck.all",
@@ -138,7 +138,7 @@ struct RetentionQueryGenerationTests {
             granularity: .month
         )
         #expect(throws: Never.self) { try monthQuery3.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
-        
+
         // Test daily retention
         let startDate = Date(iso8601String: "2022-08-01T00:00:00.000Z")!
         let sameDay = Date(iso8601String: "2022-08-01T12:00:00.000Z")!
@@ -151,7 +151,7 @@ struct RetentionQueryGenerationTests {
             granularity: .day
         )
         #expect(throws: (any Error).self) { try dayQuery1.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
-        
+
         let dayQuery2 = CustomQuery(
             queryType: .retention,
             dataSource: "com.telemetrydeck.all",
@@ -159,7 +159,7 @@ struct RetentionQueryGenerationTests {
             granularity: .day
         )
         #expect(throws: Never.self) { try dayQuery2.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
-        
+
         // Test weekly retention
         let weekStart = Date(iso8601String: "2022-08-01T00:00:00.000Z")!
         let weekMid = Date(iso8601String: "2022-08-05T00:00:00.000Z")!
@@ -172,7 +172,7 @@ struct RetentionQueryGenerationTests {
             granularity: .week
         )
         #expect(throws: (any Error).self) { try weekQuery1.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
-        
+
         let weekQuery2 = CustomQuery(
             queryType: .retention,
             dataSource: "com.telemetrydeck.all",
@@ -206,11 +206,11 @@ struct RetentionQueryGenerationTests {
         #expect(compiledQuery.granularity == .all)
         #expect(compiledQuery.aggregations != nil)
         #expect(compiledQuery.postAggregations != nil)
-        
+
         // The generated query should match the expected structure from tinyQuery
         // (though the exact aggregator names might differ due to date formatting)
     }
-    
+
     @Test("Retention query generation handles different granularities correctly")
     func retentionWithDifferentGranularities() throws {
         let appID = UUID(uuidString: "79167A27-EBBF-4012-9974-160624E5D07B")!
@@ -233,7 +233,7 @@ struct RetentionQueryGenerationTests {
         #expect(compiledDailyQuery.aggregations?.count == 7) // 7 days
         // Post-aggregations should be n*(n+1)/2 for n intervals
         #expect(compiledDailyQuery.postAggregations?.count == 28) // 7*8/2 = 28
-        
+
         // Test weekly retention - 4 weeks
         let weeklyQuery = CustomQuery(
             queryType: .retention,
@@ -251,7 +251,7 @@ struct RetentionQueryGenerationTests {
         let compiledWeeklyQuery = try weeklyQuery.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [appID], isSuperOrg: true)
         #expect(compiledWeeklyQuery.aggregations?.count == 5) // 5 weeks (spans into 5th week)
         #expect(compiledWeeklyQuery.postAggregations?.count == 15) // 5*6/2 = 15
-        
+
         // Test monthly retention - 3 months
         let monthlyQuery = CustomQuery(
             queryType: .retention,
