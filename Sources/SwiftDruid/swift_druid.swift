@@ -10,4 +10,5 @@ public struct Druid {
     public let client: Client
 
     public var supervisors: SupervisorRoutes { .init(druid: self) }
+    public var compaction: CompactionRoutes { .init(druid: self) }
 }
