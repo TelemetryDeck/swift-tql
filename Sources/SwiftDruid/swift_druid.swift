@@ -8,4 +8,6 @@ public struct Druid {
 
     public let baseURL: String
     public let client: Client
+
+    public var supervisors: SupervisorRoutes { .init(druid: self) }
 }
