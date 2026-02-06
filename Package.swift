@@ -15,12 +15,17 @@ let package = Package(
             name: "SwiftTQL",
             targets: ["SwiftTQL"]
         ),
+        .library(
+            name: "SwiftDruid",
+            targets: ["SwiftDruid"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(name: "SwiftDateOperations", path: "../SwiftDateOperations"), // local development
         .package(url: "https://github.com/TelemetryDeck/SwiftDateOperations.git", from: "2.0.1"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.8.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -30,6 +35,12 @@ let package = Package(
             dependencies: [
                 .product(name: "DateOperations", package: "SwiftDateOperations"),
                 .product(name: "Crypto", package: "swift-crypto"),
+            ]
+        ),
+        .target(
+            name: "SwiftDruid",
+            dependencies: [
+                .product(name: "Vapor", package: "vapor"),
             ]
         ),
         .testTarget(
