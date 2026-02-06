@@ -56,6 +56,12 @@ swift test --filter CustomQueryTests.testRegexQueryDecoding
 5. **Chart Configuration** (`Sources/SwiftTQL/Chart Configuration/`)
    - Chart aggregation and configuration for visualization
 
+6. **SwiftDruid** (`Sources/SwiftDruid/`) - Vapor-based HTTP client for Apache Druid's REST API
+   - `Druid` - Main client struct, initialized with a base URL and Vapor `Client`
+   - Route-based API organized by Druid namespace (e.g., `indexer/v1/`)
+   - `SupervisorRoutes` - List and terminate Druid supervisors
+   - Separate library target from SwiftTQL with no shared dependency — SwiftTQL handles query/model building, SwiftDruid handles HTTP communication
+
 ### Key Design Patterns
 
 - **Codable Protocol**: All query and configuration types conform to Codable for JSON serialization
@@ -74,6 +80,7 @@ Tests are organized by functional area with comprehensive coverage:
 
 - **SwiftDateOperations** (1.0.5+): Date manipulation utilities
 - **swift-crypto** (3.8.0+): Cryptographic operations for hashing
+- **Vapor** (4.89.0+): HTTP client used by SwiftDruid target only
 
 ## Platform Requirements
 

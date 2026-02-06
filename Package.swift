@@ -41,6 +41,7 @@ let package = Package(
             name: "SwiftDruid",
             dependencies: [
                 .product(name: "Vapor", package: "vapor"),
+                .product(name: "Vapor", package: "vapor"),
             ]
         ),
         .testTarget(
