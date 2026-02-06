@@ -3,8 +3,8 @@ import Testing
 import Foundation
 
 struct TopNResultTests {
-    static let firstMonthDate: Date = Formatter.iso8601.date(from: "2021-12-01T00:00:00.000Z")!
-    static let secondMonthDate: Date = Formatter.iso8601.date(from: "2022-01-01T00:00:00.000Z")!
+    static let firstMonthDate: Date = Formatter.iso8601().date(from: "2021-12-01T00:00:00.000Z")!
+    static let secondMonthDate: Date = Formatter.iso8601().date(from: "2022-01-01T00:00:00.000Z")!
 
     let emptyResult = """
     [

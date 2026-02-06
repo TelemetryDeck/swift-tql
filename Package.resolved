@@ -1,4 +1,5 @@
 {
+  "originHash" : "0018be5378cf3a85e020b7ff48f716e97700daf8b73b486b21c948a883980538",
   "pins" : [
     {
       "identity" : "swift-asn1",
@@ -23,10 +24,10 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/TelemetryDeck/SwiftDateOperations.git",
       "state" : {
-        "revision" : "b7fb45d047c95eafa87b357e17b7555dc18719be",
-        "version" : "1.0.5"
+        "revision" : "ae414202ac985cf9bb78244ba365e82d1d9e7a4c",
+        "version" : "2.0.1"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

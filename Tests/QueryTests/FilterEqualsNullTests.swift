@@ -1,4 +1,4 @@
-import DataTransferObjects
+import SwiftTQL
 import XCTest
 
 class FilterEqualsNullTests: XCTestCase {
