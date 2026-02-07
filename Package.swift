@@ -40,7 +40,7 @@ let package = Package(
         .target(
             name: "SwiftDruid",
             dependencies: [
-                .product(name: "Vapor", package: "vapor"),
+                "SwiftTQL",
                 .product(name: "Vapor", package: "vapor"),
             ]
         ),
