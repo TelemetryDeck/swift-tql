@@ -109,6 +109,50 @@ public enum StringWrapper: Codable, Hashable, Equatable, Sendable {
     }
 }
 
+// Wrapper that can resolve eiter as A DoubleWrapper or a StringWrapper
+public enum ValueWrapper: Codable, Hashable, Equatable, Sendable {
+    case double(DoubleWrapper)
+    case string(StringWrapper)
+    case null
+
+    public init(_ double: Double) {
+        self = .double(.init(double))
+    }
+
+    public init(_ string: String) {
+        self = .string(.init(string))
+    }
+
+    public init() {
+        self = .null
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+
+        if let doubleWrapper = try? container.decode(DoubleWrapper.self) {
+            self = .double(doubleWrapper)
+        } else if let stringValue = try? container.decode(StringWrapper.self) {
+            self = .string(stringValue)
+        } else {
+            self = .null
+        }
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+
+        switch self {
+        case let .double(double):
+            try container.encode(double)
+        case let .string(string):
+            try container.encode(string)
+        case .null:
+            try container.encodeNil()
+        }
+    }
+}
+
 /// Wrapper that can resolve either into a Double or an Array of Doubles
 public enum DoubleWrapper: Codable, Hashable, Equatable, Sendable {
     case single(DoublePlusInfinity)
