@@ -223,6 +223,14 @@ public struct DoublePlusInfinity: Codable, Hashable, Equatable, Sendable {
                     ))
                 }
 
+                guard "\(parsedDoubleValue)".count == stringValue.count else {
+                    throw DecodingError.dataCorrupted(.init(
+                        codingPath: [],
+                        debugDescription: "Could not parse value as Double",
+                        underlyingError: nil
+                    ))
+                }
+
                 value = parsedDoubleValue
             }
 
