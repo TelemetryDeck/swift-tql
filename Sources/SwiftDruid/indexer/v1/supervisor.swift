@@ -88,8 +88,6 @@ public struct SupervisorRoutes {
             guard response.status == .ok else {
                 throw Abort(.internalServerError, reason: "Failed to get active supervisors")
             }
-
-            return try response.content.decode([String].self)
         }
     }
 

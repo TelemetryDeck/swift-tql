@@ -21,5 +21,6 @@ public struct Druid {
 
     public var sql: SQLRoutes { .init(druid: self) }
     public var supervisors: SupervisorRoutes { .init(druid: self) }
+    public var dataSources: DataSourcesRoutes { .init(druid: self) }
     public var compaction: CompactionRoutes { .init(druid: self) }
 }
