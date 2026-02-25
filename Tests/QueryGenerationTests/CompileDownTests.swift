@@ -282,6 +282,56 @@ struct CompileDownTests {
         #expect(compiledQuery.dataSource?.name == "com.telemetrydeck.test")
     }
 
+    @Test("Precompile converts simple granularity to period when context has timezone") func granularityPrecompileWithTimezone() throws {
+        let intervals: [QueryTimeInterval] = [
+            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
+        ]
+
+        var context = QueryContext()
+        context.timezone = "America/Los_Angeles"
+
+        var query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: .day)
+        query.context = context
+
+        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+
+        guard case let .period(periodGranularity) = precompiledQuery.granularity else {
+            Issue.record("Expected period granularity, got \(String(describing: precompiledQuery.granularity))")
+            return
+        }
+
+        #expect(periodGranularity.period == "P1D")
+        #expect(periodGranularity.timeZone == "America/Los_Angeles")
+    }
+
+    @Test("Precompile leaves granularity unchanged when no timezone in context") func granularityPrecompileWithoutTimezone() throws {
+        let intervals: [QueryTimeInterval] = [
+            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
+        ]
+
+        let query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: .day)
+        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+
+        #expect(precompiledQuery.granularity == .day)
+    }
+
+    @Test("Precompile leaves duration granularity unchanged even with timezone") func granularityPrecompileDurationWithTimezone() throws {
+        let intervals: [QueryTimeInterval] = [
+            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
+        ]
+
+        let durationGranularity = QueryGranularity.duration(DurationGranularity(duration: 3600000))
+        var context = QueryContext()
+        context.timezone = "Europe/Berlin"
+
+        var query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: durationGranularity)
+        query.context = context
+
+        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+
+        #expect(precompiledQuery.granularity == durationGranularity)
+    }
+
     @Test("Allows hourly granularity for timeseries") func allowsHourlyGranularityForTimeseries() throws {
         let intervals: [QueryTimeInterval] = [
             .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),

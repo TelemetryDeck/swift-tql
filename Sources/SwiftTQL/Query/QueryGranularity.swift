@@ -176,7 +176,8 @@ public enum QueryGranularity: Codable, Hashable, Sendable {
     public init(from decoder: Decoder) throws {
         // Try bare string first (simple granularity)
         if let singleValueContainer = try? decoder.singleValueContainer(),
-           let rawValue = try? singleValueContainer.decode(String.self) {
+           let rawValue = try? singleValueContainer.decode(String.self)
+        {
             // Check if it matches a known simple granularity (case-insensitive)
             for simpleCase in SimpleGranularity.allCases where rawValue.lowercased() == simpleCase.rawValue {
                 self = .simple(simpleCase)
@@ -226,6 +227,34 @@ public enum QueryGranularity: Codable, Hashable, Sendable {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode("period", forKey: .type)
             try periodGranularity.encode(to: encoder)
+        }
+    }
+
+    // MARK: - Compilation
+
+    public func precompile(withTimezone: String?) -> QueryGranularity {
+        guard let timeZone = withTimezone else { return self }
+
+        let simpleToDuration: [SimpleGranularity: String] = [
+            .second: "PT1S",
+            .minute: "PT1M",
+            .fifteen_minute: "PT15M",
+            .thirty_minute: "PT30M",
+            .hour: "PT1H",
+            .day: "P1D",
+            .week: "P1W",
+            .month: "P1M",
+            .year: "P1Y"
+        ]
+
+        switch self {
+        case let .simple(simpleGranularity):
+            guard let period = simpleToDuration[simpleGranularity] else { return self }
+            return QueryGranularity.period(.init(period: period, timeZone: timeZone))
+        case .duration:
+            return self
+        case let .period(periodGranularity):
+            return QueryGranularity.period(.init(period: periodGranularity.period, timeZone: timeZone, origin: periodGranularity.origin))
         }
     }
 }

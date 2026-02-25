@@ -40,6 +40,9 @@ public extension CustomQuery {
             query.relativeIntervals = [.init(beginningDate: .init(.beginning, of: .day, adding: -30), endDate: .init(.end, of: .day, adding: 0))]
         }
 
+        // Check if query granularity needs a time zone
+        query.granularity = query.granularity?.precompile(withTimezone: query.context?.timezone)
+
         // Custom Query Types
         if query.queryType == .funnel {
             // If a namespace is set, increase the accuracy of the funnel query (i.e. the size of the theta sketch).
