@@ -57,27 +57,27 @@ extension CustomQuery {
         let calendar = Calendar.current
 
         switch granularity {
-        case .day:
+        case .simple(.day):
             let components = calendar.dateComponents([.day], from: beginDate, to: endDate)
             if (components.day ?? 0) < 1 {
                 throw QueryGenerationError.notImplemented(reason: "Daily retention queries require at least one day between begin and end dates")
             }
-        case .week:
+        case .simple(.week):
             let components = calendar.dateComponents([.weekOfYear], from: beginDate, to: endDate)
             if (components.weekOfYear ?? 0) < 1 {
                 throw QueryGenerationError.notImplemented(reason: "Weekly retention queries require at least one week between begin and end dates")
             }
-        case .month:
+        case .simple(.month):
             let components = calendar.dateComponents([.month], from: beginDate, to: endDate)
             if (components.month ?? 0) < 1 {
                 throw QueryGenerationError.notImplemented(reason: "Monthly retention queries require at least one month between begin and end dates")
             }
-        case .quarter:
+        case .simple(.quarter):
             let components = calendar.dateComponents([.quarter], from: beginDate, to: endDate)
             if (components.quarter ?? 0) < 1 {
                 throw QueryGenerationError.notImplemented(reason: "Quarterly retention queries require at least one quarter between begin and end dates")
             }
-        case .year:
+        case .simple(.year):
             let components = calendar.dateComponents([.year], from: beginDate, to: endDate)
             if (components.year ?? 0) < 1 {
                 throw QueryGenerationError.notImplemented(reason: "Yearly retention queries require at least one year between begin and end dates")
@@ -92,7 +92,7 @@ extension CustomQuery {
         var intervals = [DateInterval]()
 
         switch granularity {
-        case .day:
+        case .simple(.day):
             let numberOfDays = numberOfUnitsBetween(beginDate: fromDate, endDate: toDate, component: .day)
             for day in 0...numberOfDays {
                 guard let date = calendar.date(byAdding: .day, value: day, to: fromDate) else { continue }
@@ -101,7 +101,7 @@ extension CustomQuery {
                 intervals.append(DateInterval(start: startOfDay, end: endOfDay))
             }
 
-        case .week:
+        case .simple(.week):
             let numberOfWeeks = numberOfUnitsBetween(beginDate: fromDate, endDate: toDate, component: .weekOfYear)
             for week in 0...numberOfWeeks {
                 guard let date = calendar.date(byAdding: .weekOfYear, value: week, to: fromDate) else { continue }
@@ -110,7 +110,7 @@ extension CustomQuery {
                 intervals.append(DateInterval(start: startOfWeek, end: endOfWeek))
             }
 
-        case .month:
+        case .simple(.month):
             let numberOfMonths = numberOfUnitsBetween(beginDate: fromDate, endDate: toDate, component: .month)
             for month in 0...numberOfMonths {
                 guard let date = calendar.date(byAdding: .month, value: month, to: fromDate) else { continue }
@@ -119,7 +119,7 @@ extension CustomQuery {
                 intervals.append(DateInterval(start: startOfMonth, end: endOfMonth))
             }
 
-        case .quarter:
+        case .simple(.quarter):
             let numberOfQuarters = numberOfUnitsBetween(beginDate: fromDate, endDate: toDate, component: .quarter)
             for quarter in 0...numberOfQuarters {
                 guard let date = calendar.date(byAdding: .quarter, value: quarter, to: fromDate) else { continue }
@@ -128,7 +128,7 @@ extension CustomQuery {
                 intervals.append(DateInterval(start: startOfQuarter, end: endOfQuarter))
             }
 
-        case .year:
+        case .simple(.year):
             let numberOfYears = numberOfUnitsBetween(beginDate: fromDate, endDate: toDate, component: .year)
             for year in 0...numberOfYears {
                 guard let date = calendar.date(byAdding: .year, value: year, to: fromDate) else { continue }
