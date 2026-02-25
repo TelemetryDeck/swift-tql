@@ -1,4 +1,5 @@
 .DS_Store
+.worktrees/
 
 # avoid sharing ContextKit artifacts & Claude Code settings
 .claude/
