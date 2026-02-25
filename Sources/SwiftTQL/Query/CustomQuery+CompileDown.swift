@@ -108,8 +108,9 @@ public extension CustomQuery {
         var query = self
 
         // Compile relative Time intervals
+        let timeZone = query.context?.timezone
         if let relativeIntervals = query.relativeIntervals {
-            query.intervals = relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0) }
+            query.intervals = relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: timeZone) }
         }
 
         guard query.intervals != nil, !query.intervals!.isEmpty else {
@@ -118,12 +119,12 @@ public extension CustomQuery {
 
         // Compile relative intervals in Relative Interval filters
         if let filter = query.filter {
-            query.filter = compileRelativeFilterInterval(filter: filter)
+            query.filter = compileRelativeFilterInterval(filter: filter, timeZone: timeZone)
         }
 
         // Comppile relative intervals in Aggregators
         if let aggregations = query.aggregations {
-            query.aggregations = aggregations.map { agg in compileRelativeIntervalFilterInAggregations(agg: agg) }
+            query.aggregations = aggregations.map { agg in compileRelativeIntervalFilterInAggregations(agg: agg, timeZone: timeZone) }
         }
 
         // Add restrictionsFilter
@@ -140,7 +141,7 @@ public extension CustomQuery {
         return query
     }
 
-    private func compileRelativeFilterInterval(filter: Filter) -> Filter {
+    private func compileRelativeFilterInterval(filter: Filter, timeZone: String?) -> Filter {
         switch filter {
         case .selector:
             return filter
@@ -151,7 +152,7 @@ public extension CustomQuery {
                 return Filter.interval(
                     .init(
                         dimension: filterInterval.dimension,
-                        intervals: relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0) }
+                        intervals: relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: timeZone) }
                     )
                 )
             } else {
@@ -168,21 +169,21 @@ public extension CustomQuery {
         case .in:
             return filter
         case .and(let filterExpression):
-            return Filter.and(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0) }))
+            return Filter.and(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0, timeZone: timeZone) }))
         case .or(let filterExpression):
-            return Filter.or(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0) }))
+            return Filter.or(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0, timeZone: timeZone) }))
         case .not(let filterNot):
-            return Filter.not(.init(field: compileRelativeFilterInterval(filter: filterNot.field)))
+            return Filter.not(.init(field: compileRelativeFilterInterval(filter: filterNot.field, timeZone: timeZone)))
         }
     }
 
-    private func compileRelativeIntervalFilterInAggregations(agg: Aggregator) -> Aggregator {
+    private func compileRelativeIntervalFilterInAggregations(agg: Aggregator, timeZone: String?) -> Aggregator {
         switch agg {
         case .filtered(let filteredAggregator):
             return Aggregator.filtered(
                 .init(
-                    filter: compileRelativeFilterInterval(filter: filteredAggregator.filter),
-                    aggregator: compileRelativeIntervalFilterInAggregations(agg: filteredAggregator.aggregator)
+                    filter: compileRelativeFilterInterval(filter: filteredAggregator.filter, timeZone: timeZone),
+                    aggregator: compileRelativeIntervalFilterInAggregations(agg: filteredAggregator.aggregator, timeZone: timeZone)
                 )
             )
         default:
@@ -226,7 +227,8 @@ extension CustomQuery {
                 minTopNThreshold: query.context?.minTopNThreshold,
                 grandTotal: query.context?.grandTotal,
                 skipEmptyBuckets: false,
-                cacheValidityDuration: query.context?.cacheValidityDuration
+                cacheValidityDuration: query.context?.cacheValidityDuration,
+                timezone: query.context?.timezone
             )
 
             var allowedDataSourceNames = [

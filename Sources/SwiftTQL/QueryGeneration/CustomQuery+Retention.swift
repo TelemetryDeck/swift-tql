@@ -6,7 +6,7 @@ extension CustomQuery {
         var query = self
 
         // Get the query intervals - we need at least one interval
-        guard let queryIntervals = intervals ?? relativeIntervals?.map({ QueryTimeInterval.from(relativeTimeInterval: $0) }),
+        guard let queryIntervals = intervals ?? relativeIntervals?.map({ QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: context?.timezone) }),
               let firstInterval = queryIntervals.first else {
             throw QueryGenerationError.keyMissing(reason: "Missing intervals for retention query")
         }
