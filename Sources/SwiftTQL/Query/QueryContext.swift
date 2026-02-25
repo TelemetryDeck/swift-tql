@@ -26,6 +26,11 @@ public struct QueryContext: Codable, Hashable, Sendable {
     /// The query server may choose to ignore this value.
     public var cacheValidityDuration: Int?
 
+    /// What timezone should be used to bucket items with the given granularity?
+    ///
+    /// IF this value is set, all simple granularities will be replaced by period granularities with this specified time zone at query precompile time.
+    public var timezone: String?
+
     public init(
         timeout: String? = nil,
         priority: Int? = nil,

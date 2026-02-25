@@ -204,6 +204,104 @@ final class QueryGranularityTests: XCTestCase {
         XCTAssertThrowsError(try decoder.decode(QueryGranularity.self, from: json))
     }
 
+    // MARK: - Precompile with Timezone
+
+    func testPrecompileWithNoTimezoneReturnsUnchanged() {
+        let cases: [QueryGranularity] = [
+            .day,
+            .duration(DurationGranularity(duration: 3600000)),
+            .period(PeriodGranularity(period: "P1D", timeZone: "UTC")),
+        ]
+
+        for granularity in cases {
+            let result = granularity.precompile(withTimezone: nil)
+            XCTAssertEqual(result, granularity, "Expected no change for \(granularity) when timezone is nil")
+        }
+    }
+
+    func testPrecompileDurationReturnsUnchangedEvenWithTimezone() {
+        let granularity = QueryGranularity.duration(DurationGranularity(duration: 3600000))
+        let result = granularity.precompile(withTimezone: "America/Los_Angeles")
+        XCTAssertEqual(result, granularity)
+    }
+
+    func testPrecompilePeriodReplacesTimezone() {
+        let original = PeriodGranularity(period: "P1D", timeZone: "UTC")
+        let granularity = QueryGranularity.period(original)
+        let result = granularity.precompile(withTimezone: "America/Los_Angeles")
+
+        guard case let .period(periodGranularity) = result else {
+            XCTFail("Expected period granularity")
+            return
+        }
+
+        XCTAssertEqual(periodGranularity.period, "P1D")
+        XCTAssertEqual(periodGranularity.timeZone, "America/Los_Angeles")
+        XCTAssertNil(periodGranularity.origin)
+    }
+
+    func testPrecompilePeriodPreservesOrigin() throws {
+        let json = Data("""
+        {"type":"period","period":"PT6H","timeZone":"UTC","origin":"2012-01-01T00:30:00Z"}
+        """.utf8)
+        let granularity = try decoder.decode(QueryGranularity.self, from: json)
+        let result = granularity.precompile(withTimezone: "Europe/Berlin")
+
+        guard case let .period(periodGranularity) = result else {
+            XCTFail("Expected period granularity")
+            return
+        }
+
+        XCTAssertEqual(periodGranularity.period, "PT6H")
+        XCTAssertEqual(periodGranularity.timeZone, "Europe/Berlin")
+        XCTAssertNotNil(periodGranularity.origin)
+    }
+
+    func testPrecompileSimpleConvertsToPeriodWithTimezone() {
+        let testCases: [(SimpleGranularity, String)] = [
+            (.second, "PT1S"),
+            (.minute, "PT1M"),
+            (.fifteen_minute, "PT15M"),
+            (.thirty_minute, "PT30M"),
+            (.hour, "PT1H"),
+            (.day, "P1D"),
+            (.week, "P1W"),
+            (.month, "P1M"),
+            (.year, "P1Y"),
+        ]
+
+        for (simple, expectedPeriod) in testCases {
+            let granularity = QueryGranularity.simple(simple)
+            let result = granularity.precompile(withTimezone: "Europe/Berlin")
+
+            guard case let .period(periodGranularity) = result else {
+                XCTFail("Expected period granularity for \(simple)")
+                continue
+            }
+
+            XCTAssertEqual(periodGranularity.period, expectedPeriod, "Wrong period for \(simple)")
+            XCTAssertEqual(periodGranularity.timeZone, "Europe/Berlin", "Wrong timezone for \(simple)")
+        }
+    }
+
+    func testPrecompileSimpleAllAndNoneUnchangedWithTimezone() {
+        // .all and .none have no period equivalent, so they should be returned as-is
+        for simple in [SimpleGranularity.all, SimpleGranularity.none] {
+            let granularity = QueryGranularity.simple(simple)
+            let result = granularity.precompile(withTimezone: "America/New_York")
+            XCTAssertEqual(result, granularity, "Expected \(simple) to remain unchanged")
+        }
+    }
+
+    func testPrecompileSimpleQuarterUnchangedWithTimezone() {
+        // .quarter has no period equivalent in the mapping
+        let granularity = QueryGranularity.quarter
+        let result = granularity.precompile(withTimezone: "Asia/Tokyo")
+        XCTAssertEqual(result, granularity)
+    }
+
+    // MARK: - Error Cases
+
     func testUnknownTypeThrows() {
         let json = Data("""
         {"type":"custom"}
