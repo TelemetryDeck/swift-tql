@@ -38,7 +38,8 @@ public struct QueryContext: Codable, Hashable, Sendable {
         minTopNThreshold: Int? = nil,
         grandTotal: Bool? = nil,
         skipEmptyBuckets: Bool? = nil,
-        cacheValidityDuration: Int? = nil
+        cacheValidityDuration: Int? = nil,
+        timezone: String? = nil
     ) {
         self.timeout = timeout
         self.priority = priority
@@ -47,5 +48,6 @@ public struct QueryContext: Codable, Hashable, Sendable {
         self.grandTotal = grandTotal
         self.skipEmptyBuckets = skipEmptyBuckets
         self.cacheValidityDuration = cacheValidityDuration
+        self.timezone = timezone
     }
 }

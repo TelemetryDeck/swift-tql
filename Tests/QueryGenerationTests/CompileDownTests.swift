@@ -373,4 +373,20 @@ struct CompileDownTests {
 
         #expect(throws: (any Error).self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
     }
+
+    @Test("Timezone is preserved through precompile and compile") func timezonePreservedThroughCompile() throws {
+        var context = QueryContext()
+        context.timezone = "America/New_York"
+
+        var query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .day)
+        query.context = context
+
+        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        #expect(precompiledQuery.context?.timezone == "America/New_York")
+
+        let compiledQuery = try precompiledQuery.compileToRunnableQuery()
+        #expect(compiledQuery.context?.timezone == "America/New_York")
+        #expect(compiledQuery.intervals != nil)
+        #expect(!compiledQuery.intervals!.isEmpty)
+    }
 }

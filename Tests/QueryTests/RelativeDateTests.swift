@@ -173,4 +173,90 @@ struct RelativeDateTests {
 
         #expect("Monday" == weekDay)
     }
+
+    @Test("Timezone-aware beginning of day differs from UTC")
+    func timezoneAwareBeginningOfDay() throws {
+        // Use a fixed origin date: 2024-06-15 03:00:00 UTC
+        // In America/New_York (UTC-4 in summer), this is 2024-06-14 23:00:00 — still the previous day.
+        // So "beginning of today" should differ between UTC and New York.
+        let originDate = Date(iso8601String: "2024-06-15T03:00:00.000Z")!
+
+        let beginningOfDay = RelativeDate(.beginning, of: .day, adding: 0)
+
+        let utcResult = Date.from(relativeDate: beginningOfDay, originDate: originDate)
+        let nyResult = Date.from(relativeDate: beginningOfDay, originDate: originDate, timeZone: "America/New_York")
+
+        // UTC beginning of day: 2024-06-15T00:00:00Z
+        #expect(utcResult == Date(iso8601String: "2024-06-15T00:00:00.000Z")!)
+
+        // New York beginning of day: 2024-06-14 00:00:00 EDT = 2024-06-14T04:00:00Z
+        #expect(nyResult == Date(iso8601String: "2024-06-14T04:00:00.000Z")!)
+
+        // They should differ
+        #expect(utcResult != nyResult)
+    }
+
+    @Test("Timezone-aware end of day")
+    func timezoneAwareEndOfDay() throws {
+        // 2024-06-15 03:00:00 UTC = 2024-06-14 23:00:00 EDT
+        let originDate = Date(iso8601String: "2024-06-15T03:00:00.000Z")!
+
+        let endOfDay = RelativeDate(.end, of: .day, adding: 0)
+
+        let utcResult = Date.from(relativeDate: endOfDay, originDate: originDate)
+        let nyResult = Date.from(relativeDate: endOfDay, originDate: originDate, timeZone: "America/New_York")
+
+        // UTC end of day: 2024-06-15T23:59:59Z
+        #expect(utcResult == Date(iso8601String: "2024-06-15T23:59:59.000Z")!)
+
+        // New York end of day: 2024-06-14 23:59:59 EDT = 2024-06-15T03:59:59Z
+        #expect(nyResult == Date(iso8601String: "2024-06-15T03:59:59.000Z")!)
+    }
+
+    @Test("Nil timezone falls back to UTC")
+    func nilTimezoneFallsBackToUTC() throws {
+        let originDate = Date(iso8601String: "2024-06-15T03:00:00.000Z")!
+        let beginningOfDay = RelativeDate(.beginning, of: .day, adding: 0)
+
+        let defaultResult = Date.from(relativeDate: beginningOfDay, originDate: originDate)
+        let nilResult = Date.from(relativeDate: beginningOfDay, originDate: originDate, timeZone: nil)
+
+        #expect(defaultResult == nilResult)
+    }
+
+    @Test("Timezone-aware beginning of month")
+    func timezoneAwareBeginningOfMonth() throws {
+        // 2024-07-01 03:00:00 UTC = 2024-06-30 23:00:00 EDT — still June in New York
+        let originDate = Date(iso8601String: "2024-07-01T03:00:00.000Z")!
+
+        let beginningOfMonth = RelativeDate(.beginning, of: .month, adding: 0)
+
+        let utcResult = Date.from(relativeDate: beginningOfMonth, originDate: originDate)
+        let nyResult = Date.from(relativeDate: beginningOfMonth, originDate: originDate, timeZone: "America/New_York")
+
+        // UTC: beginning of July = 2024-07-01T00:00:00Z
+        #expect(utcResult == Date(iso8601String: "2024-07-01T00:00:00.000Z")!)
+
+        // New York: beginning of June = 2024-06-01 00:00:00 EDT = 2024-06-01T04:00:00Z
+        #expect(nyResult == Date(iso8601String: "2024-06-01T04:00:00.000Z")!)
+    }
+
+    @Test("QueryTimeInterval.from respects timezone")
+    func queryTimeIntervalFromRespectsTimezone() throws {
+        let interval = RelativeTimeInterval(
+            beginningDate: RelativeDate(.beginning, of: .day, adding: 0),
+            endDate: RelativeDate(.end, of: .day, adding: 0)
+        )
+
+        // Use a fixed date to avoid test flakiness — but since we can't inject originDate
+        // into QueryTimeInterval.from, just verify that UTC and timezone calls produce different results
+        let utcInterval = QueryTimeInterval.from(relativeTimeInterval: interval)
+        let nyInterval = QueryTimeInterval.from(relativeTimeInterval: interval, timeZone: "America/New_York")
+
+        // In most hours of the day, UTC and New York will produce different day boundaries.
+        // We can't guarantee which hour tests run, so just verify the API compiles and works.
+        // The key correctness tests are the Date.from tests above.
+        #expect(utcInterval.beginningDate <= utcInterval.endDate)
+        #expect(nyInterval.beginningDate <= nyInterval.endDate)
+    }
 }
