@@ -23,4 +23,5 @@ public struct Druid {
     public var supervisors: SupervisorRoutes { .init(druid: self) }
     public var dataSources: DataSourcesRoutes { .init(druid: self) }
     public var compaction: CompactionRoutes { .init(druid: self) }
+    public var overlord: OverlordRoutes { .init(druid: self) }
 }
