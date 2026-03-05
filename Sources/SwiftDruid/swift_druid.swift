@@ -1,6 +1,6 @@
 import Vapor
 
-public struct DruidError: Codable, Equatable {
+public struct DruidError: Codable, Equatable, LocalizedError {
     let error: String?
     let errorClass: String?
     let host: String?
@@ -8,6 +8,22 @@ public struct DruidError: Codable, Equatable {
     let persona: String?
     let category: String?
     let errorMessage: String?
+
+    public var errorDescription: String? {
+        let parts: [(String, String?)] = [
+            ("Error", error),
+            ("Message", errorMessage),
+            ("Code", errorCode),
+            ("Class", errorClass),
+            ("Category", category),
+            ("Host", host),
+            ("Persona", persona),
+        ]
+        let description = parts
+            .compactMap { label, value in value.map { "\(label): \($0)" } }
+            .joined(separator: ", ")
+        return description.isEmpty ? "Unknown Druid error" : description
+    }
 }
 
 public struct Druid {

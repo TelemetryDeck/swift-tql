@@ -44,7 +44,7 @@ public struct SupervisorRoutes {
             let response = try await druid.client.get(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to list supervisors")
                 }
@@ -63,7 +63,7 @@ public struct SupervisorRoutes {
             if response.status == .notFound { return nil }
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to get supervisor \(supervisor)")
                 }
@@ -82,7 +82,7 @@ public struct SupervisorRoutes {
             if response.status == .notFound { return nil }
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to get supervisor status for \(supervisor)")
                 }
@@ -98,7 +98,7 @@ public struct SupervisorRoutes {
             let response = try await druid.client.post(uri, content: spec)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to create supervisor")
                 }
@@ -113,7 +113,7 @@ public struct SupervisorRoutes {
             let response = try await druid.client.post(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to suspend supervisor \(supervisor)")
                 }
@@ -128,7 +128,7 @@ public struct SupervisorRoutes {
             let response = try await druid.client.post(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to resume supervisor \(supervisor)")
                 }
@@ -143,7 +143,7 @@ public struct SupervisorRoutes {
             let response = try await druid.client.post(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to terminate supervisor \(supervisor)")
                 }

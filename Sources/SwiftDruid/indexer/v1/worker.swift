@@ -112,7 +112,7 @@ public struct OverlordRoutes {
             let response = try await druid.client.get(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to get overlord config")
                 }
@@ -147,7 +147,7 @@ public struct OverlordRoutes {
             let response = try await druid.client.post(uri, headers: headers, content: config)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to update overlord config")
                 }
@@ -177,7 +177,7 @@ public struct OverlordRoutes {
             let response = try await druid.client.get(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to get config history")
                 }

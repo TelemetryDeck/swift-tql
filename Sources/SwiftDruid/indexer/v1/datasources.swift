@@ -19,7 +19,7 @@ public struct DataSourcesRoutes {
             let response = try await druid.client.post(uri, content: ["interval": interval])
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.localizedDescription)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to run query")
                 }
