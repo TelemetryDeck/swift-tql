@@ -43,7 +43,11 @@ public struct SupervisorRoutes {
 
             let response = try await druid.client.get(uri)
             guard response.status == .ok else {
-                throw Abort(.internalServerError, reason: "Failed to get active supervisors")
+                if let error = try? response.content.decode(DruidError.self) {
+                    throw Abort(response.status, reason: error.errorMessage)
+                } else {
+                    throw Abort(.internalServerError, reason: "Failed to list supervisors")
+                }
             }
 
             return try response.content.decode([String].self)
@@ -58,7 +62,11 @@ public struct SupervisorRoutes {
 
             if response.status == .notFound { return nil }
             guard response.status == .ok else {
-                throw Abort(.internalServerError, reason: "Failed to get supervisor: \(supervisor)")
+                if let error = try? response.content.decode(DruidError.self) {
+                    throw Abort(response.status, reason: error.errorMessage)
+                } else {
+                    throw Abort(.internalServerError, reason: "Failed to get supervisor \(supervisor)")
+                }
             }
 
             return try response.content.decode(SupervisorReturnType.self)
@@ -73,9 +81,12 @@ public struct SupervisorRoutes {
 
             if response.status == .notFound { return nil }
             guard response.status == .ok else {
-                throw Abort(.internalServerError, reason: "Failed to get supervisor status: \(supervisor)")
+                if let error = try? response.content.decode(DruidError.self) {
+                    throw Abort(response.status, reason: error.errorMessage)
+                } else {
+                    throw Abort(.internalServerError, reason: "Failed to get supervisor status for \(supervisor)")
+                }
             }
-
             return try response.content.decode(SupervisorStatus.self)
         }
     }
@@ -86,7 +97,11 @@ public struct SupervisorRoutes {
 
             let response = try await druid.client.post(uri, content: spec)
             guard response.status == .ok else {
-                throw Abort(.internalServerError, reason: "Failed to get active supervisors")
+                if let error = try? response.content.decode(DruidError.self) {
+                    throw Abort(response.status, reason: error.errorMessage)
+                } else {
+                    throw Abort(.internalServerError, reason: "Failed to create supervisor")
+                }
             }
         }
     }
@@ -97,7 +112,11 @@ public struct SupervisorRoutes {
 
             let response = try await druid.client.post(uri)
             guard response.status == .ok else {
-                throw Abort(.internalServerError, reason: "Failed to suspend supervisor: \(supervisor)")
+                if let error = try? response.content.decode(DruidError.self) {
+                    throw Abort(response.status, reason: error.errorMessage)
+                } else {
+                    throw Abort(.internalServerError, reason: "Failed to suspend supervisor \(supervisor)")
+                }
             }
         }
     }
@@ -108,7 +127,11 @@ public struct SupervisorRoutes {
 
             let response = try await druid.client.post(uri)
             guard response.status == .ok else {
-                throw Abort(.internalServerError, reason: "Failed to resume supervisor: \(supervisor)")
+                if let error = try? response.content.decode(DruidError.self) {
+                    throw Abort(response.status, reason: error.errorMessage)
+                } else {
+                    throw Abort(.internalServerError, reason: "Failed to resume supervisor \(supervisor)")
+                }
             }
         }
     }
@@ -119,7 +142,11 @@ public struct SupervisorRoutes {
 
             let response = try await druid.client.post(uri)
             guard response.status == .ok else {
-                throw Abort(.internalServerError, reason: "Failed to terminate supervisor: \(supervisor)")
+                if let error = try? response.content.decode(DruidError.self) {
+                    throw Abort(response.status, reason: error.errorMessage)
+                } else {
+                    throw Abort(.internalServerError, reason: "Failed to terminate supervisor \(supervisor)")
+                }
             }
         }
     }

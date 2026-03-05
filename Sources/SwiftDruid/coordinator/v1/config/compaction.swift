@@ -22,7 +22,7 @@ public struct CompactionRoutes {
             let response = try await druid.client.get(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw try Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.errorMessage)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to get compaction config")
                 }
@@ -39,7 +39,7 @@ public struct CompactionRoutes {
             let response = try await druid.client.post(uri, content: compactionConfig)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw try Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.errorMessage)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to create compaction config")
                 }
@@ -55,7 +55,7 @@ public struct CompactionRoutes {
             if response.status == .notFound { return nil }
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw try Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.errorMessage)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to get compaction config")
                 }
@@ -72,7 +72,7 @@ public struct CompactionRoutes {
             let response = try await druid.client.delete(uri)
             guard response.status == .ok else {
                 if let error = try? response.content.decode(DruidError.self) {
-                    throw try Abort(response.status, reason: error.errorMessage)
+                    throw Abort(response.status, reason: error.errorMessage)
                 } else {
                     throw Abort(.internalServerError, reason: "Failed to delete compaction config")
                 }
