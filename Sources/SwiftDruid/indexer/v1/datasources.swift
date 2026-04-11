@@ -13,19 +13,21 @@ public struct DataSourcesRoutes {
     }
 
     public func markSegmentsAsUnused(datasource: String, interval: QueryTimeInterval) async throws -> SegmentChangeMetadata {
-        return try await withSpan("Druid.DataSources.markSegmentsAsUnused") { _ in
-            let uri = URI(string: "\(druid.baseURL)indexer/v1/datasources/\(datasource)/markUnused")
+        return try await druid.execute { baseURL in
+            try await withSpan("Druid.DataSources.markSegmentsAsUnused") { _ in
+                let uri = URI(string: "\(baseURL)indexer/v1/datasources/\(datasource)/markUnused")
 
-            let response = try await druid.client.post(uri, content: ["interval": interval])
-            guard response.status == .ok else {
-                if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.localizedDescription)
-                } else {
-                    throw Abort(.internalServerError, reason: "Failed to run query")
+                let response = try await druid.client.post(uri, content: ["interval": interval])
+                guard response.status == .ok else {
+                    if let error = try? response.content.decode(DruidError.self) {
+                        throw Abort(response.status, reason: error.localizedDescription)
+                    } else {
+                        throw Abort(.internalServerError, reason: "Failed to run query")
+                    }
                 }
-            }
 
-            return try response.content.decode(SegmentChangeMetadata.self)
+                return try response.content.decode(SegmentChangeMetadata.self)
+            }
         }
     }
 }

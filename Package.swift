@@ -64,5 +64,9 @@ let package = Package(
             name: "DataSchemaTests",
             dependencies: ["SwiftTQL"]
         ),
+        .testTarget(
+            name: "SwiftDruidTests",
+            dependencies: ["SwiftDruid"]
+        ),
     ]
 )
