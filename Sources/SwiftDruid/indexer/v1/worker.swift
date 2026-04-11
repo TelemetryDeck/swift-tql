@@ -78,11 +78,11 @@ public struct OverlordRoutes {
     }
 
     public struct CategoryConfig: Content {
-        public init(defaultCategory: String? = nil, categoryAffinity: [String : String]? = nil) {
+        public init(defaultCategory: String? = nil, categoryAffinity: [String: String]? = nil) {
             self.defaultCategory = defaultCategory
             self.categoryAffinity = categoryAffinity
         }
-        
+
         /// Specify default category for a task type.
         public var defaultCategory: String?
 
@@ -106,24 +106,26 @@ public struct OverlordRoutes {
 
     /// Get current Overlord dynamic configuration
     public func getConfig() async throws -> OverlordDynamicConfig? {
-        try await withSpan("Druid.Overlord.getConfig") { _ in
-            let uri = URI(string: "\(druid.baseURL)indexer/v1/worker")
+        try await druid.execute { baseURL in
+            try await withSpan("Druid.Overlord.getConfig") { _ in
+                let uri = URI(string: "\(baseURL)indexer/v1/worker")
 
-            let response = try await druid.client.get(uri)
-            guard response.status == .ok else {
-                if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.localizedDescription)
-                } else {
-                    throw Abort(.internalServerError, reason: "Failed to get overlord config")
+                let response = try await druid.client.get(uri)
+                guard response.status == .ok else {
+                    if let error = try? response.content.decode(DruidError.self) {
+                        throw Abort(response.status, reason: error.localizedDescription)
+                    } else {
+                        throw Abort(.internalServerError, reason: "Failed to get overlord config")
+                    }
                 }
-            }
 
-            // Returns nil if no configuration is set
-            if response.body == nil || response.body?.readableBytes == 0 {
-                return nil
-            }
+                // Returns nil if no configuration is set
+                if response.body == nil || response.body?.readableBytes == 0 {
+                    return nil
+                }
 
-            return try response.content.decode(OverlordDynamicConfig.self)
+                return try response.content.decode(OverlordDynamicConfig.self)
+            }
         }
     }
 
@@ -133,23 +135,25 @@ public struct OverlordRoutes {
         author: String? = nil,
         comment: String? = nil
     ) async throws {
-        try await withSpan("Druid.Overlord.updateConfig") { _ in
-            let uri = URI(string: "\(druid.baseURL)indexer/v1/worker")
+        try await druid.execute { baseURL in
+            try await withSpan("Druid.Overlord.updateConfig") { _ in
+                let uri = URI(string: "\(baseURL)indexer/v1/worker")
 
-            var headers = HTTPHeaders()
-            if let author = author {
-                headers.add(name: "X-Druid-Author", value: author)
-            }
-            if let comment = comment {
-                headers.add(name: "X-Druid-Comment", value: comment)
-            }
+                var headers = HTTPHeaders()
+                if let author = author {
+                    headers.add(name: "X-Druid-Author", value: author)
+                }
+                if let comment = comment {
+                    headers.add(name: "X-Druid-Comment", value: comment)
+                }
 
-            let response = try await druid.client.post(uri, headers: headers, content: config)
-            guard response.status == .ok else {
-                if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.localizedDescription)
-                } else {
-                    throw Abort(.internalServerError, reason: "Failed to update overlord config")
+                let response = try await druid.client.post(uri, headers: headers, content: config)
+                guard response.status == .ok else {
+                    if let error = try? response.content.decode(DruidError.self) {
+                        throw Abort(response.status, reason: error.localizedDescription)
+                    } else {
+                        throw Abort(.internalServerError, reason: "Failed to update overlord config")
+                    }
                 }
             }
         }
@@ -160,30 +164,32 @@ public struct OverlordRoutes {
         interval: String? = nil,
         count: Int? = nil
     ) async throws -> [ConfigHistoryEntry] {
-        try await withSpan("Druid.Overlord.getConfigHistory") { _ in
-            var uri = URI(string: "\(druid.baseURL)indexer/v1/worker/history")
+        try await druid.execute { baseURL in
+            try await withSpan("Druid.Overlord.getConfigHistory") { _ in
+                var uri = URI(string: "\(baseURL)indexer/v1/worker/history")
 
-            var queryItems: [String] = []
-            if let interval = interval {
-                queryItems.append("interval=\(interval)")
-            }
-            if let count = count {
-                queryItems.append("count=\(count)")
-            }
-            if !queryItems.isEmpty {
-                uri = URI(string: "\(druid.baseURL)indexer/v1/worker/history?\(queryItems.joined(separator: "&"))")
-            }
-
-            let response = try await druid.client.get(uri)
-            guard response.status == .ok else {
-                if let error = try? response.content.decode(DruidError.self) {
-                    throw Abort(response.status, reason: error.localizedDescription)
-                } else {
-                    throw Abort(.internalServerError, reason: "Failed to get config history")
+                var queryItems: [String] = []
+                if let interval = interval {
+                    queryItems.append("interval=\(interval)")
                 }
-            }
+                if let count = count {
+                    queryItems.append("count=\(count)")
+                }
+                if !queryItems.isEmpty {
+                    uri = URI(string: "\(baseURL)indexer/v1/worker/history?\(queryItems.joined(separator: "&"))")
+                }
 
-            return try response.content.decode([ConfigHistoryEntry].self)
+                let response = try await druid.client.get(uri)
+                guard response.status == .ok else {
+                    if let error = try? response.content.decode(DruidError.self) {
+                        throw Abort(response.status, reason: error.localizedDescription)
+                    } else {
+                        throw Abort(.internalServerError, reason: "Failed to get config history")
+                    }
+                }
+
+                return try response.content.decode([ConfigHistoryEntry].self)
+            }
         }
     }
 
