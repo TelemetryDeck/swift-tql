@@ -7,7 +7,6 @@ extension CustomQuery: Content {}
 public struct QueryRoutes {
     let druid: Druid
 
-    
     public func execute(query compiledQuery: CustomQuery) async throws -> QueryResult {
         return try await druid.execute { baseURL in
             try await withSpan("Druid.Druid.TQL.Query") { _ in
@@ -17,11 +16,11 @@ public struct QueryRoutes {
                 } catch {
                     throw Abort(.internalServerError, reason: "Error encoding query: \(error)")
                 }
-                
+
                 let queryAsString = String(data: compiledQueryData, encoding: .utf8) ?? "encoding error"
-                
+
                 druid.logger.info("Running Druid Query: \(queryAsString) on server \(baseURL)")
-                
+
                 // Send to Druid
                 let uri = URI(string: "\(baseURL)v2/")
                 let response = try await druid.client.post(uri, content: compiledQuery)
@@ -33,7 +32,7 @@ public struct QueryRoutes {
                         reason: "Query Result too large. The result of this query is \(response.body?.readableBytes ?? 0) bytes, which is larger than the maximum of \(maxResponseSize) bytes."
                     )
                 }
-                
+
                 // Check for errors
                 guard response.status == .ok else {
                     if let error = try? response.content.decode(DruidError.self) {
@@ -42,7 +41,7 @@ public struct QueryRoutes {
                         throw Abort(.internalServerError, reason: "Failed to run query")
                     }
                 }
-                
+
                 // Decode Query Result
                 let queryResult: QueryResult
                 switch compiledQuery.queryType {
@@ -55,7 +54,7 @@ public struct QueryRoutes {
                         druid.logger.warning("Failed to decode timeseries query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode timeseries query result: \(error)")
                     }
-                    
+
                 case .groupBy:
                     do {
                         let groupByRows = try response.content.decode([GroupByQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
@@ -65,7 +64,7 @@ public struct QueryRoutes {
                         druid.logger.warning("Failed to decode groupBy query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode groupBy query result: \(error)")
                     }
-                    
+
                 case .topN:
                     do {
                         var topNRows = try response.content.decode([TopNQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
@@ -78,7 +77,7 @@ public struct QueryRoutes {
                         druid.logger.warning("Failed to decode topN query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode topN query result: \(error)")
                     }
-                    
+
                 case .scan:
                     do {
                         let scanRows = try response.content.decode([ScanQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
@@ -88,7 +87,7 @@ public struct QueryRoutes {
                         druid.logger.warning("Failed to decode scan query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode scan query result: \(error)")
                     }
-                    
+
                 case .timeBoundary:
                     do {
                         let timeboundaryRows = try response.content.decode([TimeBoundaryResultRow].self, using: JSONDecoder.telemetryDecoder)
@@ -98,11 +97,11 @@ public struct QueryRoutes {
                         druid.logger.warning("Failed to decode timeBoundary query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode timeBoundary query result: \(error)")
                     }
-                    
+
                 default:
                     throw Abort(.internalServerError, reason: "QueryManager.getLiveResult received a queryType it doesn't know how to handle: \(compiledQuery.queryType)")
                 }
-                
+
                 return queryResult
             }
         }
