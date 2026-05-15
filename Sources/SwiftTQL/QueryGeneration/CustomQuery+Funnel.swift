@@ -1,3 +1,5 @@
+import Foundation
+
 extension CustomQuery {
     func precompiledFunnelQuery(accuracy: Int? = nil) throws -> CustomQuery {
         var query = self
@@ -7,18 +9,38 @@ extension CustomQuery {
         // Funnel queries with more than 5 steps regularly break our infrastruture at the moment, but only when they touch
         // "realtime" data. When they only run on finished segments, they work fine, because historicals have bigger merge
         // buffers. To mitigate this, we're excluding the last two hours of data from funnels with more than 5 steps.
-        if steps.count > 4, let relativeIntervals = relativeIntervals {
-            var newRelativeIntervals: [RelativeTimeInterval] = []
-            for interval in relativeIntervals {
-                let absoluteInterval = QueryTimeInterval.from(relativeTimeInterval: interval, timeZone: context?.timezone)
-                if absoluteInterval.endDate.timeIntervalSinceNow > -24 * 60 * 60 { // 24 hours ago
-                    newRelativeIntervals.append(.init(beginningDate: interval.beginningDate, endDate: .init(.end, of: .day, adding: -1)))
-                } else {
-                    newRelativeIntervals.append(interval)
+        if steps.count > 4 {
+                if let relativeIntervals = relativeIntervals {
+                var newRelativeIntervals: [RelativeTimeInterval] = []
+                for interval in relativeIntervals {
+                    let absoluteInterval = QueryTimeInterval.from(relativeTimeInterval: interval, timeZone: context?.timezone)
+                    if absoluteInterval.endDate.timeIntervalSinceNow > -24 * 60 * 60 { // 24 hours ago
+                        newRelativeIntervals.append(.init(beginningDate: interval.beginningDate, endDate: .init(.end, of: .day, adding: -1)))
+                    } else {
+                        newRelativeIntervals.append(interval)
+                    }
                 }
+                
+                query.relativeIntervals = newRelativeIntervals
             }
             
-            query.relativeIntervals = newRelativeIntervals
+            if let intervals = intervals {
+                var newIntervals: [QueryTimeInterval] = []
+                for interval in intervals {
+                    var newBeginningDate = interval.beginningDate
+                    guard let newEndDate = Date(timeIntervalSinceNow: -24 * 60 * 60).beginning(of: .day) else { continue }
+                    
+                    if newBeginningDate > newEndDate {
+                        newBeginningDate = newEndDate
+                    }
+                    
+                    if interval.endDate.timeIntervalSinceNow > -24 * 60 * 60 { // 24 hours ago
+                        newIntervals.append(.init(beginningDate: newBeginningDate, endDate: newEndDate))
+                    } else {
+                        newIntervals.append(interval)
+                    }
+                }
+            }
         }
 
         // Generate Filter Statement
