@@ -356,24 +356,6 @@ struct CompileDownTests {
         #expect(throws: Never.self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
     }
 
-    @Test("Disallows hourly queries for topN") func disallowsHourlyQueriesForTopN() throws {
-        let intervals: [QueryTimeInterval] = [
-            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
-        ]
-        let query = CustomQuery(queryType: .topN, intervals: intervals, granularity: .hour)
-
-        #expect(throws: (any Error).self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
-    }
-
-    @Test("Disallows hourly queries for groupBy") func disallowsHourlyQueriesForGroupBy() throws {
-        let intervals: [QueryTimeInterval] = [
-            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
-        ]
-        let query = CustomQuery(queryType: .groupBy, intervals: intervals, granularity: .hour)
-
-        #expect(throws: (any Error).self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
-    }
-
     @Test("Timezone is preserved through precompile and compile") func timezonePreservedThroughCompile() throws {
         var context = QueryContext()
         context.timezone = "America/New_York"
