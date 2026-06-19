@@ -1,5 +1,32 @@
 import Foundation
 
+// MARK: - Shared ISO8601 formatters
+
+/// Shared `ISO8601DateFormatter` instances for granularity origin parsing/encoding.
+///
+/// `ISO8601DateFormatter` is expensive to instantiate, and these were previously created on every
+/// encode and parse. Each instance is configured once and only read afterwards (never mutated), so
+/// they are safe to share — and parsing tries the two formatters in turn instead of mutating one.
+private enum GranularityISO8601 {
+    // `nonisolated(unsafe)` opts these out of the Sendable check: each formatter is configured once
+    // and only read afterwards (parsing tries them in turn rather than mutating one), so sharing is safe.
+    nonisolated(unsafe) static let withFractionalSeconds: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    nonisolated(unsafe) static let internetDateTime: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    static func parse(_ string: String) -> Date? {
+        withFractionalSeconds.date(from: string) ?? internetDateTime.date(from: string)
+    }
+}
+
 // MARK: - Simple Granularity
 
 /// Named granularities supported by Apache Druid.
@@ -55,18 +82,12 @@ public struct DurationGranularity: Codable, Hashable, Sendable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(duration, forKey: .duration)
         if let origin {
-            let formatter = ISO8601DateFormatter()
-            formatter.formatOptions = [.withInternetDateTime]
-            try container.encode(formatter.string(from: origin), forKey: .origin)
+            try container.encode(GranularityISO8601.internetDateTime.string(from: origin), forKey: .origin)
         }
     }
 
     private static func parseISO8601(_ string: String) throws -> Date {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = formatter.date(from: string) { return date }
-        formatter.formatOptions = [.withInternetDateTime]
-        if let date = formatter.date(from: string) { return date }
+        if let date = GranularityISO8601.parse(string) { return date }
         throw DecodingError.dataCorrupted(.init(
             codingPath: [],
             debugDescription: "Unable to parse ISO 8601 date: \(string)"
@@ -118,18 +139,12 @@ public struct PeriodGranularity: Codable, Hashable, Sendable {
         try container.encode(period, forKey: .period)
         try container.encodeIfPresent(timeZone, forKey: .timeZone)
         if let origin {
-            let formatter = ISO8601DateFormatter()
-            formatter.formatOptions = [.withInternetDateTime]
-            try container.encode(formatter.string(from: origin), forKey: .origin)
+            try container.encode(GranularityISO8601.internetDateTime.string(from: origin), forKey: .origin)
         }
     }
 
     private static func parseISO8601(_ string: String) throws -> Date {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = formatter.date(from: string) { return date }
-        formatter.formatOptions = [.withInternetDateTime]
-        if let date = formatter.date(from: string) { return date }
+        if let date = GranularityISO8601.parse(string) { return date }
         throw DecodingError.dataCorrupted(.init(
             codingPath: [],
             debugDescription: "Unable to parse ISO 8601 date: \(string)"

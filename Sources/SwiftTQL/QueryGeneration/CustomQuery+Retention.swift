@@ -23,17 +23,26 @@ extension CustomQuery {
         // Split into intervals based on the specified granularity
         let retentionIntervals = try splitIntoIntervals(from: beginDate, to: endDate, granularity: retentionGranularity)
 
+        // Precompute the ISO8601 title for each interval once. The post-aggregator loop below is
+        // O(n²) over the intervals and would otherwise recompute each title many times over.
+        let titlesByInterval = Dictionary(
+            retentionIntervals.map { ($0, title(for: $0)) },
+            uniquingKeysWith: { existing, _ in existing }
+        )
+
         // Generate Aggregators
         var aggregators = [Aggregator]()
         for interval in retentionIntervals {
-            aggregators.append(aggregator(for: interval))
+            aggregators.append(aggregator(for: interval, title: titlesByInterval[interval] ?? title(for: interval)))
         }
 
         // Generate Post-Aggregators
         var postAggregators = [PostAggregator]()
         for row in retentionIntervals {
+            let rowTitle = titlesByInterval[row] ?? title(for: row)
             for column in retentionIntervals where column >= row {
-                postAggregators.append(postAggregatorBetween(interval1: row, interval2: column))
+                let columnTitle = titlesByInterval[column] ?? title(for: column)
+                postAggregators.append(postAggregatorBetween(title1: rowTitle, title2: columnTitle))
             }
         }
 
@@ -164,33 +173,40 @@ extension CustomQuery {
         }
     }
 
-    private func title(for interval: DateInterval) -> String {
+    /// Shared formatter for interval titles. `ISO8601DateFormatter` is expensive to instantiate, so we
+    /// configure it once and reuse it. It is only read (never mutated) after setup, so sharing it across
+    /// threads is safe (`nonisolated(unsafe)` opts out of the Sendable check for this immutable instance).
+    nonisolated(unsafe) private static let titleFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withFullDate]
-        return "\(formatter.string(from: interval.start))_\(formatter.string(from: interval.end))"
+        return formatter
+    }()
+
+    private func title(for interval: DateInterval) -> String {
+        "\(Self.titleFormatter.string(from: interval.start))_\(Self.titleFormatter.string(from: interval.end))"
     }
 
-    private func aggregator(for interval: DateInterval) -> Aggregator {
+    private func aggregator(for interval: DateInterval, title: String) -> Aggregator {
         .filtered(.init(
             filter: .interval(.init(
                 dimension: "__time",
                 intervals: [.init(dateInterval: interval)]
             )),
             aggregator: .thetaSketch(.init(
-                name: "_\(title(for: interval))",
+                name: "_\(title)",
                 fieldName: "clientUser"
             ))
         ))
     }
 
-    private func postAggregatorBetween(interval1: DateInterval, interval2: DateInterval) -> PostAggregator {
+    private func postAggregatorBetween(title1: String, title2: String) -> PostAggregator {
         .thetaSketchEstimate(.init(
-            name: "retention_\(title(for: interval1))_\(title(for: interval2))",
+            name: "retention_\(title1)_\(title2)",
             field: .thetaSketchSetOp(.init(
                 func: .intersect,
                 fields: [
-                    .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title(for: interval1))")),
-                    .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title(for: interval2))")),
+                    .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title1)")),
+                    .fieldAccess(.init(type: .fieldAccess, fieldName: "_\(title2)")),
                 ]
             ))
         ))

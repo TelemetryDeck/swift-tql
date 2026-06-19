@@ -202,6 +202,12 @@ public enum DoubleWrapper: Codable, Hashable, Equatable, Sendable {
 public struct DoublePlusInfinity: Codable, Hashable, Equatable, Sendable {
     public let value: Double
 
+    /// Shared formatter used to parse string-encoded doubles. `NumberFormatter` is expensive to
+    /// instantiate and was previously allocated for every decoded value; it is only read here, so
+    /// a single shared instance is reused instead (`nonisolated(unsafe)` opts out of the Sendable
+    /// check, which is safe because the formatter is never mutated after creation).
+    nonisolated(unsafe) private static let numberFormatter = NumberFormatter()
+
     public init(_ doubleValue: Double) {
         value = doubleValue
     }
@@ -215,7 +221,7 @@ public struct DoublePlusInfinity: Codable, Hashable, Equatable, Sendable {
             } else if stringValue == "-Infinity" {
                 value = -Double.infinity
             } else {
-                guard let parsedDoubleValue = NumberFormatter().number(from: stringValue)?.doubleValue else {
+                guard let parsedDoubleValue = Self.numberFormatter.number(from: stringValue)?.doubleValue else {
                     throw DecodingError.dataCorrupted(.init(
                         codingPath: [],
                         debugDescription: "Could not parse value as Double",
