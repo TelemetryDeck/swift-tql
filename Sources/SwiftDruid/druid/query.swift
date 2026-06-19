@@ -17,16 +17,23 @@ public struct QueryRoutes {
                     throw Abort(.internalServerError, reason: "Error encoding query: \(error)")
                 }
 
-                let queryAsString = String(data: compiledQueryData, encoding: .utf8) ?? "encoding error"
+                // Materialize the query string lazily: the logger methods take an autoclosure, so this
+                // only runs when the log statement is actually emitted (e.g. on error).
+                let queryAsString = { String(data: compiledQueryData, encoding: .utf8) ?? "encoding error" }
 
-                druid.logger.info("Running Druid Query: \(queryAsString) on server \(baseURL)")
+                druid.logger.info("Running Druid Query: \(queryAsString()) on server \(baseURL)")
 
-                // Send to Druid
+                // Send to Druid, reusing the bytes we already encoded above instead of re-encoding the query.
                 let uri = URI(string: "\(baseURL)v2/")
-                let response = try await druid.client.post(uri, content: compiledQuery)
+                var requestBody = ByteBufferAllocator().buffer(capacity: compiledQueryData.count)
+                requestBody.writeBytes(compiledQueryData)
+                let response = try await druid.client.post(uri) { clientRequest in
+                    clientRequest.headers.contentType = .json
+                    clientRequest.body = requestBody
+                }
                 let maxResponseSize = 32 * 1024 * 1024
                 if response.body?.readableBytes ?? 0 > maxResponseSize {
-                    druid.logger.warning("Query Result too large: \(response.body?.readableBytes ?? 0) bytes. Query was \n\(queryAsString)")
+                    druid.logger.warning("Query Result too large: \(response.body?.readableBytes ?? 0) bytes. Query was \n\(queryAsString())")
                     throw Abort(
                         .badRequest,
                         reason: "Query Result too large. The result of this query is \(response.body?.readableBytes ?? 0) bytes, which is larger than the maximum of \(maxResponseSize) bytes."
@@ -51,7 +58,7 @@ public struct QueryRoutes {
                         let timeSeriesResult = TimeSeriesQueryResult(rows: timeSeriesRows, restrictions: compiledQuery.restrictions)
                         queryResult = .timeSeries(timeSeriesResult)
                     } catch {
-                        druid.logger.warning("Failed to decode timeseries query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
+                        druid.logger.warning("Failed to decode timeseries query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode timeseries query result: \(error)")
                     }
 
@@ -61,7 +68,7 @@ public struct QueryRoutes {
                         let groupByResult = GroupByQueryResult(rows: groupByRows, restrictions: compiledQuery.restrictions)
                         queryResult = .groupBy(groupByResult)
                     } catch {
-                        druid.logger.warning("Failed to decode groupBy query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
+                        druid.logger.warning("Failed to decode groupBy query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode groupBy query result: \(error)")
                     }
 
@@ -70,11 +77,12 @@ public struct QueryRoutes {
                         var topNRows = try response.content.decode([TopNQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
                         // This fixes a druid bug where query results sometimes contain a row with a timestamp of 1970-01-01
                         // Possible fix is https://github.com/apache/druid/pull/16915
-                        topNRows = topNRows.filter { ($0.timestamp > Date(iso8601String: "2020-01-01T00:00:00.000Z")!) || (!$0.result.isEmpty) }
+                        let minimumValidTimestamp = Date(iso8601String: "2020-01-01T00:00:00.000Z")!
+                        topNRows = topNRows.filter { ($0.timestamp > minimumValidTimestamp) || (!$0.result.isEmpty) }
                         let topNResult = TopNQueryResult(rows: topNRows, restrictions: compiledQuery.restrictions)
                         queryResult = .topN(topNResult)
                     } catch {
-                        druid.logger.warning("Failed to decode topN query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
+                        druid.logger.warning("Failed to decode topN query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode topN query result: \(error)")
                     }
 
@@ -84,7 +92,7 @@ public struct QueryRoutes {
                         let scanResult = ScanQueryResult(rows: scanRows)
                         queryResult = .scan(scanResult)
                     } catch {
-                        druid.logger.warning("Failed to decode scan query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
+                        druid.logger.warning("Failed to decode scan query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode scan query result: \(error)")
                     }
 
@@ -94,7 +102,7 @@ public struct QueryRoutes {
                         let timeBoundaryResult = TimeBoundaryResult(rows: timeboundaryRows)
                         queryResult = .timeBoundary(timeBoundaryResult)
                     } catch {
-                        druid.logger.warning("Failed to decode timeBoundary query result: \(error), query was \(queryAsString), response: \(response.body?.description ?? "no response body")")
+                        druid.logger.warning("Failed to decode timeBoundary query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
                         throw Abort(.badRequest, reason: "Failed to decode timeBoundary query result: \(error)")
                     }
 
