@@ -382,7 +382,24 @@ public struct AdaptableQueryResultItem: Codable, Hashable, Equatable, Sendable {
 
         let container = try decoder.container(keyedBy: CodingKeys.self)
         for key in container.allKeys {
-            if let stringElement = try? container.decode(StringWrapper.self, forKey: key) {
+            // This runs once per field per result row, so for large group-by/topN/scan results it is
+            // the decode hot path. The previous implementation probed types purely by trial-and-error
+            // (`try? decode(StringWrapper)` then `try? decode(DoubleWrapper)`), which threw and caught a
+            // `DecodingError` for every miss — about three throws per numeric metric and five per null
+            // field. Throwing/catching a `DecodingError` is allocation-heavy, so that dominated CPU on
+            // big result sets.
+            //
+            // Instead, handle the common cases without throwing: `decodeNil` (non-throwing) catches
+            // nulls, then decode scalars directly. Strings are tried before numbers to preserve the
+            // original routing (JSON strings → dimensions, JSON numbers → metrics). Only genuine
+            // array-valued fields fall through to the wrapper decoders, which are rare.
+            if try container.decodeNil(forKey: key) {
+                nullValues.append(key.stringValue)
+            } else if let stringValue = try? container.decode(String.self, forKey: key) {
+                dimensions[key.stringValue] = .single(stringValue)
+            } else if let doubleValue = try? container.decode(Double.self, forKey: key) {
+                metrics[key.stringValue] = .single(DoublePlusInfinity(doubleValue))
+            } else if let stringElement = try? container.decode(StringWrapper.self, forKey: key) {
                 dimensions[key.stringValue] = stringElement
             } else if let doubleElement = try? container.decode(DoubleWrapper.self, forKey: key) {
                 metrics[key.stringValue] = doubleElement
