@@ -7,7 +7,7 @@ extension CustomQuery: Content {}
 public struct QueryRoutes {
     let druid: Druid
 
-    public func execute(query compiledQuery: CustomQuery) async throws -> QueryResult {
+    public func execute(query compiledQuery: CustomQuery) async throws -> QueryResultData {
         return try await druid.execute { baseURL in
             try await withSpan("Druid.Druid.TQL.Query") { _ in
                 let compiledQueryData: Data
@@ -49,68 +49,18 @@ public struct QueryRoutes {
                     }
                 }
 
-                // Decode Query Result
-                let queryResult: QueryResult
-                switch compiledQuery.queryType {
-                case .timeseries:
-                    do {
-                        let timeSeriesRows = try response.content.decode([TimeSeriesQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
-                        let timeSeriesResult = TimeSeriesQueryResult(rows: timeSeriesRows, restrictions: compiledQuery.restrictions)
-                        queryResult = .timeSeries(timeSeriesResult)
-                    } catch {
-                        druid.logger.warning("Failed to decode timeseries query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
-                        throw Abort(.badRequest, reason: "Failed to decode timeseries query result: \(error)")
-                    }
-
-                case .groupBy:
-                    do {
-                        let groupByRows = try response.content.decode([GroupByQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
-                        let groupByResult = GroupByQueryResult(rows: groupByRows, restrictions: compiledQuery.restrictions)
-                        queryResult = .groupBy(groupByResult)
-                    } catch {
-                        druid.logger.warning("Failed to decode groupBy query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
-                        throw Abort(.badRequest, reason: "Failed to decode groupBy query result: \(error)")
-                    }
-
-                case .topN:
-                    do {
-                        var topNRows = try response.content.decode([TopNQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
-                        // This fixes a druid bug where query results sometimes contain a row with a timestamp of 1970-01-01
-                        // Possible fix is https://github.com/apache/druid/pull/16915
-                        let minimumValidTimestamp = Date(iso8601String: "2020-01-01T00:00:00.000Z")!
-                        topNRows = topNRows.filter { ($0.timestamp > minimumValidTimestamp) || (!$0.result.isEmpty) }
-                        let topNResult = TopNQueryResult(rows: topNRows, restrictions: compiledQuery.restrictions)
-                        queryResult = .topN(topNResult)
-                    } catch {
-                        druid.logger.warning("Failed to decode topN query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
-                        throw Abort(.badRequest, reason: "Failed to decode topN query result: \(error)")
-                    }
-
-                case .scan:
-                    do {
-                        let scanRows = try response.content.decode([ScanQueryResultRow].self, using: JSONDecoder.telemetryDecoder)
-                        let scanResult = ScanQueryResult(rows: scanRows)
-                        queryResult = .scan(scanResult)
-                    } catch {
-                        druid.logger.warning("Failed to decode scan query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
-                        throw Abort(.badRequest, reason: "Failed to decode scan query result: \(error)")
-                    }
-
-                case .timeBoundary:
-                    do {
-                        let timeboundaryRows = try response.content.decode([TimeBoundaryResultRow].self, using: JSONDecoder.telemetryDecoder)
-                        let timeBoundaryResult = TimeBoundaryResult(rows: timeboundaryRows)
-                        queryResult = .timeBoundary(timeBoundaryResult)
-                    } catch {
-                        druid.logger.warning("Failed to decode timeBoundary query result: \(error), query was \(queryAsString()), response: \(response.body?.description ?? "no response body")")
-                        throw Abort(.badRequest, reason: "Failed to decode timeBoundary query result: \(error)")
-                    }
-
-                default:
-                    throw Abort(.internalServerError, reason: "QueryManager.getLiveResult received a queryType it doesn't know how to handle: \(compiledQuery.queryType)")
+                // Capture the raw response bytes without decoding. Turning these into a structured
+                // QueryResult is deferred to QueryResultData.decode(), so callers that only forward
+                // the bytes don't pay for a decode/re-encode round trip.
+                guard let buffer = response.body else {
+                    throw Abort(.internalServerError, reason: "Druid query returned an empty response body")
                 }
 
-                return queryResult
+                return QueryResultData(
+                    data: Data(buffer.readableBytesView),
+                    queryType: compiledQuery.queryType,
+                    restrictions: compiledQuery.restrictions
+                )
             }
         }
     }
