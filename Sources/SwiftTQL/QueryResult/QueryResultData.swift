@@ -1,4 +1,5 @@
 import Foundation
+import Tracing
 
 /// Carries the raw, undecoded response data returned from Druid for a query, along with the
 /// metadata needed to decode it into a ``QueryResult`` on demand.
@@ -30,35 +31,48 @@ public struct QueryResultData: Sendable, Equatable, Hashable {
     /// is marked `async` to make the cost explicit and to leave room to offload the work later
     /// without an API change.
     public func decode() async throws -> QueryResult {
-        let decoder = JSONDecoder.telemetryDecoder
+        try withSpan("QueryResultData.decode") { span in
+            // Query/config payload + Druid request details available at this stage. Identity/context
+            // (user/org/app) isn't carried on QueryResultData, so it can't be attached here.
+            span.attributes["tql.query.type"] = queryType.rawValue
+            span.attributes["tql.query.restriction_count"] = restrictions?.count ?? 0
+            span.attributes["tql.result.payload_bytes"] = data.count
 
-        switch queryType {
-        case .timeseries:
-            let rows = try decoder.decode([TimeSeriesQueryResultRow].self, from: data)
-            return .timeSeries(TimeSeriesQueryResult(rows: rows, restrictions: restrictions))
+            let decoder = JSONDecoder.telemetryDecoder
 
-        case .groupBy:
-            let rows = try decoder.decode([GroupByQueryResultRow].self, from: data)
-            return .groupBy(GroupByQueryResult(rows: rows, restrictions: restrictions))
+            switch queryType {
+            case .timeseries:
+                let rows = try decoder.decode([TimeSeriesQueryResultRow].self, from: data)
+                span.attributes["tql.result.row_count"] = rows.count
+                return .timeSeries(TimeSeriesQueryResult(rows: rows, restrictions: restrictions))
 
-        case .topN:
-            var rows = try decoder.decode([TopNQueryResultRow].self, from: data)
-            // This fixes a druid bug where query results sometimes contain a row with a timestamp of 1970-01-01
-            // Possible fix is https://github.com/apache/druid/pull/16915
-            let minimumValidTimestamp = Date(iso8601String: "2020-01-01T00:00:00.000Z")!
-            rows = rows.filter { ($0.timestamp > minimumValidTimestamp) || (!$0.result.isEmpty) }
-            return .topN(TopNQueryResult(rows: rows, restrictions: restrictions))
+            case .groupBy:
+                let rows = try decoder.decode([GroupByQueryResultRow].self, from: data)
+                span.attributes["tql.result.row_count"] = rows.count
+                return .groupBy(GroupByQueryResult(rows: rows, restrictions: restrictions))
 
-        case .scan:
-            let rows = try decoder.decode([ScanQueryResultRow].self, from: data)
-            return .scan(ScanQueryResult(rows: rows))
+            case .topN:
+                var rows = try decoder.decode([TopNQueryResultRow].self, from: data)
+                // This fixes a druid bug where query results sometimes contain a row with a timestamp of 1970-01-01
+                // Possible fix is https://github.com/apache/druid/pull/16915
+                let minimumValidTimestamp = Date(iso8601String: "2020-01-01T00:00:00.000Z")!
+                rows = rows.filter { ($0.timestamp > minimumValidTimestamp) || (!$0.result.isEmpty) }
+                span.attributes["tql.result.row_count"] = rows.count
+                return .topN(TopNQueryResult(rows: rows, restrictions: restrictions))
 
-        case .timeBoundary:
-            let rows = try decoder.decode([TimeBoundaryResultRow].self, from: data)
-            return .timeBoundary(TimeBoundaryResult(rows: rows))
+            case .scan:
+                let rows = try decoder.decode([ScanQueryResultRow].self, from: data)
+                span.attributes["tql.result.row_count"] = rows.count
+                return .scan(ScanQueryResult(rows: rows))
 
-        default:
-            throw QueryResultDataError.unsupportedQueryType(queryType)
+            case .timeBoundary:
+                let rows = try decoder.decode([TimeBoundaryResultRow].self, from: data)
+                span.attributes["tql.result.row_count"] = rows.count
+                return .timeBoundary(TimeBoundaryResult(rows: rows))
+
+            default:
+                throw QueryResultDataError.unsupportedQueryType(queryType)
+            }
         }
     }
 }

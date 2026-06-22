@@ -17,7 +17,7 @@ public struct CompactionRoutes {
 
     public func list() async throws -> [CompactionConfigReturnType] {
         return try await druid.execute { baseURL in
-            try await withSpan("Druid.Supervisor.list") { _ in
+            try await withSpan("Druid.Compaction.list") { _ in
                 let uri = URI(string: "\(baseURL)coordinator/v1/config/compaction/")
 
                 let response = try await druid.client.get(uri)
@@ -36,7 +36,7 @@ public struct CompactionRoutes {
 
     public func create(compactionConfig: AutoCompactionDynamicConfig) async throws {
         return try await druid.execute { baseURL in
-            try await withSpan("Druid.Supervisor.create") { _ in
+            try await withSpan("Druid.Compaction.create") { _ in
                 let uri = URI(string: "\(baseURL)coordinator/v1/config/compaction")
 
                 let response = try await druid.client.post(uri, content: compactionConfig)
@@ -53,7 +53,7 @@ public struct CompactionRoutes {
 
     public func get(dataSource: String) async throws -> CompactionConfigReturnType? {
         return try await druid.execute { baseURL in
-            try await withSpan("Druid.Supervisor.list") { _ in
+            try await withSpan("Druid.Compaction.get") { _ in
                 let uri = URI(string: "\(baseURL)coordinator/v1/config/compaction/\(dataSource)")
 
                 let response = try await druid.client.get(uri)
@@ -73,7 +73,7 @@ public struct CompactionRoutes {
 
     public func delete(dataSource: String) async throws {
         return try await druid.execute { baseURL in
-            try await withSpan("Druid.Supervisor.delete") { _ in
+            try await withSpan("Druid.Compaction.delete") { _ in
                 let uri = URI(string: "\(baseURL)coordinator/v1/config/compaction/\(dataSource)")
 
                 let response = try await druid.client.delete(uri)

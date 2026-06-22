@@ -25,6 +25,7 @@ let package = Package(
         // .package(name: "SwiftDateOperations", path: "../SwiftDateOperations"), // local development
         .package(url: "https://github.com/TelemetryDeck/SwiftDateOperations.git", from: "2.0.1"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.8.0"),
+        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.3.1"),
         .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
     ],
     targets: [
@@ -35,6 +36,7 @@ let package = Package(
             dependencies: [
                 .product(name: "DateOperations", package: "SwiftDateOperations"),
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "Tracing", package: "swift-distributed-tracing"),
             ]
         ),
         .target(

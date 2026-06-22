@@ -1,4 +1,5 @@
 import Foundation
+import Tracing
 
 public extension CustomQuery {
     enum QueryGenerationError: Error {
@@ -21,68 +22,77 @@ public extension CustomQuery {
         organizationAppIDs: [UUID],
         isSuperOrg: Bool
     ) throws -> CustomQuery {
-        guard (compilationStatus ?? .notCompiled) == .notCompiled else {
-            throw QueryGenerationError.compilationStatusError
-        }
+        try withSpan("TQL.Query.precompile") { span in
+            // Identity/context + query payload attributes for the span (see CLAUDE-level OTel convention).
+            span.attributes["tql.query.type"] = queryType.rawValue
+            if let namespace { span.attributes["tql.namespace"] = namespace }
+            span.attributes["tql.use_namespace"] = useNamespace
+            span.attributes["tql.is_super_org"] = isSuperOrg
+            span.attributes["tql.organization_app_ids.count"] = organizationAppIDs.count
 
-        // Make an editable copy of self
-        var query = self
-
-        // Make sure either intervals or relative intervals are set
-        if query.intervals == nil && query.relativeIntervals == nil {
-            query.relativeIntervals = [.init(beginningDate: .init(.beginning, of: .day, adding: -30), endDate: .init(.end, of: .day, adding: 0))]
-        }
-
-        // Check if query granularity needs a time zone
-        query.granularity = query.granularity?.precompile(withTimezone: query.context?.timezone)
-
-        // Custom Query Types
-        if query.queryType == .funnel {
-            // If a namespace is set, increase the accuracy of the funnel query (i.e. the size of the theta sketch).
-            // This helps increase accuracy for bigger customers who have their own namespace while hopefully keeping costs down in telemetry-signals.
-            // https://github.com/TelemetryDeck/SwiftDataTransferObjects/issues/55
-            query = try namespace == nil ? precompiledFunnelQuery() : precompiledFunnelQuery(accuracy: 65536)
-        } else if query.queryType == .experiment {
-            query = try precompiledExperimentQuery()
-        } else if query.queryType == .retention {
-            query = try precompiledRetentionQuery()
-        }
-
-        // Handle precompilable aggregators and post aggregators
-        var aggregations = [Aggregator]()
-        var postAggregations = [PostAggregator]()
-        for aggregator in query.aggregations ?? [] {
-            guard let compiled = aggregator.precompile() else {
-                aggregations.append(aggregator)
-                continue
+            guard (compilationStatus ?? .notCompiled) == .notCompiled else {
+                throw QueryGenerationError.compilationStatusError
             }
-            aggregations.append(contentsOf: compiled.aggregators)
-            postAggregations.append(contentsOf: compiled.postAggregators)
-        }
-        for postAggregator in query.postAggregations ?? [] {
-            guard let compiled = postAggregator.precompile() else {
-                postAggregations.append(postAggregator)
-                continue
+
+            // Make an editable copy of self
+            var query = self
+
+            // Make sure either intervals or relative intervals are set
+            if query.intervals == nil && query.relativeIntervals == nil {
+                query.relativeIntervals = [.init(beginningDate: .init(.beginning, of: .day, adding: -30), endDate: .init(.end, of: .day, adding: 0))]
             }
-            aggregations.append(contentsOf: compiled.aggregators)
-            postAggregations.append(contentsOf: compiled.postAggregators)
+
+            // Check if query granularity needs a time zone
+            query.granularity = query.granularity?.precompile(withTimezone: query.context?.timezone)
+
+            // Custom Query Types
+            if query.queryType == .funnel {
+                // If a namespace is set, increase the accuracy of the funnel query (i.e. the size of the theta sketch).
+                // This helps increase accuracy for bigger customers who have their own namespace while hopefully keeping costs down in telemetry-signals.
+                // https://github.com/TelemetryDeck/SwiftDataTransferObjects/issues/55
+                query = try namespace == nil ? precompiledFunnelQuery() : precompiledFunnelQuery(accuracy: 65536)
+            } else if query.queryType == .experiment {
+                query = try precompiledExperimentQuery()
+            } else if query.queryType == .retention {
+                query = try precompiledRetentionQuery()
+            }
+
+            // Handle precompilable aggregators and post aggregators
+            var aggregations = [Aggregator]()
+            var postAggregations = [PostAggregator]()
+            for aggregator in query.aggregations ?? [] {
+                guard let compiled = aggregator.precompile() else {
+                    aggregations.append(aggregator)
+                    continue
+                }
+                aggregations.append(contentsOf: compiled.aggregators)
+                postAggregations.append(contentsOf: compiled.postAggregators)
+            }
+            for postAggregator in query.postAggregations ?? [] {
+                guard let compiled = postAggregator.precompile() else {
+                    postAggregations.append(postAggregator)
+                    continue
+                }
+                aggregations.append(contentsOf: compiled.aggregators)
+                postAggregations.append(contentsOf: compiled.postAggregators)
+            }
+            query.aggregations = aggregations
+            query.postAggregations = postAggregations
+
+            // Apply base filters and data source
+            query = try Self.applyBaseFilters(
+                namespace: namespace,
+                useNamespace: useNamespace,
+                query: query,
+                organizationAppIDs: organizationAppIDs,
+                isSuperOrg: isSuperOrg
+            )
+
+            // Update compilationStatus so the next steps in the pipeline are sure the query has been precompiled
+            query.compilationStatus = .precompiled
+
+            return query
         }
-        query.aggregations = aggregations
-        query.postAggregations = postAggregations
-
-        // Apply base filters and data source
-        query = try Self.applyBaseFilters(
-            namespace: namespace,
-            useNamespace: useNamespace,
-            query: query,
-            organizationAppIDs: organizationAppIDs,
-            isSuperOrg: isSuperOrg
-        )
-
-        // Update compilationStatus so the next steps in the pipeline are sure the query has been precompiled
-        query.compilationStatus = .precompiled
-
-        return query
     }
 
     /// Compiles all TelemetryDeck additions down into a regular query that can be run on Apache Druid.
@@ -93,45 +103,51 @@ public extension CustomQuery {
     ///
     /// @see precompile
     func compileToRunnableQuery() throws -> CustomQuery {
-        guard compilationStatus == .precompiled else {
-            throw QueryGenerationError.compilationStatusError
+        try withSpan("TQL.Query.compileToRunnableQuery") { span in
+            span.attributes["tql.query.type"] = queryType.rawValue
+
+            guard compilationStatus == .precompiled else {
+                throw QueryGenerationError.compilationStatusError
+            }
+
+            // Make an editable copy of self
+            var query = self
+
+            // Compile relative Time intervals
+            let timeZone = query.context?.timezone
+            if let relativeIntervals = query.relativeIntervals {
+                query.intervals = relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: timeZone) }
+            }
+
+            guard query.intervals != nil, !query.intervals!.isEmpty else {
+                throw QueryGenerationError.keyMissing(reason: "Either 'relativeIntervals' or 'intervals' need to be set")
+            }
+            span.attributes["tql.intervals.count"] = query.intervals!.count
+
+            // Compile relative intervals in Relative Interval filters
+            if let filter = query.filter {
+                query.filter = compileRelativeFilterInterval(filter: filter, timeZone: timeZone)
+            }
+
+            // Comppile relative intervals in Aggregators
+            if let aggregations = query.aggregations {
+                query.aggregations = aggregations.map { agg in compileRelativeIntervalFilterInAggregations(agg: agg, timeZone: timeZone) }
+            }
+
+            // Add restrictionsFilter
+            if let applicableRestrictions = Self.getApplicableRestrictions(from: query) {
+                query.restrictions = applicableRestrictions
+                query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: applicableRestrictions))))
+                span.attributes["tql.restrictions.count"] = applicableRestrictions.count
+            } else {
+                query.restrictions = nil
+            }
+
+            // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
+            query.compilationStatus = .compiled
+
+            return query
         }
-
-        // Make an editable copy of self
-        var query = self
-
-        // Compile relative Time intervals
-        let timeZone = query.context?.timezone
-        if let relativeIntervals = query.relativeIntervals {
-            query.intervals = relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: timeZone) }
-        }
-
-        guard query.intervals != nil, !query.intervals!.isEmpty else {
-            throw QueryGenerationError.keyMissing(reason: "Either 'relativeIntervals' or 'intervals' need to be set")
-        }
-
-        // Compile relative intervals in Relative Interval filters
-        if let filter = query.filter {
-            query.filter = compileRelativeFilterInterval(filter: filter, timeZone: timeZone)
-        }
-
-        // Comppile relative intervals in Aggregators
-        if let aggregations = query.aggregations {
-            query.aggregations = aggregations.map { agg in compileRelativeIntervalFilterInAggregations(agg: agg, timeZone: timeZone) }
-        }
-
-        // Add restrictionsFilter
-        if let applicableRestrictions = Self.getApplicableRestrictions(from: query) {
-            query.restrictions = applicableRestrictions
-            query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: applicableRestrictions))))
-        } else {
-            query.restrictions = nil
-        }
-
-        // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
-        query.compilationStatus = .compiled
-
-        return query
     }
 
     private func compileRelativeFilterInterval(filter: Filter, timeZone: String?) -> Filter {

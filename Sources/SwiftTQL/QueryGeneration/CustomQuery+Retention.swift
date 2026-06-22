@@ -1,58 +1,67 @@
 import Foundation
 import DateOperations
+import Tracing
 
 extension CustomQuery {
     func precompiledRetentionQuery() throws -> CustomQuery {
-        var query = self
+        try withSpan("TQL.Query.Retention.compile") { span in
+            var query = self
 
-        // Get the query intervals - we need at least one interval
-        guard let queryIntervals = intervals ?? relativeIntervals?.map({ QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: context?.timezone) }),
-              let firstInterval = queryIntervals.first else {
-            throw QueryGenerationError.keyMissing(reason: "Missing intervals for retention query")
-        }
-
-        let beginDate = firstInterval.beginningDate
-        let endDate = firstInterval.endDate
-
-        // Use the query's granularity to determine retention period, defaulting to month if not specified
-        let retentionGranularity = query.granularity ?? .month
-
-        // Validate minimum interval based on granularity
-        try validateMinimumInterval(from: beginDate, to: endDate, granularity: retentionGranularity)
-
-        // Split into intervals based on the specified granularity
-        let retentionIntervals = try splitIntoIntervals(from: beginDate, to: endDate, granularity: retentionGranularity)
-
-        // Precompute the ISO8601 title for each interval once. The post-aggregator loop below is
-        // O(n²) over the intervals and would otherwise recompute each title many times over.
-        let titlesByInterval = Dictionary(
-            retentionIntervals.map { ($0, title(for: $0)) },
-            uniquingKeysWith: { existing, _ in existing }
-        )
-
-        // Generate Aggregators
-        var aggregators = [Aggregator]()
-        for interval in retentionIntervals {
-            aggregators.append(aggregator(for: interval, title: titlesByInterval[interval] ?? title(for: interval)))
-        }
-
-        // Generate Post-Aggregators
-        var postAggregators = [PostAggregator]()
-        for row in retentionIntervals {
-            let rowTitle = titlesByInterval[row] ?? title(for: row)
-            for column in retentionIntervals where column >= row {
-                let columnTitle = titlesByInterval[column] ?? title(for: column)
-                postAggregators.append(postAggregatorBetween(title1: rowTitle, title2: columnTitle))
+            // Get the query intervals - we need at least one interval
+            guard let queryIntervals = intervals ?? relativeIntervals?.map({ QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: context?.timezone) }),
+                  let firstInterval = queryIntervals.first else {
+                throw QueryGenerationError.keyMissing(reason: "Missing intervals for retention query")
             }
+
+            let beginDate = firstInterval.beginningDate
+            let endDate = firstInterval.endDate
+
+            // Use the query's granularity to determine retention period, defaulting to month if not specified
+            let retentionGranularity = query.granularity ?? .month
+            if case let .simple(simpleGranularity) = retentionGranularity {
+                span.attributes["tql.retention.granularity"] = simpleGranularity.rawValue
+            }
+
+            // Validate minimum interval based on granularity
+            try validateMinimumInterval(from: beginDate, to: endDate, granularity: retentionGranularity)
+
+            // Split into intervals based on the specified granularity
+            let retentionIntervals = try splitIntoIntervals(from: beginDate, to: endDate, granularity: retentionGranularity)
+            span.attributes["tql.retention.intervals_count"] = retentionIntervals.count
+
+            // Precompute the ISO8601 title for each interval once. The post-aggregator loop below is
+            // O(n²) over the intervals and would otherwise recompute each title many times over.
+            let titlesByInterval = Dictionary(
+                retentionIntervals.map { ($0, title(for: $0)) },
+                uniquingKeysWith: { existing, _ in existing }
+            )
+
+            // Generate Aggregators
+            var aggregators = [Aggregator]()
+            for interval in retentionIntervals {
+                aggregators.append(aggregator(for: interval, title: titlesByInterval[interval] ?? title(for: interval)))
+            }
+
+            // Generate Post-Aggregators
+            var postAggregators = [PostAggregator]()
+            for row in retentionIntervals {
+                let rowTitle = titlesByInterval[row] ?? title(for: row)
+                for column in retentionIntervals where column >= row {
+                    let columnTitle = titlesByInterval[column] ?? title(for: column)
+                    postAggregators.append(postAggregatorBetween(title1: rowTitle, title2: columnTitle))
+                }
+            }
+
+            // Set the query properties
+            query.queryType = .groupBy
+            query.granularity = .all
+            query.aggregations = uniqued(aggregators)
+            query.postAggregations = uniqued(postAggregators)
+            span.attributes["tql.retention.aggregators_count"] = query.aggregations?.count ?? 0
+            span.attributes["tql.retention.post_aggregators_count"] = query.postAggregations?.count ?? 0
+
+            return query
         }
-
-        // Set the query properties
-        query.queryType = .groupBy
-        query.granularity = .all
-        query.aggregations = uniqued(aggregators)
-        query.postAggregations = uniqued(postAggregators)
-
-        return query
     }
 
     private func uniqued<T: Hashable>(_ array: [T]) -> [T] {
