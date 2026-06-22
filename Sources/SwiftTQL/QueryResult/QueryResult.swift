@@ -206,7 +206,7 @@ public struct DoublePlusInfinity: Codable, Hashable, Equatable, Sendable {
     /// instantiate and was previously allocated for every decoded value; it is only read here, so
     /// a single shared instance is reused instead (`nonisolated(unsafe)` opts out of the Sendable
     /// check, which is safe because the formatter is never mutated after creation).
-    nonisolated(unsafe) private static let numberFormatter = NumberFormatter()
+    private static let numberFormatter = NumberFormatter()
 
     public init(_ doubleValue: Double) {
         value = doubleValue
