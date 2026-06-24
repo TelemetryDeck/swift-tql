@@ -31,6 +31,10 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         columns: [String]? = nil,
         order: Order? = nil,
         offset: Int? = nil,
+        toInclude: SegmentMetadataToInclude? = nil,
+        merge: Bool? = nil,
+        analysisTypes: [AnalysisType]? = nil,
+        aggregatorMergeStrategy: AggregatorMergeStrategy? = nil,
         steps: [NamedFilter]? = nil,
         sample1: NamedFilter? = nil,
         sample2: NamedFilter? = nil,
@@ -67,6 +71,10 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         self.columns = columns
         self.order = order
         self.offset = offset
+        self.toInclude = toInclude
+        self.merge = merge
+        self.analysisTypes = analysisTypes
+        self.aggregatorMergeStrategy = aggregatorMergeStrategy
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -101,6 +109,10 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         columns: [String]? = nil,
         order: Order? = nil,
         offset: Int? = nil,
+        toInclude: SegmentMetadataToInclude? = nil,
+        merge: Bool? = nil,
+        analysisTypes: [AnalysisType]? = nil,
+        aggregatorMergeStrategy: AggregatorMergeStrategy? = nil,
         steps: [NamedFilter]? = nil,
         sample1: NamedFilter? = nil,
         sample2: NamedFilter? = nil,
@@ -133,6 +145,10 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         self.columns = columns
         self.order = order
         self.offset = offset
+        self.toInclude = toInclude
+        self.merge = merge
+        self.analysisTypes = analysisTypes
+        self.aggregatorMergeStrategy = aggregatorMergeStrategy
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -147,6 +163,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         case topN
         case scan
         case timeBoundary
+        case segmentMetadata
 
         // derived types
         case funnel
@@ -157,6 +174,120 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
     public enum Order: String, Codable, CaseIterable, Sendable {
         case ascending
         case descending
+    }
+
+    /// Only for segmentMetadata Queries: A JSON Object representing what columns should be included in the result. Defaults to `all`.
+    ///
+    /// https://druid.apache.org/docs/latest/querying/segmentmetadataquery
+    public enum SegmentMetadataToInclude: Codable, Hashable, Equatable, Sendable {
+        /// Include all columns in the result.
+        case all
+
+        /// Include no columns in the result.
+        case none
+
+        /// Include only the listed columns in the result.
+        case list([String])
+
+        private enum CodingKeys: String, CodingKey {
+            case type
+            case columns
+        }
+
+        private enum IncludeType: String, Codable {
+            case all
+            case none
+            case list
+        }
+
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            let type = try container.decode(IncludeType.self, forKey: .type)
+
+            switch type {
+            case .all:
+                self = .all
+            case .none:
+                self = .none
+            case .list:
+                self = try .list(container.decode([String].self, forKey: .columns))
+            }
+        }
+
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+
+            switch self {
+            case .all:
+                try container.encode(IncludeType.all, forKey: .type)
+            case .none:
+                try container.encode(IncludeType.none, forKey: .type)
+            case let .list(columns):
+                try container.encode(IncludeType.list, forKey: .type)
+                try container.encode(columns, forKey: .columns)
+            }
+        }
+    }
+
+    /// Only for segmentMetadata Queries: A column property that can be calculated and returned by a segmentMetadata query.
+    ///
+    /// https://druid.apache.org/docs/latest/querying/segmentmetadataquery
+    public enum AnalysisType: String, Codable, CaseIterable, Hashable, Sendable {
+        /// The number of unique values present in string columns. It is null for other column types.
+        ///
+        /// If `merge` is off, reports the cardinality of each column of each segment individually. If `merge` is on,
+        /// reports the highest cardinality encountered for a particular column across all relevant segments.
+        case cardinality
+
+        /// Estimated min/max values for each column. Only reported for string columns.
+        case minmax
+
+        /// The estimated total byte size as if the data were stored in text format. This is not the actual storage
+        /// size of the column in Druid.
+        case size
+
+        /// Intervals in the result will contain the list of intervals associated with the queried segments.
+        case interval
+
+        /// The result will contain the `timestampSpec` of data stored in segments. Can be null if the `timestampSpec`
+        /// of segments was unknown or unmergeable.
+        case timestampSpec
+
+        /// The result will contain the query granularity of data stored in segments. Can be null if the query
+        /// granularity of segments was unknown or unmergeable.
+        case queryGranularity
+
+        /// The result will contain the list of aggregators usable for querying metric columns. May be null if
+        /// aggregators are unknown or unmergeable. The form of the result is a map of column name to aggregator.
+        case aggregators
+
+        /// Whether the segment is rolled up. The result is true/false/null. When merging is enabled, if some segments
+        /// are rolled up and others are not, the result is null.
+        case rollup
+
+        /// The result will contain the list of projections in segments. If conflicting projections are identified, the
+        /// conflicting one is excluded and the non-conflicting ones are included.
+        case projections
+    }
+
+    /// Only for segmentMetadata Queries: The strategy Druid uses to merge aggregators across segments. Defaults to `strict`.
+    ///
+    /// https://druid.apache.org/docs/latest/querying/segmentmetadataquery
+    public enum AggregatorMergeStrategy: String, Codable, CaseIterable, Hashable, Sendable {
+        /// If there are any segments with unknown aggregators or any conflicts of any kind, the merged aggregators list is null.
+        case strict
+
+        /// Druid ignores segments with unknown aggregators. Conflicts between aggregators set the aggregator for that
+        /// particular column to null.
+        case lenient
+
+        /// In the event of conflicts between segments, Druid selects the aggregator from the earliest segment for that
+        /// particular column.
+        case earliest
+
+        /// In the event of conflicts between segments, Druid selects the aggregator from the most recent segment for
+        /// that particular column.
+        case latest
     }
 
     public enum CompilationStatus: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -216,6 +347,22 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
     /// Only for scan queries: Skips this many rows before returning results. Used together with `limit` for pagination.
     public var offset: Int?
 
+    /// Only for segmentMetadata Queries: A JSON Object representing what columns should be included in the result. Defaults to `all`.
+    public var toInclude: SegmentMetadataToInclude?
+
+    /// Only for segmentMetadata Queries: Merge all individual segment metadata results into a single result.
+    public var merge: Bool?
+
+    /// Only for segmentMetadata Queries: A list of column properties that should be calculated and returned.
+    ///
+    /// Defaults to `["cardinality", "interval", "minmax"]` if not specified.
+    public var analysisTypes: [AnalysisType]?
+
+    /// Only for segmentMetadata Queries: The strategy Druid uses to merge aggregators across segments.
+    ///
+    /// Only applies if the `aggregators` analysis type is enabled. Defaults to `strict`.
+    public var aggregatorMergeStrategy: AggregatorMergeStrategy?
+
     /// Only for funnel Queries: A list of filters that form the steps of the funnel
     public var steps: [NamedFilter]?
 
@@ -267,6 +414,10 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         hasher.combine(columns)
         hasher.combine(order)
         hasher.combine(offset)
+        hasher.combine(toInclude)
+        hasher.combine(merge)
+        hasher.combine(analysisTypes)
+        hasher.combine(aggregatorMergeStrategy)
         hasher.combine(steps)
         hasher.combine(sample1)
         hasher.combine(sample2)
@@ -305,6 +456,10 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         columns = try container.decodeIfPresent([String].self, forKey: CustomQuery.CodingKeys.columns)
         order = try container.decodeIfPresent(Order.self, forKey: CustomQuery.CodingKeys.order)
         offset = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.offset)
+        toInclude = try container.decodeIfPresent(SegmentMetadataToInclude.self, forKey: CustomQuery.CodingKeys.toInclude)
+        merge = try container.decodeIfPresent(Bool.self, forKey: CustomQuery.CodingKeys.merge)
+        analysisTypes = try container.decodeIfPresent([AnalysisType].self, forKey: CustomQuery.CodingKeys.analysisTypes)
+        aggregatorMergeStrategy = try container.decodeIfPresent(AggregatorMergeStrategy.self, forKey: CustomQuery.CodingKeys.aggregatorMergeStrategy)
         steps = try container.decodeIfPresent([NamedFilter].self, forKey: CustomQuery.CodingKeys.steps)
         sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
         sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)

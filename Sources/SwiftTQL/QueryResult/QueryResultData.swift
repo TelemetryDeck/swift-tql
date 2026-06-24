@@ -70,6 +70,11 @@ public struct QueryResultData: Sendable, Equatable, Hashable {
                 span.attributes["tql.result.row_count"] = rows.count
                 return .timeBoundary(TimeBoundaryResult(rows: rows))
 
+            case .segmentMetadata:
+                let rows = try decoder.decode([SegmentAnalysis].self, from: data)
+                span.attributes["tql.result.row_count"] = rows.count
+                return .segmentMetadata(SegmentMetadataQueryResult(rows: rows, restrictions: restrictions))
+
             default:
                 throw QueryResultDataError.unsupportedQueryType(queryType)
             }

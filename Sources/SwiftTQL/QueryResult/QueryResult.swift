@@ -6,6 +6,7 @@ public enum QueryResult: Codable, Hashable, Equatable, Sendable {
     case groupBy(GroupByQueryResult)
     case scan(ScanQueryResult)
     case timeBoundary(TimeBoundaryResult)
+    case segmentMetadata(SegmentMetadataQueryResult)
 
     enum CodingKeys: String, CodingKey {
         case type
@@ -26,6 +27,8 @@ public enum QueryResult: Codable, Hashable, Equatable, Sendable {
             self = try .scan(ScanQueryResult(from: decoder))
         case "timeBoundaryResult":
             self = try .timeBoundary(TimeBoundaryResult(from: decoder))
+        case "segmentMetadataResult":
+            self = try .segmentMetadata(SegmentMetadataQueryResult(from: decoder))
         default:
             throw EncodingError.invalidValue("Invalid type", .init(codingPath: [CodingKeys.type], debugDescription: "Invalid Type", underlyingError: nil))
         }
@@ -50,6 +53,9 @@ public enum QueryResult: Codable, Hashable, Equatable, Sendable {
         case let .timeBoundary(timeBoundary):
             try container.encode("timeBoundaryResult", forKey: .type)
             try timeBoundary.encode(to: encoder)
+        case let .segmentMetadata(segmentMetadata):
+            try container.encode("segmentMetadataResult", forKey: .type)
+            try segmentMetadata.encode(to: encoder)
         }
     }
 }
