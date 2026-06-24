@@ -30,6 +30,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         dimensions: [DimensionSpec]? = nil,
         columns: [String]? = nil,
         order: Order? = nil,
+        offset: Int? = nil,
         steps: [NamedFilter]? = nil,
         sample1: NamedFilter? = nil,
         sample2: NamedFilter? = nil,
@@ -65,6 +66,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         self.dimensions = dimensions
         self.columns = columns
         self.order = order
+        self.offset = offset
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -98,6 +100,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         dimensions: [DimensionSpec]? = nil,
         columns: [String]? = nil,
         order: Order? = nil,
+        offset: Int? = nil,
         steps: [NamedFilter]? = nil,
         sample1: NamedFilter? = nil,
         sample2: NamedFilter? = nil,
@@ -129,6 +132,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         self.dimensions = dimensions
         self.columns = columns
         self.order = order
+        self.offset = offset
         self.steps = steps
         self.sample1 = sample1
         self.sample2 = sample2
@@ -209,6 +213,9 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
     /// Only for scan queries: The ordering of returned rows based on timestamp. Make sure to include the timestamp in the columns list.
     public var order: Order?
 
+    /// Only for scan queries: Skips this many rows before returning results. Used together with `limit` for pagination.
+    public var offset: Int?
+
     /// Only for funnel Queries: A list of filters that form the steps of the funnel
     public var steps: [NamedFilter]?
 
@@ -259,6 +266,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         hasher.combine(dimension)
         hasher.combine(columns)
         hasher.combine(order)
+        hasher.combine(offset)
         hasher.combine(steps)
         hasher.combine(sample1)
         hasher.combine(sample2)
@@ -296,6 +304,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         dimensions = try container.decodeIfPresent([DimensionSpec].self, forKey: CustomQuery.CodingKeys.dimensions)
         columns = try container.decodeIfPresent([String].self, forKey: CustomQuery.CodingKeys.columns)
         order = try container.decodeIfPresent(Order.self, forKey: CustomQuery.CodingKeys.order)
+        offset = try container.decodeIfPresent(Int.self, forKey: CustomQuery.CodingKeys.offset)
         steps = try container.decodeIfPresent([NamedFilter].self, forKey: CustomQuery.CodingKeys.steps)
         sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
         sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)
