@@ -16,26 +16,21 @@ public extension CustomQuery {
     /// @warn Both precompile AND compileToRunnableQuery need to be run before a query can safely be handed to Druid!
     ///
     /// @see compileToRunnableQuery
-    func precompile(
-        namespace: String? = nil,
-        useNamespace: Bool,
-        organizationAppIDs: [UUID],
-        isSuperOrg: Bool
-    ) throws -> CustomQuery {
+    func precompile() throws -> CustomQuery {
         try withSpan("TQL.Query.precompile") { span in
-            // Identity/context + query payload attributes for the span (see CLAUDE-level OTel convention).
+            // Make an editable copy of self
+            var query = self
+
             span.attributes["tql.query.type"] = queryType.rawValue
-            if let namespace { span.attributes["tql.namespace"] = namespace }
-            span.attributes["tql.use_namespace"] = useNamespace
-            span.attributes["tql.is_super_org"] = isSuperOrg
-            span.attributes["tql.organization_app_ids.count"] = organizationAppIDs.count
+            if let namespace = query.dataSource?.name {
+                span.attributes["tql.namespace"] = namespace
+            } else {
+                throw QueryGenerationError.keyMissing(reason: "Missing key 'dataSource'")
+            }
 
             guard (compilationStatus ?? .notCompiled) == .notCompiled else {
                 throw QueryGenerationError.compilationStatusError
             }
-
-            // Make an editable copy of self
-            var query = self
 
             // Make sure either intervals or relative intervals are set
             if query.intervals == nil && query.relativeIntervals == nil {
@@ -47,10 +42,7 @@ public extension CustomQuery {
 
             // Custom Query Types
             if query.queryType == .funnel {
-                // If a namespace is set, increase the accuracy of the funnel query (i.e. the size of the theta sketch).
-                // This helps increase accuracy for bigger customers who have their own namespace while hopefully keeping costs down in telemetry-signals.
-                // https://github.com/TelemetryDeck/SwiftDataTransferObjects/issues/55
-                query = try namespace == nil ? precompiledFunnelQuery() : precompiledFunnelQuery(accuracy: 65536)
+                query = try precompiledFunnelQuery()
             } else if query.queryType == .experiment {
                 query = try precompiledExperimentQuery()
             } else if query.queryType == .retention {
@@ -80,13 +72,7 @@ public extension CustomQuery {
             query.postAggregations = postAggregations
 
             // Apply base filters and data source
-            query = try Self.applyBaseFilters(
-                namespace: namespace,
-                useNamespace: useNamespace,
-                query: query,
-                organizationAppIDs: organizationAppIDs,
-                isSuperOrg: isSuperOrg
-            )
+            query = try Self.applyBaseFilters(query: query)
 
             // Update compilationStatus so the next steps in the pipeline are sure the query has been precompiled
             query.compilationStatus = .precompiled
@@ -132,15 +118,6 @@ public extension CustomQuery {
             // Comppile relative intervals in Aggregators
             if let aggregations = query.aggregations {
                 query.aggregations = aggregations.map { agg in compileRelativeIntervalFilterInAggregations(agg: agg, timeZone: timeZone) }
-            }
-
-            // Add restrictionsFilter
-            if let applicableRestrictions = Self.getApplicableRestrictions(from: query) {
-                query.restrictions = applicableRestrictions
-                query.filter = query.filter && Filter.not(.init(field: Filter.interval(.init(dimension: "__time", intervals: applicableRestrictions))))
-                span.attributes["tql.restrictions.count"] = applicableRestrictions.count
-            } else {
-                query.restrictions = nil
             }
 
             // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
@@ -202,24 +179,10 @@ public extension CustomQuery {
 }
 
 extension CustomQuery {
-    static func applyBaseFilters(
-        namespace: String?,
-        useNamespace: Bool,
-        query: CustomQuery,
-        organizationAppIDs: [UUID]?,
-        isSuperOrg: Bool
-    ) throws -> CustomQuery {
+    static func applyBaseFilters(query: CustomQuery) throws -> CustomQuery {
         // make an editable copy of the query
         var query = query
-
-        // Throw if noFilter is requested by an ord that is not super
-        let baseFilters = query.baseFilters ?? .thisOrganization
-        if baseFilters == .noFilter {
-            guard isSuperOrg else {
-                throw QueryGenerationError.notAllowed(reason: "The noFilter base filter is not implemented.")
-            }
-        } else {
-            let maxPriority = isSuperOrg ? 5 : 1
+            let maxPriority = 2
             let minPriority = -1
             var clampedPriority = query.context?.priority ?? 1
             if clampedPriority > maxPriority {
@@ -240,96 +203,23 @@ extension CustomQuery {
                 timezone: query.context?.timezone
             )
 
-            var allowedDataSourceNames = [
-                "telemetry-signals",
-                "com.telemetrydeck.all"
-            ]
-
-            if let namespace {
-                allowedDataSourceNames.append(namespace)
-            }
-
-            // Decide the data source based on the data source property and namespaces
-            if let dataSource = query.dataSource, allowedDataSourceNames.contains(dataSource.name) {
-                // If the customer requested a specific data source, use it
-                // if it is in the list of allowed data sources.
-                query.dataSource = .init(dataSource.name)
-            } else if let namespace, useNamespace {
-                // If a namespace is set, use it as the data source
-                query.dataSource = .init(namespace)
-            } else {
-                // Else fall back to telemetry-signals
-                query.dataSource = .init("telemetry-signals")
-            }
-        }
-
         // Apply filters according to the basefilters property
+        let baseFilters = query.baseFilters ?? .thisOrganization
         switch baseFilters {
         case .thisOrganization:
-            if let namespace, query.dataSource?.name == namespace {
-                return query
-            }
-
-            guard let organizationAppIDs = organizationAppIDs else { throw QueryGenerationError.keyMissing(reason: "Missing organization app IDs") }
-            query.filter = try query.filter && appIDFilter(for: organizationAppIDs) && testModeFilter(for: query)
             return query
 
         case .thisApp:
             guard let appID = query.appID else { throw QueryGenerationError.keyMissing(reason: "Missing key 'appID'") }
-            guard isSuperOrg || (organizationAppIDs ?? []).contains(appID) else { throw QueryGenerationError.notAllowed(reason: "AppID not in organization") }
-            query.filter = try query.filter && appIDFilter(for: [appID]) && testModeFilter(for: query)
+            query.filter = query.filter && .selector(.init(dimension: "appID", value: appID.uuidString))
             return query
 
         case .exampleData:
-            let appIDFilter = Filter.selector(.init(dimension: "appID", value: "B97579B6-FFB8-4AC5-AAA7-DA5796CC5DCE"))
-            query.filter = query.filter && appIDFilter && testModeFilter(for: query)
+            query.dataSource = .init("space.ooo")
             return query
 
         case .noFilter:
             return query
-        }
-    }
-
-    /// Returns a filter according to the query objects `testMode` property.
-    static func testModeFilter(for query: CustomQuery) -> Filter {
-        Filter.selector(.init(dimension: "isTestMode", value: "\(query.testMode ?? false ? "true" : "false")"))
-    }
-
-    // Given a list of app UUIDs, generates a Filter object that restricts a query to only apps with either of the given IDs
-    static func appIDFilter(for organizationAppIDs: [UUID]) throws -> Filter {
-        guard !organizationAppIDs.isEmpty else {
-            throw QueryGenerationError.keyMissing(reason: "Missing organization app IDs")
-        }
-
-        guard organizationAppIDs.count != 1 else {
-            return Filter.selector(.init(dimension: "appID", value: organizationAppIDs.first!.uuidString))
-        }
-
-        let filters = organizationAppIDs.compactMap {
-            Filter.selector(.init(dimension: "appID", value: $0.uuidString))
-        }
-
-        return Filter.or(.init(fields: filters))
-    }
-
-    static func getApplicableRestrictions(from query: CustomQuery) -> [QueryTimeInterval]? {
-        guard let restrictions = query.restrictions else { return nil }
-
-        // Only apply those restrictions that actually are inside the query intervals
-        var applicableRestrictions = Set<QueryTimeInterval>()
-        for queryInterval in query.intervals ?? [] {
-            for restrictionInterval in restrictions {
-                let isOverlapping = (queryInterval.beginningDate <= restrictionInterval.endDate) && (restrictionInterval.beginningDate <= queryInterval.endDate)
-                if isOverlapping {
-                    applicableRestrictions.insert(restrictionInterval)
-                }
-            }
-        }
-
-        if applicableRestrictions.isEmpty {
-            return nil
-        } else {
-            return applicableRestrictions.sorted { $0 < $1 }
         }
     }
 }

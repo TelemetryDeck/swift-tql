@@ -7,9 +7,6 @@ struct CompileDownTests {
         RelativeTimeInterval(beginningDate: .init(.beginning, of: .month, adding: 0), endDate: .init(.end, of: .month, adding: 0)),
     ]
 
-    let appID1 = UUID()
-    let appID2 = UUID()
-
     @Test("Funnel query precompilation") func funnel() throws {
         let steps: [NamedFilter] = [
             .init(filter: .selector(.init(dimension: "type", value: "appLaunchedRegularly")), name: "Regular Launch"),
@@ -18,111 +15,73 @@ struct CompileDownTests {
             .init(filter: .selector(.init(dimension: "type", value: "conversion")), name: "Conversion"),
         ]
 
-        let query = CustomQuery(queryType: .funnel, relativeIntervals: relativeIntervals, granularity: .all, steps: steps)
+        let query = CustomQuery(queryType: .funnel, dataSource: "telemetry-signals", relativeIntervals: relativeIntervals, granularity: .all, steps: steps)
 
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let precompiledQuery = try query.precompile()
 
         // Exact query generation is in FunnelQueryGenerationTests,
         // here we're just making sure we're jumping into the correct paths.
         #expect(precompiledQuery.queryType == .groupBy)
     }
 
-    @Test("Base filters for this organization") func baseFiltersThisOrganization() throws {
-        let query = CustomQuery(queryType: .timeseries, baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+    @Test("Throws if no data source set") func throwsIfNoDataSource() throws {
+        let query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .all)
+        #expect(throws: (any Error).self) { try query.precompile() }
+    }
 
-        #expect(
-            precompiledQuery.filter ==
-            .and(.init(fields: [
-                .or(.init(fields: [
-                    .selector(.init(
-                        dimension: "appID",
-                        value: appID1.uuidString
-                    )),
-                    .selector(.init(
-                        dimension: "appID",
-                        value: appID2.uuidString
-                    )),
-                ]
-                )),
-                .selector(.init(dimension: "isTestMode", value: "false")),
-            ]
-            ))
-        )
+    @Test("Base filters for this organization") func baseFiltersThisOrganization() throws {
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
+        let precompiledQuery = try query.precompile()
+
+        // The caller is responsible for injecting any app/organization filters, so
+        // the base filter no longer adds anything on top of the query's own filter.
+        #expect(precompiledQuery.filter == nil)
     }
 
     @Test("Base filters for this app") func baseFiltersThisApp() throws {
         // this should fail because the query does not have an appID
-        let queryFailing = CustomQuery(queryType: .timeseries, baseFilters: .thisApp, relativeIntervals: relativeIntervals, granularity: .all)
-        #expect(throws: (any Error).self) { try queryFailing.precompile(useNamespace: false, organizationAppIDs: [], isSuperOrg: false) }
+        let queryFailing = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .thisApp, relativeIntervals: relativeIntervals, granularity: .all)
+        #expect(throws: (any Error).self) { try queryFailing.precompile() }
 
         // This should succeed because an app ID is provided
         let appID = UUID()
-        let query = CustomQuery(queryType: .timeseries, appID: appID, baseFilters: .thisApp, relativeIntervals: relativeIntervals, granularity: .all)
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID, appID1, appID2], isSuperOrg: false)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", appID: appID, baseFilters: .thisApp, relativeIntervals: relativeIntervals, granularity: .all)
+        let precompiledQuery = try query.precompile()
 
         #expect(
             precompiledQuery.filter ==
-            .and(.init(fields: [
-                .selector(.init(dimension: "appID", value: appID.uuidString)),
-                .selector(.init(dimension: "isTestMode", value: "false")),
-            ]))
+            .selector(.init(dimension: "appID", value: appID.uuidString))
         )
     }
 
     @Test("Base filters for example data") func baseFiltersExampleData() throws {
-        let query = CustomQuery(queryType: .timeseries, baseFilters: .exampleData, relativeIntervals: relativeIntervals, granularity: .all)
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .exampleData, relativeIntervals: relativeIntervals, granularity: .all)
+        let precompiledQuery = try query.precompile()
 
-        #expect(
-            precompiledQuery.filter ==
-            .and(.init(fields: [
-                .selector(.init(dimension: "appID", value: "B97579B6-FFB8-4AC5-AAA7-DA5796CC5DCE")),
-                .selector(.init(dimension: "isTestMode", value: "false")),
-            ]))
-        )
+        #expect(precompiledQuery.dataSource == DataSource("space.ooo"))
+        #expect(precompiledQuery.filter == nil)
     }
 
     @Test("Base filters with no filter") func baseFiltersNoFilter() throws {
-        let query = CustomQuery(queryType: .timeseries, baseFilters: .noFilter, relativeIntervals: relativeIntervals, granularity: .all)
-
-        // this should fail because isSuperOrg is not set to true
-        #expect(throws: (any Error).self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
-
-        // this should succeed because isSuperOrg is set to true
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: true)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .noFilter, relativeIntervals: relativeIntervals, granularity: .all)
+        let precompiledQuery = try query.precompile()
 
         #expect(precompiledQuery.filter == nil)
     }
 
-    @Test("Data source handling") func dataSource() throws {
-        // No datasource means data source is telemetry-signals
-        let query1 = CustomQuery(queryType: .timeseries, baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
-        #expect(try query1.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false).dataSource == DataSource("telemetry-signals"))
-
-        // Specified datasource but not noFilter + super org will be replaced by telemetry-signals
-        let query2 = CustomQuery(queryType: .timeseries, dataSource: "some-data-source", baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
-        #expect(try query2.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false).dataSource == DataSource("telemetry-signals"))
-
-        // Specified datasource will be retained if super org is set
-        let query3 = CustomQuery(queryType: .timeseries, dataSource: "some-data-source", baseFilters: .noFilter, relativeIntervals: relativeIntervals, granularity: .all)
-        #expect(try query3.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: true).dataSource == DataSource("some-data-source"))
-    }
-
-    @Test("Throws if neither intervals nor relative intervals set") func throwsIfNeitherIntervalsNorRelativeIntervalsSet() throws {
-        let query = CustomQuery(queryType: .timeseries, baseFilters: .noFilter, intervals: nil, relativeIntervals: nil, granularity: .all)
-
-        #expect(throws: (any Error).self) { try query.precompile(useNamespace: false, organizationAppIDs: [], isSuperOrg: false) }
+    @Test("Data source is preserved") func dataSourceIsPreserved() throws {
+        let query = CustomQuery(queryType: .timeseries, dataSource: "some-data-source", baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
+        #expect(try query.precompile().dataSource == DataSource("some-data-source"))
     }
 
     @Test("Compilation fails if no precompilation") func compilationFailsIfNoPrecompilation() throws {
-        let query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .all)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", relativeIntervals: relativeIntervals, granularity: .all)
         #expect(throws: (any Error).self) { try query.compileToRunnableQuery() }
     }
 
     @Test("Intervals are created") func intervalsAreCreated() throws {
-        let query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .all)
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", relativeIntervals: relativeIntervals, granularity: .all)
+        let precompiledQuery = try query.precompile()
         let compiledQuery = try precompiledQuery.compileToRunnableQuery()
 
         #expect(compiledQuery.intervals != nil)
@@ -132,6 +91,7 @@ struct CompileDownTests {
     @Test("Filters support relative intervals") func filtersSupportRelativeIntervals() throws {
         let query = CustomQuery(
             queryType: .timeseries,
+            dataSource: "telemetry-signals",
             filter: .or(
                 .init(
                     fields: [.interval(
@@ -149,38 +109,25 @@ struct CompileDownTests {
             granularity: .all
         )
 
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let precompiledQuery = try query.precompile()
         let compiledQuery = try precompiledQuery.compileToRunnableQuery()
 
-        guard case .and(let testModeFilter) = compiledQuery.filter else {
+        // The base filter no longer wraps the query filter, so the query's own
+        // filter is passed through with its relative intervals compiled.
+        guard case .or(let orFilterExpression) = compiledQuery.filter else {
             Issue.record("Filter is of wrong type")
             return
         }
 
-        guard case .and(let appIDsFilter) = testModeFilter.fields.first else {
-            Issue.record("Filter is of wrong type")
+        guard let intervalFilter = orFilterExpression.fields.first else {
+            Issue.record("Filter has wrong number of fields")
             return
         }
 
-        guard let orFilter = appIDsFilter.fields.first else {
-            Issue.record("Filter is of wrong type")
-            return
-        }
-
-        switch orFilter {
-        case .or(let orFilterExpression):
-            guard let intervalFilter = orFilterExpression.fields.first else {
-                Issue.record("Filter is of wrong number")
-                return
-            }
-
-            switch intervalFilter {
-            case .interval(let filterInterval):
-                #expect(filterInterval.intervals != nil)
-                #expect(!filterInterval.intervals!.isEmpty)
-            default:
-                Issue.record("Filter is of wrong number")
-            }
+        switch intervalFilter {
+        case .interval(let filterInterval):
+            #expect(filterInterval.intervals != nil)
+            #expect(!filterInterval.intervals!.isEmpty)
         default:
             Issue.record("Filter is of wrong type")
         }
@@ -189,6 +136,7 @@ struct CompileDownTests {
     @Test("Aggregations support relative intervals") func aggregationsSupportRelativeIntervals() throws {
         let query = CustomQuery(
             queryType: .timeseries,
+            dataSource: "telemetry-signals",
             relativeIntervals: relativeIntervals,
             granularity: .all,
             aggregations: [
@@ -208,7 +156,7 @@ struct CompileDownTests {
                 ),
             ]
         )
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let precompiledQuery = try query.precompile()
         let compiledQuery = try precompiledQuery.compileToRunnableQuery()
 
         guard let aggregation = compiledQuery.aggregations?.first else {
@@ -231,8 +179,8 @@ struct CompileDownTests {
     }
 
     @Test("Compilation status is set correctly") func compilationStatusIsSetCorrectly() throws {
-        let query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .all)
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", relativeIntervals: relativeIntervals, granularity: .all)
+        let precompiledQuery = try query.precompile()
         let compiledQuery = try precompiledQuery.compileToRunnableQuery()
 
         #expect(precompiledQuery.compilationStatus == .precompiled)
@@ -240,46 +188,8 @@ struct CompileDownTests {
     }
 
     @Test("Throws if compilation status not set correctly") func throwsIfCompilationStatusNotSetCorrectly() throws {
-        let query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .all)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", relativeIntervals: relativeIntervals, granularity: .all)
         #expect(throws: (any Error).self) { try query.compileToRunnableQuery() }
-    }
-
-    @Test("Query restrictions") func restrictions() throws {
-        let intervals: [QueryTimeInterval] = [
-            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
-        ]
-
-        let restrictions: [QueryTimeInterval] = [
-            // This restriction should be dropped in the final query, because it does not apply
-            .init(beginningDate: Date(iso8601String: "2023-01-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-01-31T00:00:00.000Z")!),
-
-            // This restriction should be included because it does apply
-            .init(beginningDate: Date(iso8601String: "2023-05-14T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
-
-            // This restriction should be included because it applies partially
-            .init(beginningDate: Date(iso8601String: "2023-03-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-04-02T00:00:00.000Z")!),
-        ]
-
-        let query = CustomQuery(queryType: .timeseries, restrictions: restrictions, intervals: intervals, granularity: .all)
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
-        let compiledQuery = try precompiledQuery.compileToRunnableQuery()
-
-        #expect(compiledQuery.restrictions == [
-            .init(beginningDate: Date(iso8601String: "2023-03-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-04-02T00:00:00.000Z")!),
-            .init(beginningDate: Date(iso8601String: "2023-05-14T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
-        ])
-    }
-
-    @Test("Namespace handling") func namespace() throws {
-        let intervals: [QueryTimeInterval] = [
-            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
-        ]
-
-        var query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: .day)
-        query.dataSource = nil
-        let precompiledQuery = try query.precompile(namespace: "com.telemetrydeck.test", useNamespace: true, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
-        let compiledQuery = try precompiledQuery.compileToRunnableQuery()
-        #expect(compiledQuery.dataSource?.name == "com.telemetrydeck.test")
     }
 
     @Test("Precompile converts simple granularity to period when context has timezone") func granularityPrecompileWithTimezone() throws {
@@ -290,10 +200,10 @@ struct CompileDownTests {
         var context = QueryContext()
         context.timezone = "America/Los_Angeles"
 
-        var query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: .day)
+        var query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", intervals: intervals, granularity: .day)
         query.context = context
 
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let precompiledQuery = try query.precompile()
 
         guard case let .period(periodGranularity) = precompiledQuery.granularity else {
             Issue.record("Expected period granularity, got \(String(describing: precompiledQuery.granularity))")
@@ -309,8 +219,8 @@ struct CompileDownTests {
             .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
         ]
 
-        let query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: .day)
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", intervals: intervals, granularity: .day)
+        let precompiledQuery = try query.precompile()
 
         #expect(precompiledQuery.granularity == .day)
     }
@@ -324,10 +234,10 @@ struct CompileDownTests {
         var context = QueryContext()
         context.timezone = "Europe/Berlin"
 
-        var query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: durationGranularity)
+        var query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", intervals: intervals, granularity: durationGranularity)
         query.context = context
 
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let precompiledQuery = try query.precompile()
 
         #expect(precompiledQuery.granularity == durationGranularity)
     }
@@ -336,34 +246,34 @@ struct CompileDownTests {
         let intervals: [QueryTimeInterval] = [
             .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
         ]
-        let query = CustomQuery(queryType: .timeseries, intervals: intervals, granularity: .hour)
-        #expect(throws: Never.self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
+        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", intervals: intervals, granularity: .hour)
+        #expect(throws: Never.self) { try query.precompile() }
     }
 
     @Test("Allows daily granularity for topN") func allowsDailyGranularityForTopN() throws {
         let intervals: [QueryTimeInterval] = [
             .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
         ]
-        let query = CustomQuery(queryType: .topN, intervals: intervals, granularity: .day)
-        #expect(throws: Never.self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
+        let query = CustomQuery(queryType: .topN, dataSource: "telemetry-signals", intervals: intervals, granularity: .day)
+        #expect(throws: Never.self) { try query.precompile() }
     }
 
     @Test("Allows daily granularity for groupBy") func allowsDailyGranularityForGroupBy() throws {
         let intervals: [QueryTimeInterval] = [
             .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
         ]
-        let query = CustomQuery(queryType: .groupBy, intervals: intervals, granularity: .day)
-        #expect(throws: Never.self) { try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false) }
+        let query = CustomQuery(queryType: .groupBy, dataSource: "telemetry-signals", intervals: intervals, granularity: .day)
+        #expect(throws: Never.self) { try query.precompile() }
     }
 
     @Test("Timezone is preserved through precompile and compile") func timezonePreservedThroughCompile() throws {
         var context = QueryContext()
         context.timezone = "America/New_York"
 
-        var query = CustomQuery(queryType: .timeseries, relativeIntervals: relativeIntervals, granularity: .day)
+        var query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", relativeIntervals: relativeIntervals, granularity: .day)
         query.context = context
 
-        let precompiledQuery = try query.precompile(useNamespace: false, organizationAppIDs: [appID1, appID2], isSuperOrg: false)
+        let precompiledQuery = try query.precompile()
         #expect(precompiledQuery.context?.timezone == "America/New_York")
 
         let compiledQuery = try precompiledQuery.compileToRunnableQuery()
