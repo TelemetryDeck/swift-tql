@@ -6,8 +6,7 @@ import PackageDescription
 let package = Package(
     name: "swift-tql",
     platforms: [
-        .macOS(.v13),
-        .iOS(.v14),
+        .macOS(.v15),
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -24,9 +23,9 @@ let package = Package(
         // Dependencies declare other packages that this package depends on.
         // .package(name: "SwiftDateOperations", path: "../SwiftDateOperations"), // local development
         .package(url: "https://github.com/TelemetryDeck/SwiftDateOperations.git", from: "2.0.1"),
-        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.8.0"),
-        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.3.1"),
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.89.0"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.15.1"),
+        .package(url: "https://github.com/apple/swift-distributed-tracing.git", from: "1.4.1"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.121.4"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
