@@ -13,19 +13,9 @@ struct ExperimentQueryGenerationTests {
         endDate: .init(.end, of: .month, adding: 0)
     )
 
-    let organizationAppIDs: [UUID] = [UUID(uuidString: "00000000-0000-0000-0000-000000000000")!]
-
     let tinyQuery = CustomQuery(
         queryType: .groupBy,
         dataSource: "telemetry-signals",
-        filter: .and(.init(fields: [
-            .selector(.init(
-                dimension: "appID", value: "00000000-0000-0000-0000-000000000000"
-            )),
-            .selector(.init(
-                dimension: "isTestMode", value: "false"
-            )),
-        ])),
         granularity: .all,
         aggregations: [
             .filtered(.init(
@@ -131,13 +121,14 @@ struct ExperimentQueryGenerationTests {
     func example() throws {
         let startingQuery = CustomQuery(
             queryType: .experiment,
+            dataSource: "telemetry-signals",
             relativeIntervals: [relativeInterval],
             granularity: .all,
             sample1: cohort1,
             sample2: cohort2,
             successCriterion: successCriterion
         )
-        let generatedTinyQuery = try startingQuery.precompile(useNamespace: false, organizationAppIDs: organizationAppIDs, isSuperOrg: false)
+        let generatedTinyQuery = try startingQuery.precompile()
 
         #expect(tinyQuery.filter == generatedTinyQuery.filter)
         #expect(tinyQuery.aggregations == generatedTinyQuery.aggregations)

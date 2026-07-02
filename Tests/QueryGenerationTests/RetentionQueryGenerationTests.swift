@@ -121,7 +121,7 @@ struct RetentionQueryGenerationTests {
             intervals: [QueryTimeInterval(beginningDate: begin_august, endDate: mid_august)],
             granularity: .month
         )
-        #expect(throws: (any Error).self) { try monthQuery1.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
+        #expect(throws: (any Error).self) { try monthQuery1.precompile() }
 
         let monthQuery2 = CustomQuery(
             queryType: .retention,
@@ -129,7 +129,7 @@ struct RetentionQueryGenerationTests {
             intervals: [QueryTimeInterval(beginningDate: begin_august, endDate: end_august)],
             granularity: .month
         )
-        #expect(throws: (any Error).self) { try monthQuery2.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
+        #expect(throws: (any Error).self) { try monthQuery2.precompile() }
 
         let monthQuery3 = CustomQuery(
             queryType: .retention,
@@ -137,7 +137,7 @@ struct RetentionQueryGenerationTests {
             intervals: [QueryTimeInterval(beginningDate: begin_august, endDate: end_september)],
             granularity: .month
         )
-        #expect(throws: Never.self) { try monthQuery3.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
+        #expect(throws: Never.self) { try monthQuery3.precompile() }
 
         // Test daily retention
         let startDate = Date(iso8601String: "2022-08-01T00:00:00.000Z")!
@@ -150,7 +150,7 @@ struct RetentionQueryGenerationTests {
             intervals: [QueryTimeInterval(beginningDate: startDate, endDate: sameDay)],
             granularity: .day
         )
-        #expect(throws: (any Error).self) { try dayQuery1.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
+        #expect(throws: (any Error).self) { try dayQuery1.precompile() }
 
         let dayQuery2 = CustomQuery(
             queryType: .retention,
@@ -158,7 +158,7 @@ struct RetentionQueryGenerationTests {
             intervals: [QueryTimeInterval(beginningDate: startDate, endDate: nextDay)],
             granularity: .day
         )
-        #expect(throws: Never.self) { try dayQuery2.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
+        #expect(throws: Never.self) { try dayQuery2.precompile() }
 
         // Test weekly retention
         let weekStart = Date(iso8601String: "2022-08-01T00:00:00.000Z")!
@@ -171,7 +171,7 @@ struct RetentionQueryGenerationTests {
             intervals: [QueryTimeInterval(beginningDate: weekStart, endDate: weekMid)],
             granularity: .week
         )
-        #expect(throws: (any Error).self) { try weekQuery1.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
+        #expect(throws: (any Error).self) { try weekQuery1.precompile() }
 
         let weekQuery2 = CustomQuery(
             queryType: .retention,
@@ -179,7 +179,7 @@ struct RetentionQueryGenerationTests {
             intervals: [QueryTimeInterval(beginningDate: weekStart, endDate: weekEnd)],
             granularity: .week
         )
-        #expect(throws: Never.self) { try weekQuery2.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [UUID()], isSuperOrg: false) }
+        #expect(throws: Never.self) { try weekQuery2.precompile() }
     }
 
     @Test("Retention query generation compiles to correct structure")
@@ -199,7 +199,7 @@ struct RetentionQueryGenerationTests {
             granularity: .month  // Explicitly set to month
         )
 
-        let compiledQuery = try query.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [appID], isSuperOrg: true)
+        let compiledQuery = try query.precompile()
 
         // Verify the compiled query has the expected structure
         #expect(compiledQuery.queryType == .groupBy)
@@ -229,7 +229,7 @@ struct RetentionQueryGenerationTests {
             granularity: .day
         )
 
-        let compiledDailyQuery = try dailyQuery.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [appID], isSuperOrg: true)
+        let compiledDailyQuery = try dailyQuery.precompile()
         #expect(compiledDailyQuery.aggregations?.count == 7) // 7 days
         // Post-aggregations should be n*(n+1)/2 for n intervals
         #expect(compiledDailyQuery.postAggregations?.count == 28) // 7*8/2 = 28
@@ -248,7 +248,7 @@ struct RetentionQueryGenerationTests {
             granularity: .week
         )
 
-        let compiledWeeklyQuery = try weeklyQuery.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [appID], isSuperOrg: true)
+        let compiledWeeklyQuery = try weeklyQuery.precompile()
         #expect(compiledWeeklyQuery.aggregations?.count == 5) // 5 weeks (spans into 5th week)
         #expect(compiledWeeklyQuery.postAggregations?.count == 15) // 5*6/2 = 15
 
@@ -266,7 +266,7 @@ struct RetentionQueryGenerationTests {
             granularity: .month
         )
 
-        let compiledMonthlyQuery = try monthlyQuery.precompile(namespace: nil, useNamespace: false, organizationAppIDs: [appID], isSuperOrg: true)
+        let compiledMonthlyQuery = try monthlyQuery.precompile()
         #expect(compiledMonthlyQuery.aggregations?.count == 3) // 3 months
         #expect(compiledMonthlyQuery.postAggregations?.count == 6) // 3*4/2 = 6
     }
