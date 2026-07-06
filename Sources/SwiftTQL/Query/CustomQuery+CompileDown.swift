@@ -71,6 +71,9 @@ public extension CustomQuery {
             query.aggregations = aggregations
             query.postAggregations = postAggregations
 
+            // Apply Test Mode Filter
+            query = Self.applyTestMode(query: query)
+
             // Apply base filters and data source
             query = try Self.applyBaseFilters(query: query)
 
@@ -177,6 +180,21 @@ public extension CustomQuery {
         }
     }
 }
+
+
+extension CustomQuery {
+    /// If query.testMode is set, convert that to a filter. If not, leave the filter out
+    static func applyTestMode(query: CustomQuery) -> CustomQuery {
+        var query = query
+
+        if let testMode = query.testMode {
+            query.filter = query.filter && .selector(.init(dimension: "isTestMode", value: "\(testMode)"))
+        }
+
+        return query
+    }
+}
+
 
 extension CustomQuery {
     static func applyBaseFilters(query: CustomQuery) throws -> CustomQuery {
