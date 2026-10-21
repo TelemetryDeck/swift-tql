@@ -7,7 +7,8 @@ public struct AutoCompactionDynamicConfig: Codable, Hashable, Equatable, Sendabl
         skipOffsetFromLatest: String?,
         tuningConfig: TuningConfig?,
         granularitySpec: GranularitySpec?,
-        maxRowsPerSegment: Int?
+        maxRowsPerSegment: Int?,
+        ioConfig: CompactionIOConfig? = nil
     ) {
         self.dataSource = dataSource
         self.taskPriority = taskPriority
@@ -16,6 +17,7 @@ public struct AutoCompactionDynamicConfig: Codable, Hashable, Equatable, Sendabl
         self.tuningConfig = tuningConfig
         self.granularitySpec = granularitySpec
         self.maxRowsPerSegment = maxRowsPerSegment
+        self.ioConfig = ioConfig
     }
 
     /// The datasource name to be compacted.
@@ -50,9 +52,42 @@ public struct AutoCompactionDynamicConfig: Codable, Hashable, Equatable, Sendabl
     // not implemented:
     // public let metricsSpec: MetricsSpec?
 
-    // not implemented:
-    // public let iOConfig: IOConfig?
+    /// IO config for compaction tasks.
+    public let ioConfig: CompactionIOConfig?
 
     // undocumented
     public let maxRowsPerSegment: Int?
+}
+
+/// IO config for automatic compaction tasks
+///
+/// https://druid.apache.org/docs/latest/data-management/automatic-compaction/#compaction-io-configuration
+public struct CompactionIOConfig: Codable, Hashable, Equatable, Sendable {
+    public init(dropExisting: Bool? = nil) {
+        self.dropExisting = dropExisting
+    }
+
+    /// Always "compact".
+    public var type: String { "compact" }
+
+    /// If true, compaction tasks mark all existing segments fully contained by the compacted interval as unused, even
+    /// if the compacted segments don't cover them (e.g. a YEAR segment being recompacted into MONTH segments).
+    /// (default = false)
+    public let dropExisting: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case dropExisting
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        dropExisting = try container.decodeIfPresent(Bool.self, forKey: .dropExisting)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(type, forKey: .type)
+        try container.encodeIfPresent(dropExisting, forKey: .dropExisting)
+    }
 }
