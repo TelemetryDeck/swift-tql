@@ -321,4 +321,6 @@ public struct Druid: Sendable {
     public var dataSources: DataSourcesRoutes { .init(druid: self) }
     public var compaction: CompactionRoutes { .init(druid: self) }
     public var overlord: OverlordRoutes { .init(druid: self) }
+    /// Read-only Coordinator metadata routes (segment intervals, sizes, counts).
+    public var coordinator: CoordinatorRoutes { .init(druid: self) }
 }
