@@ -77,6 +77,39 @@ struct AutoCompactionDynamicConfigTests {
         }
     }
 
+    @Test("Encoding a range partitionsSpec")
+    func encodingRangePartitionsSpec() throws {
+        let value = AutoCompactionDynamicConfig(
+            dataSource: "com.example",
+            taskPriority: 25,
+            inputSegmentSizeBytes: 100_000_000_000_000,
+            skipOffsetFromLatest: "P1D",
+            tuningConfig: .indexParallel(.init(
+                partitionsSpec: .range(.init(
+                    partitionDimensions: ["appID", "type", "clientUser"],
+                    targetRowsPerSegment: 2_000_000,
+                    assumeGrouped: false
+                )),
+                forceGuaranteedRollup: true,
+                maxNumConcurrentSubTasks: 4
+            )),
+            granularitySpec: .init(segmentGranularity: .month),
+            maxRowsPerSegment: nil,
+            ioConfig: .init(dropExisting: true)
+        )
+
+        let encodedValue = try JSONEncoder.telemetryEncoder.encode(value)
+        let encodedString = try #require(String(data: encodedValue, encoding: .utf8))
+        #expect(encodedString.contains(#""type":"range""#))
+        #expect(encodedString.contains(#""partitionDimensions":["appID","type","clientUser"]"#))
+        #expect(encodedString.contains(#""targetRowsPerSegment":2000000"#))
+        #expect(encodedString.contains(#""forceGuaranteedRollup":true"#))
+        #expect(encodedString.contains(#""dropExisting":true"#))
+
+        let decodedValue = try JSONDecoder.telemetryDecoder.decode(testedType, from: encodedValue)
+        #expect(value == decodedValue)
+    }
+
     @Test("Encoding CompactionIOConfig should match expected JSON string")
     func encodingIOConfig() throws {
         let encodedValue = try JSONEncoder.telemetryEncoder.encode(CompactionIOConfig(dropExisting: true))
