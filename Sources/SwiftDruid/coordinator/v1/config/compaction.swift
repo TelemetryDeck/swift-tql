@@ -20,6 +20,28 @@ public struct CompactionRoutes {
         public let maxRowsPerSegment: Int?
         public let skipOffsetFromLatest: String
         public let ioConfig: CompactionIOConfig?
+        public let tuningConfig: TuningConfigReturnType?
+        public let granularitySpec: GranularitySpecReturnType?
+
+        /// The parts of a stored compaction `tuningConfig` that callers compare against their desired config.
+        /// Everything is optional so configs written by hand or by older code still decode.
+        public struct TuningConfigReturnType: Codable, Content {
+            public let partitionsSpec: PartitionsSpecReturnType?
+            public let maxNumConcurrentSubTasks: Int?
+        }
+
+        /// A stored `partitionsSpec` of any type (`dynamic`, `hashed`, `single_dim`, `range`).
+        public struct PartitionsSpecReturnType: Codable, Content {
+            public let type: String
+            public let partitionDimension: String?
+            public let partitionDimensions: [String]?
+            public let maxRowsPerSegment: Int?
+            public let targetRowsPerSegment: Int?
+        }
+
+        public struct GranularitySpecReturnType: Codable, Content {
+            public let segmentGranularity: QueryGranularity?
+        }
     }
 
     struct CompactionConfigsResponse: Codable {
