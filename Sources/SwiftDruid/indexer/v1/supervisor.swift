@@ -97,10 +97,15 @@ public struct SupervisorRoutes {
         }
     }
 
-    public func create(spec: Supervisor) async throws {
+    /// Creates or updates a supervisor.
+    ///
+    /// - Parameter skipRestartIfUnmodified: when `true`, Druid compares the submitted spec with the
+    ///   running one and leaves the supervisor's tasks alone if nothing changed. Without it, every
+    ///   submission restarts the supervisor's tasks, even for an identical spec.
+    public func create(spec: Supervisor, skipRestartIfUnmodified: Bool = false) async throws {
         try await druid.execute { baseURL in
             try await withSpan("Druid.Supervisor.create") { _ in
-                let uri = URI(string: "\(baseURL)indexer/v1/supervisor")
+                let uri = URI(string: Self.createURL(baseURL: baseURL, skipRestartIfUnmodified: skipRestartIfUnmodified))
 
                 let response = try await druid.client.post(uri, content: spec)
                 guard response.status == .ok else {
@@ -163,6 +168,13 @@ public struct SupervisorRoutes {
                 }
             }
         }
+    }
+}
+
+extension SupervisorRoutes {
+    static func createURL(baseURL: String, skipRestartIfUnmodified: Bool) -> String {
+        let url = "\(baseURL)indexer/v1/supervisor"
+        return skipRestartIfUnmodified ? url + "?skipRestartIfUnmodified=true" : url
     }
 }
 
