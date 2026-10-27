@@ -60,6 +60,8 @@ swift test --filter CustomQueryTests.testRegexQueryDecoding
    - `Druid` - Main client struct, initialized with a base URL and Vapor `Client`
    - Route-based API organized by Druid namespace (e.g., `indexer/v1/`)
    - `SupervisorRoutes` - List and terminate Druid supervisors
+   - `DataSourcesRoutes` - Mark segments unused/used by interval (optionally per version) or segment ID, or a whole datasource unused
+   - `RetentionRuleRoutes` - List, get, set and delete per-datasource retention (load/drop) rules; models in `SwiftTQL.RetentionRule`
    - Separate library target from SwiftTQL with no shared dependency — SwiftTQL handles query/model building, SwiftDruid handles HTTP communication
 
 ### Key Design Patterns

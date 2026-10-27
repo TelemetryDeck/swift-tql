@@ -323,4 +323,6 @@ public struct Druid: Sendable {
     public var overlord: OverlordRoutes { .init(druid: self) }
     /// Read-only Coordinator metadata routes (segment intervals, sizes, counts).
     public var coordinator: CoordinatorRoutes { .init(druid: self) }
+    /// Per-datasource retention (load/drop) rules on the Coordinator.
+    public var retentionRules: RetentionRuleRoutes { .init(druid: self) }
 }
