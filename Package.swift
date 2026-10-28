@@ -73,6 +73,10 @@ let package = Package(
                 "SwiftDruid",
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
+            ],
+            resources: [
+                // Fixtures/headers.json is a copy of druid-tenant-auth/fixtures/headers.json.
+                .copy("Fixtures"),
             ]
         ),
     ]

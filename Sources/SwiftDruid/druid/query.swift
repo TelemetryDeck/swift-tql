@@ -7,7 +7,20 @@ extension CustomQuery: Content {}
 public struct QueryRoutes {
     let druid: Druid
 
-    public func execute(query compiledQuery: CustomQuery) async throws -> QueryResultData {
+    /// Run a native Druid query.
+    ///
+    /// - Parameters:
+    ///   - compiledQuery: The compiled native query.
+    ///   - tenant: The organization user the query runs for. When set, the request carries the
+    ///     `X-TD-Namespaces` and `X-TD-User` headers. When nil, the request is internal and
+    ///     sends neither header.
+    /// - Throws: `TenantContextError` before any request is made when `tenant` has an invalid
+    ///   namespace list.
+    public func execute(query compiledQuery: CustomQuery, tenant: TenantContext? = nil) async throws -> QueryResultData {
+        // Validate outside `druid.execute`: an error thrown inside its closure would count as a
+        // connection failure and fail over to every server.
+        let tenantHeaders = try tenant?.headers() ?? HTTPHeaders()
+
         return try await druid.execute { baseURL in
             try await withSpan("Druid.Druid.TQL.Query") { _ in
                 let compiledQueryData: Data
@@ -29,6 +42,7 @@ public struct QueryRoutes {
                 requestBody.writeBytes(compiledQueryData)
                 let response = try await druid.client.post(uri) { clientRequest in
                     clientRequest.headers.contentType = .json
+                    clientRequest.headers.add(contentsOf: tenantHeaders)
                     clientRequest.body = requestBody
                 }
                 let maxResponseSize = 32 * 1024 * 1024
