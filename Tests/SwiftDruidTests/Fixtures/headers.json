@@ -1,0 +1,161 @@
+[
+  {
+    "id": "H1",
+    "note": "No header. Internal request.",
+    "namespaces": null,
+    "user": null,
+    "state": "ABSENT"
+  },
+  {
+    "id": "H2",
+    "note": "One namespace, valid UUID.",
+    "namespaces": "com.example.app",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "VALID",
+    "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "namespaceList": ["com.example.app"]
+  },
+  {
+    "id": "H3",
+    "note": "Two namespaces, in order.",
+    "namespaces": "com.example.app,org.other.app",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "VALID",
+    "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "namespaceList": ["com.example.app", "org.other.app"]
+  },
+  {
+    "id": "H4",
+    "note": "Namespaces without user.",
+    "namespaces": "com.example.app",
+    "user": null,
+    "state": "PARTIAL"
+  },
+  {
+    "id": "H5",
+    "note": "User without namespaces.",
+    "namespaces": null,
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "PARTIAL"
+  },
+  {
+    "id": "H6",
+    "note": "Empty namespaces value.",
+    "namespaces": "",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H7",
+    "note": "Empty entry after the comma.",
+    "namespaces": "com.example.app,",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H8",
+    "note": "Leading space. No trim.",
+    "namespaces": " com.example.app",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H9",
+    "note": "Uppercase in a namespace.",
+    "namespaces": "Com.Example.App",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H10",
+    "note": "Semicolon in a namespace.",
+    "namespaces": "com.example.app;drop",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H11",
+    "note": "User is not a UUID.",
+    "namespaces": "com.example.app",
+    "user": "not-a-uuid",
+    "state": "INVALID"
+  },
+  {
+    "id": "H12",
+    "note": "Uppercase UUID. Accepted, identity as sent (D-T4).",
+    "namespaces": "com.example.app",
+    "user": "6BA7B810-9DAD-11D1-80B4-00C04FD430C8",
+    "state": "VALID",
+    "userId": "6BA7B810-9DAD-11D1-80B4-00C04FD430C8",
+    "namespaceList": ["com.example.app"]
+  },
+  {
+    "id": "H12a",
+    "note": "Mixed-case UUID. Accepted, identity as sent.",
+    "namespaces": "com.example.app",
+    "user": "6ba7B810-9DAD-11d1-80b4-00C04fd430c8",
+    "state": "VALID",
+    "userId": "6ba7B810-9DAD-11d1-80b4-00C04fd430c8",
+    "namespaceList": ["com.example.app"]
+  },
+  {
+    "id": "H16",
+    "note": "Empty user value.",
+    "namespaces": "com.example.app",
+    "user": "",
+    "state": "INVALID"
+  },
+  {
+    "id": "H17",
+    "note": "UUID without hyphens.",
+    "namespaces": "com.example.app",
+    "user": "6ba7b8109dad11d180b400c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H18",
+    "note": "Space after the comma. No trim.",
+    "namespaces": "com.example.app, org.other.app",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H19",
+    "note": "Only a comma.",
+    "namespaces": ",",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H20",
+    "note": "Same namespace twice. Accepted, kept in order.",
+    "namespaces": "com.example.app,com.example.app",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "VALID",
+    "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "namespaceList": ["com.example.app", "com.example.app"]
+  },
+  {
+    "id": "H21",
+    "note": "Namespace with digits and hyphen.",
+    "namespaces": "app-1.example.com",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "VALID",
+    "userId": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "namespaceList": ["app-1.example.com"]
+  },
+  {
+    "id": "H22",
+    "note": "Underscore is not allowed.",
+    "namespaces": "com.example_app",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  },
+  {
+    "id": "H23",
+    "note": "Non-ASCII letter.",
+    "namespaces": "com.exämple.app",
+    "user": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    "state": "INVALID"
+  }
+]

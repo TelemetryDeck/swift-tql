@@ -21,6 +21,7 @@ swift test --filter QueryResultTests
 swift test --filter QueryGenerationTests
 swift test --filter SupervisorTests
 swift test --filter DataSchemaTests
+swift test --filter SwiftDruidTests
 
 # Run a specific test case
 swift test --filter CustomQueryTests.testRegexQueryDecoding
@@ -60,6 +61,7 @@ swift test --filter CustomQueryTests.testRegexQueryDecoding
    - `Druid` - Main client struct, initialized with a base URL and Vapor `Client`
    - Route-based API organized by Druid namespace (e.g., `indexer/v1/`)
    - `SupervisorRoutes` - List and terminate Druid supervisors
+   - `SQLRoutes` / `QueryRoutes` - SQL and native queries; both take an optional `tenant: TenantContext` (user ID + namespaces) that becomes the `X-TD-Namespaces` / `X-TD-User` headers for the Druid tenant-auth extension. The client validates the value (`[a-z0-9.-]`, no empty entry, ≤ 4 KiB) and throws `TenantContextError` before sending. Without a tenant the request is internal and sends no header.
    - Separate library target from SwiftTQL with no shared dependency — SwiftTQL handles query/model building, SwiftDruid handles HTTP communication
 
 ### Key Design Patterns
