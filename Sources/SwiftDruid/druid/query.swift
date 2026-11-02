@@ -1,3 +1,4 @@
+import Foundation
 import SwiftTQL
 import Tracing
 import Vapor
@@ -9,23 +10,44 @@ public struct QueryRoutes {
 
     /// Run a native Druid query.
     ///
+    /// Every query is sent with a `queryId` in its context (a fresh UUID when the caller did not
+    /// set one). When the calling task is cancelled while the broker is still working, the call
+    /// stops waiting at once, asks that same broker to cancel the query
+    /// (`DELETE /druid/v2/{queryId}`) and throws `CancellationError`. Without this, a query whose
+    /// caller has gone away (a client that disconnected, a request that timed out) keeps running
+    /// on the broker until it finishes or hits the query timeout.
+    ///
     /// - Parameters:
     ///   - compiledQuery: The compiled native query.
     ///   - tenant: The organization user the query runs for. When set, the request carries the
     ///     `X-TD-Namespaces` and `X-TD-User` headers. When nil, the request is internal and
     ///     sends neither header.
     /// - Throws: `TenantContextError` before any request is made when `tenant` has an invalid
-    ///   namespace list.
+    ///   namespace list. `CancellationError` when the calling task is cancelled before Druid
+    ///   answers.
     public func execute(query compiledQuery: CustomQuery, tenant: TenantContext? = nil) async throws -> QueryResultData {
         // Validate outside `druid.execute`: an error thrown inside its closure would count as a
         // connection failure and fail over to every server.
         let tenantHeaders = try tenant?.headers() ?? HTTPHeaders()
 
+        // Make sure the query can be cancelled on the broker: Druid only knows a query by the
+        // `queryId` the client sent along.
+        var queryToSend = compiledQuery
+        if (queryToSend.context?.queryId ?? "").isEmpty {
+            if queryToSend.context == nil {
+                queryToSend.context = QueryContext()
+            }
+            queryToSend.context?.queryId = UUID().uuidString
+        }
+        let queryId = queryToSend.context?.queryId ?? ""
+
         return try await druid.execute { baseURL in
-            try await withSpan("Druid.Druid.TQL.Query") { _ in
+            try await withSpan("Druid.Druid.TQL.Query") { span in
+                span.attributes["druid.query_id"] = queryId
+
                 let compiledQueryData: Data
                 do {
-                    compiledQueryData = try JSONEncoder.telemetryEncoder.encode(compiledQuery)
+                    compiledQueryData = try JSONEncoder.telemetryEncoder.encode(queryToSend)
                 } catch {
                     throw Abort(.internalServerError, reason: "Error encoding query: \(error)")
                 }
@@ -40,11 +62,27 @@ public struct QueryRoutes {
                 let uri = URI(string: "\(baseURL)v2/")
                 var requestBody = ByteBufferAllocator().buffer(capacity: compiledQueryData.count)
                 requestBody.writeBytes(compiledQueryData)
-                let response = try await druid.client.post(uri) { clientRequest in
-                    clientRequest.headers.contentType = .json
-                    clientRequest.headers.add(contentsOf: tenantHeaders)
-                    clientRequest.body = requestBody
+                var headers = HTTPHeaders()
+                headers.contentType = .json
+                headers.add(contentsOf: tenantHeaders)
+                let request = ClientRequest(method: .POST, url: uri, headers: headers, body: requestBody)
+
+                // `Client.post` awaits the response future with `get()`, which ignores task
+                // cancellation. Await it in a way that returns the moment the task is cancelled, and
+                // in that case tell the broker to stop the query. The broker then fails the pending
+                // request promptly, which also frees the HTTP client's connection.
+                let response: ClientResponse
+                do {
+                    response = try await druid.client.send(request).getUnlessCancelled()
+                } catch is CancellationError {
+                    druid.logger.notice("Druid query abandoned by its caller, cancelling it on the broker", metadata: [
+                        "server": .string(baseURL),
+                        "query_id": .string(queryId),
+                    ])
+                    await cancel(queryId: queryId, on: baseURL)
+                    throw CancellationError()
                 }
+
                 let maxResponseSize = 32 * 1024 * 1024
                 if response.body?.readableBytes ?? 0 > maxResponseSize {
                     druid.logger.warning("Query Result too large: \(response.body?.readableBytes ?? 0) bytes. Query was \n\(queryAsString())")
@@ -76,6 +114,44 @@ public struct QueryRoutes {
                     restrictions: compiledQuery.restrictions
                 )
             }
+        }
+    }
+
+    /// Asks the broker at `baseURL` to cancel the query with `queryId` (`DELETE /druid/v2/{queryId}`).
+    ///
+    /// Best effort: a failure to deliver the cancellation is logged, never thrown, because the
+    /// caller is already on its way out. Druid answers `202 Accepted` whether or not it still
+    /// knows the query. The request is sent with `Client.send(_:)`, whose `get()` does not check
+    /// task cancellation, so it goes out even from an already cancelled task.
+    public func cancel(queryId: String, on baseURL: String) async {
+        guard !queryId.isEmpty else { return }
+        let uri = URI(string: "\(baseURL)v2/\(queryId)")
+        do {
+            let response = try await druid.client.send(ClientRequest(method: .DELETE, url: uri)).get()
+            guard response.status == .accepted else {
+                druid.logger.warning("Druid did not accept the query cancellation", metadata: [
+                    "server": .string(baseURL),
+                    "query_id": .string(queryId),
+                    "status": .stringConvertible(response.status.code),
+                ])
+                return
+            }
+        } catch {
+            druid.logger.warning("Failed to cancel Druid query", metadata: [
+                "server": .string(baseURL),
+                "query_id": .string(queryId),
+                "error": .string(String(describing: error)),
+            ])
+        }
+    }
+
+    /// Asks every configured broker to cancel the query with `queryId`.
+    ///
+    /// Use this when the broker that runs the query is unknown, e.g. for a `queryId` the caller
+    /// chose itself. Brokers that do not know the query answer `202 Accepted` as well.
+    public func cancel(queryId: String) async {
+        for baseURL in druid.baseURLs {
+            await cancel(queryId: queryId, on: baseURL)
         }
     }
 }

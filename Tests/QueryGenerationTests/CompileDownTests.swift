@@ -282,3 +282,18 @@ struct CompileDownTests {
         #expect(!compiledQuery.intervals!.isEmpty)
     }
 }
+
+extension CompileDownTests {
+    @Test("Precompile keeps the queryId from the context") func precompileKeepsQueryId() throws {
+        let intervals: [QueryTimeInterval] = [
+            .init(beginningDate: Date(iso8601String: "2023-04-01T00:00:00.000Z")!, endDate: Date(iso8601String: "2023-05-31T00:00:00.000Z")!),
+        ]
+
+        var query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", intervals: intervals, granularity: .day)
+        query.context = QueryContext(queryId: "my-query-id")
+
+        let compiledQuery = try query.precompile().compileToRunnableQuery()
+
+        #expect(compiledQuery.context?.queryId == "my-query-id")
+    }
+}

@@ -218,7 +218,8 @@ extension CustomQuery {
                 grandTotal: query.context?.grandTotal,
                 skipEmptyBuckets: false,
                 cacheValidityDuration: query.context?.cacheValidityDuration,
-                timezone: query.context?.timezone
+                timezone: query.context?.timezone,
+                queryId: query.context?.queryId
             )
 
         // Apply filters according to the basefilters property

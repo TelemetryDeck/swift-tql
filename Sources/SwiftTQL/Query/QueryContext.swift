@@ -31,6 +31,11 @@ public struct QueryContext: Codable, Hashable, Sendable {
     /// IF this value is set, all simple granularities will be replaced by period granularities with this specified time zone at query precompile time.
     public var timezone: String?
 
+    /// Unique identifier of this query run on Druid. Druid echoes it in its query metrics and logs,
+    /// and `DELETE /druid/v2/{queryId}` on the broker that runs the query cancels it. When unset,
+    /// `SwiftDruid` assigns a fresh UUID per request so every query it sends can be cancelled.
+    public var queryId: String?
+
     public init(
         timeout: String? = nil,
         priority: Int? = nil,
@@ -39,7 +44,8 @@ public struct QueryContext: Codable, Hashable, Sendable {
         grandTotal: Bool? = nil,
         skipEmptyBuckets: Bool? = nil,
         cacheValidityDuration: Int? = nil,
-        timezone: String? = nil
+        timezone: String? = nil,
+        queryId: String? = nil
     ) {
         self.timeout = timeout
         self.priority = priority
@@ -49,5 +55,6 @@ public struct QueryContext: Codable, Hashable, Sendable {
         self.skipEmptyBuckets = skipEmptyBuckets
         self.cacheValidityDuration = cacheValidityDuration
         self.timezone = timezone
+        self.queryId = queryId
     }
 }
