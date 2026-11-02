@@ -6,13 +6,13 @@ import Vapor
 public struct SQLRoutes {
     let druid: Druid
 
-    public struct DruidSQLQueryType: Codable, Content {
+    public struct DruidSQLQueryType: Codable, Content, Sendable {
         /// Query context keys the client sends to Druid. Every key is optional and a nil key is
         /// left out of the body. For organization requests the backend sends only the keys that
         /// the tenant authorizer allowlists (`sqlTimeZone`, `useApproximateCountDistinct`,
         /// `useApproximateTopN`); `engine` is never allowlisted and stays nil on that path.
-        public struct Context: Codable, Content {
-            public enum Engine: String, Codable, Content {
+        public struct Context: Codable, Content, Sendable {
+            public enum Engine: String, Codable, Content, Sendable {
                 case native
             }
 
