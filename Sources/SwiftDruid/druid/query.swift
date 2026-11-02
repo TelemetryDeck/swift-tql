@@ -121,28 +121,10 @@ public struct QueryRoutes {
     ///
     /// Best effort: a failure to deliver the cancellation is logged, never thrown, because the
     /// caller is already on its way out. Druid answers `202 Accepted` whether or not it still
-    /// knows the query. The request is sent with `Client.send(_:)`, whose `get()` does not check
-    /// task cancellation, so it goes out even from an already cancelled task.
+    /// knows the query.
     public func cancel(queryId: String, on baseURL: String) async {
         guard !queryId.isEmpty else { return }
-        let uri = URI(string: "\(baseURL)v2/\(queryId)")
-        do {
-            let response = try await druid.client.send(ClientRequest(method: .DELETE, url: uri)).get()
-            guard response.status == .accepted else {
-                druid.logger.warning("Druid did not accept the query cancellation", metadata: [
-                    "server": .string(baseURL),
-                    "query_id": .string(queryId),
-                    "status": .stringConvertible(response.status.code),
-                ])
-                return
-            }
-        } catch {
-            druid.logger.warning("Failed to cancel Druid query", metadata: [
-                "server": .string(baseURL),
-                "query_id": .string(queryId),
-                "error": .string(String(describing: error)),
-            ])
-        }
+        await druid.sendCancellation(to: URI(string: "\(baseURL)v2/\(queryId)"), server: baseURL, queryId: queryId)
     }
 
     /// Asks every configured broker to cancel the query with `queryId`.
