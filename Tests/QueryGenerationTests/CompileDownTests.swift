@@ -69,6 +69,18 @@ struct CompileDownTests {
         #expect(precompiledQuery.filter == nil)
     }
 
+    @Test("Test mode filter matches string and boolean true") func testModeFilter() throws {
+        let isTestMode: Filter = .or(.init(fields: [
+            .equals(.init(column: "isTestMode", matchValueType: .string, matchValue: .string("true"))),
+            .equals(.init(column: "isTestMode", matchValueType: .long, matchValue: .int(1))),
+        ]))
+        let enabled = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .noFilter, testMode: true, relativeIntervals: relativeIntervals, granularity: .all)
+        let disabled = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .noFilter, testMode: false, relativeIntervals: relativeIntervals, granularity: .all)
+
+        #expect(try enabled.precompile().filter == isTestMode)
+        #expect(try disabled.precompile().filter == .not(.init(field: isTestMode)))
+    }
+
     @Test("Data source is preserved") func dataSourceIsPreserved() throws {
         let query = CustomQuery(queryType: .timeseries, dataSource: "some-data-source", baseFilters: .thisOrganization, relativeIntervals: relativeIntervals, granularity: .all)
         #expect(try query.precompile().dataSource == DataSource("some-data-source"))
