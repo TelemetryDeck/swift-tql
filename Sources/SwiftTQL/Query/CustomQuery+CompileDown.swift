@@ -188,7 +188,9 @@ extension CustomQuery {
         var query = query
 
         if let testMode = query.testMode {
-            query.filter = query.filter && .selector(.init(dimension: "isTestMode", value: "\(testMode)"))
+            let isTestMode: Filter = .equals(.init(column: "isTestMode", matchValueType: .string, matchValue: .string("true")))
+                || .equals(.init(column: "isTestMode", matchValueType: .long, matchValue: .int(1)))
+            query.filter = query.filter && (testMode ? isTestMode : .not(.init(field: isTestMode)))
         }
 
         return query
