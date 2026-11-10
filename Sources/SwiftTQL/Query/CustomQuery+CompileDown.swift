@@ -234,10 +234,6 @@ extension CustomQuery {
             query.filter = query.filter && .selector(.init(dimension: "appID", value: appID.uuidString))
             return query
 
-        case .exampleData:
-            query.dataSource = .init("space.ooo")
-            return query
-
         case .noFilter:
             return query
         }
