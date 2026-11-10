@@ -10,9 +10,17 @@ public struct DruidError: Codable, Equatable, LocalizedError {
     let persona: String?
     let category: String?
     let errorMessage: String?
+    /// The reason an authorizer gives when it denies a request (HTTP 403).
+    let accessCheckResult: String?
+
+    enum CodingKeys: String, CodingKey {
+        case error, errorClass, host, errorCode, persona, category, errorMessage
+        case accessCheckResult = "Access-Check-Result"
+    }
 
     public var errorDescription: String? {
         let parts: [(String, String?)] = [
+            ("Access denied", accessCheckResult),
             ("Error", error),
             ("Message", errorMessage),
             ("Code", errorCode),
