@@ -54,14 +54,6 @@ struct CompileDownTests {
         )
     }
 
-    @Test("Base filters for example data") func baseFiltersExampleData() throws {
-        let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .exampleData, relativeIntervals: relativeIntervals, granularity: .all)
-        let precompiledQuery = try query.precompile()
-
-        #expect(precompiledQuery.dataSource == DataSource("space.ooo"))
-        #expect(precompiledQuery.filter == nil)
-    }
-
     @Test("Base filters with no filter") func baseFiltersNoFilter() throws {
         let query = CustomQuery(queryType: .timeseries, dataSource: "telemetry-signals", baseFilters: .noFilter, relativeIntervals: relativeIntervals, granularity: .all)
         let precompiledQuery = try query.precompile()

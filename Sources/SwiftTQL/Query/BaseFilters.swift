@@ -13,15 +13,6 @@ public enum BaseFilters: String, Codable, Hashable, Equatable, Sendable {
     /// This fails if the query does not belong to an insight.
     case thisApp
 
-    /// Attach test mode filter and filter for the example app's data
-    ///
-    /// The server will execute this query as if the owner of the Example App
-    /// is logged in, and it will always return example data instead of an
-    /// actual user's data.
-    ///
-    /// This is great for showing a demo of the environment.
-    case exampleData
-
     /// Only available for super org, do not specify any filters
     ///
     /// This is used internally for admin dashboards. The server will

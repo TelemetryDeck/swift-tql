@@ -14,9 +14,20 @@ public struct QueryRoutes {
     ///   - tenant: The organization user the query runs for. When set, the request carries the
     ///     `X-TD-Namespaces` and `X-TD-User` headers. When nil, the request is internal and
     ///     sends neither header.
+    ///     The request then omits the context keys `timeout`, `priority`, `cacheValidityDuration`,
+    ///     and `timezone`.
     /// - Throws: `TenantContextError` before any request is made when `tenant` has an invalid
     ///   namespace list.
-    public func execute(query compiledQuery: CustomQuery, tenant: TenantContext? = nil) async throws -> QueryResultData {
+    public func execute(query: CustomQuery, tenant: TenantContext? = nil) async throws -> QueryResultData {
+        var compiledQuery = query
+        if tenant != nil {
+            // Druid denies a tenant request that has a context key outside the allowlist.
+            compiledQuery.context?.timeout = nil
+            compiledQuery.context?.priority = nil
+            compiledQuery.context?.cacheValidityDuration = nil
+            compiledQuery.context?.timezone = nil
+        }
+
         // Validate outside `druid.execute`: an error thrown inside its closure would count as a
         // connection failure and fail over to every server.
         let tenantHeaders = try tenant?.headers() ?? HTTPHeaders()

@@ -113,6 +113,21 @@ struct QueryRouteHeaderTests {
         assertNoTenantHeaders(request)
     }
 
+    @Test("Native route drops the denied context keys only with a tenant context", arguments: [true, false])
+    func nativeContextKeys(withTenant: Bool) async throws {
+        let client = CapturingClient(responseBody: Self.nativeResult)
+        let druid = Druid(baseURL: "http://druid/", client: client)
+        var query = Self.nativeQuery
+        query.context = .init(timeout: "200000", priority: 1, grandTotal: true, cacheValidityDuration: 5, timezone: "UTC")
+
+        _ = try await druid.query.execute(query: query, tenant: withTenant ? Self.tenant : nil)
+
+        let body = try #require(client.requests.first?.body)
+        let sent = try JSONDecoder.telemetryDecoder.decode(CustomQuery.self, from: body)
+        let expected: QueryContext = withTenant ? .init(grandTotal: true) : query.context!
+        #expect(sent.context == expected)
+    }
+
     @Test("An invalid tenant context throws before any request is sent, on both routes")
     func invalidTenantThrowsBeforeRequest() async throws {
         let client = CapturingClient(responseBody: "[]")
