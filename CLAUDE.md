@@ -22,6 +22,7 @@ swift test --filter QueryGenerationTests
 swift test --filter SupervisorTests
 swift test --filter DataSchemaTests
 swift test --filter SwiftDruidTests
+swift test --filter ClusterSpecTests
 
 # Run a specific test case
 swift test --filter CustomQueryTests.testRegexQueryDecoding
@@ -65,6 +66,13 @@ swift test --filter CustomQueryTests.testRegexQueryDecoding
    - `RetentionRuleRoutes` - List, get, set and delete per-datasource retention (load/drop) rules; models in `SwiftTQL.RetentionRule`
    - `SQLRoutes` / `QueryRoutes` - SQL and native queries; both take an optional `tenant: TenantContext` (user ID + namespaces) that becomes the `X-TD-Namespaces` / `X-TD-User` headers for the Druid tenant-auth extension. The client validates the value (`[a-z0-9.-]`, no empty entry, ≤ 4 KiB) and throws `TenantContextError` before sending. Without a tenant the request is internal and sends no header. `DruidSQLQueryType.Context` holds only optional keys (`engine`, `sqlTimeZone`, `useApproximateCountDistinct`, `useApproximateTopN`, `sqlQueryId`); nil keys are left out of the body, so an organization request can send an empty context.
    - Separate library target from SwiftTQL with no shared dependency — SwiftTQL handles query/model building, SwiftDruid handles HTTP communication
+
+7. **ClusterSpec** (`Sources/ClusterSpec/`) - The saved format of one gauge of the web app (Cluster)
+   - `ClusterSpec` - Root type: queries (TQL as `CustomQuery`, or SQL text), the gauge, the encoding, column settings, and eCharts overrides
+   - The backend decodes a spec before it saves the spec. A key that the type does not have is not in the encoded spec, so the type is also the allowlist of the eCharts options that a user can set
+   - `ClusterSpec+Overrides.swift` holds the override types and the steps to add a field. Read them before you add one: a field must not let a value become HTML, an address, an image, or code
+   - `null` and an absent key mean "not set"; the encoder writes no `null`. "No limit" is the text `"all"` (`ClusterSpec.Limit`)
+   - Separate library target that depends on SwiftTQL
 
 ### Key Design Patterns
 

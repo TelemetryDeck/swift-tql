@@ -18,6 +18,10 @@ let package = Package(
             name: "SwiftDruid",
             targets: ["SwiftDruid"]
         ),
+        .library(
+            name: "ClusterSpec",
+            targets: ["ClusterSpec"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -47,9 +51,17 @@ let package = Package(
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
             ]
         ),
+        .target(
+            name: "ClusterSpec",
+            dependencies: ["SwiftTQL"]
+        ),
         .testTarget(
             name: "QueryTests",
             dependencies: ["SwiftTQL"]
+        ),
+        .testTarget(
+            name: "ClusterSpecTests",
+            dependencies: ["ClusterSpec", "SwiftTQL"]
         ),
         .testTarget(
             name: "QueryResultTests",
