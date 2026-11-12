@@ -66,9 +66,9 @@ struct QueryRouteHeaderTests {
         let client = CapturingClient(responseBody: "[]")
         let druid = Druid(baseURL: "http://druid/", client: client)
 
-        let rows = try await druid.sql.execute(query: Self.sqlQuery, tenant: Self.tenant)
+        let data = try await druid.sql.execute(query: Self.sqlQuery, tenant: Self.tenant)
 
-        #expect(rows.isEmpty)
+        #expect(data == Data("[]".utf8))
         let request = try #require(client.requests.first)
         #expect(client.requests.count == 1)
         #expect(request.url.string == "http://druid/v2/sql")
