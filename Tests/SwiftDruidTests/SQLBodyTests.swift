@@ -40,4 +40,24 @@ struct SQLBodyTests {
         #expect(body.query == "SELECT 1")
         #expect(body.context.engine == nil)
     }
+
+    @Test("The body requests array rows with the three header rows")
+    func headerFields() throws {
+        let body = SQLRoutes.DruidSQLQueryType(query: "SELECT 1", context: .init())
+        let object = try #require(try JSONSerialization.jsonObject(with: JSONEncoder().encode(body)) as? [String: Any])
+        #expect(object["resultFormat"] as? String == "array")
+        #expect(object["header"] as? Bool == true)
+        #expect(object["typesHeader"] as? Bool == true)
+        #expect(object["sqlTypesHeader"] as? Bool == true)
+    }
+
+    @Test("The decoder ignores the header fields of a client")
+    func decodeIgnoresHeaderFields() throws {
+        let data = Data(#"{"query":"SELECT 1","context":{},"resultFormat":"object","header":false,"typesHeader":false,"sqlTypesHeader":false}"#.utf8)
+        let body = try JSONDecoder().decode(SQLRoutes.DruidSQLQueryType.self, from: data)
+        #expect(body.resultFormat == "array")
+        #expect(body.header)
+        #expect(body.typesHeader)
+        #expect(body.sqlTypesHeader)
+    }
 }

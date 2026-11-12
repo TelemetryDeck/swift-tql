@@ -39,13 +39,26 @@ public struct SQLRoutes {
         public let context: Context
         public let query: String
 
+        // The decoder ignores these four fields. A client cannot change the result format.
+        public var resultFormat = "array"
+        public var header = true
+        public var typesHeader = true
+        public var sqlTypesHeader = true
+
         public init(query: String, context: Context) {
             self.query = query
             self.context = context
         }
+
+        public init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            query = try container.decode(String.self, forKey: .query)
+            context = try container.decode(Context.self, forKey: .context)
+        }
     }
 
-    /// Run a SQL query.
+    /// Run a SQL query. Returns the bytes of the Druid response: three header rows
+    /// (names, Druid types, SQL types), then the data rows as arrays.
     ///
     /// - Parameters:
     ///   - query: The SQL request body.
@@ -54,7 +67,7 @@ public struct SQLRoutes {
     ///     sends neither header.
     /// - Throws: `TenantContextError` before any request is made when `tenant` has an invalid
     ///   namespace list.
-    public func execute(query: DruidSQLQueryType, tenant: TenantContext? = nil) async throws -> [[String: ValueWrapper]] {
+    public func execute(query: DruidSQLQueryType, tenant: TenantContext? = nil) async throws -> Data {
         // Validate outside `druid.execute`: an error thrown inside its closure would count as a
         // connection failure and fail over to every server.
         let headers = try tenant?.headers() ?? HTTPHeaders()
@@ -72,7 +85,7 @@ public struct SQLRoutes {
                     }
                 }
 
-                return try response.content.decode([[String: ValueWrapper]].self)
+                return Data((response.body ?? ByteBuffer()).readableBytesView)
             }
         }
     }
