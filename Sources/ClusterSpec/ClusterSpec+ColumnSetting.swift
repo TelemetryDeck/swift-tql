@@ -10,6 +10,7 @@ public extension ClusterSpec {
         public var format: Format?
 
         /// The text that the gauge shows in the place of the column name.
+        /// The table header, the tooltip, the legend, and the big number show it.
         /// A label does not change the key of the series. `seriesByName` and `encoding` use the column name.
         public var label: String?
 
@@ -26,15 +27,17 @@ public extension ClusterSpec {
         case auto
         case number
 
-        /// Short numbers, for example 1.2K.
+        /// Short numbers, for example 1.2K. Use it for the gauge `bigNumber` and for an axis with large values.
         case compact
 
         /// Reads the value as a fraction: 0.25 shows as 25%. The query must return a fraction, not a percentage.
         /// In SQL, divide decimal numbers. A division of two integers gives an integer.
+        /// Example: `AVG(CASE WHEN "isTestMode" = 'true' THEN 1.0 ELSE 0.0 END)`.
         case percent
 
         /// A duration. The web app reads the value as seconds without a unit.
         /// `unit` is the unit of the value in the query result. The text shows the two largest units, for example `2 h 5 min`.
+        /// The labels of a duration axis are not at round values, for example `2 h 46 min`.
         case duration(unit: DurationUnit?)
 
         /// A number of bytes. The web app uses the base 1000 without a base.

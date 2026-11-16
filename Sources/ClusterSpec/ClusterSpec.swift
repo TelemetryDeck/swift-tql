@@ -12,9 +12,17 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     public var version: Int
 
     /// The queries of the gauge. Each query must have a different name.
+    ///
+    /// The gauge reads one query: the first query, or the query that `encoding.source` names.
+    /// A second query is for a series in `extraSeries`.
+    /// Each query is one request. Use as few queries as possible.
     public var queries: [Query]
 
     /// The kind of gauge that the user sees.
+    ///
+    /// When the query result does not fit the gauge, the gauge shows the error `frameDoesNotFit`.
+    /// A chart needs one column for x and one or more number columns for y.
+    /// A result with one column fits only the gauges `table` and `bigNumber`.
     public var gauge: Gauge
 
     /// The source query and the columns for the chart roles. Without it, the web app uses defaults.
@@ -35,6 +43,8 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     /// The gauge generates one series for each y column, or one series for each breakdown value.
     /// These options do not apply to a series of `extraSeries`.
     /// Do not put a mark line here. Each generated series then draws the same line. Use `seriesByName`.
+    /// With a breakdown, the names of the series come from the data. `seriesDefaults` is then the only
+    /// way to set an option for each series.
     ///
     /// ```json
     /// "seriesDefaults": { "smooth": true, "areaStyle": { "opacity": 0.2 } }
@@ -48,6 +58,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     /// A key does not match the series "Other" and the series "(no value)" of a breakdown.
     /// These options merge on top of `seriesDefaults`.
     /// A key without a series gives the warning `seriesNotFound`. The gauge still shows.
+    /// A breakdown value that is not in the result of today gives the same warning.
     ///
     /// ```json
     /// "seriesByName": {
@@ -68,6 +79,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     ///
     /// These options merge on top of the options that the gauge generates. A field that is not set keeps its generated value.
     /// The names are the names of eCharts. For the gauge `horizontalBar`, the axis with the categories is `yAxis`.
+    /// The gauges `table` and `bigNumber` have no chart and do not use these options.
     ///
     /// ```json
     /// "echarts": { "legend": { "show": true, "top": 0 }, "grid": { "top": 40 } }
@@ -81,11 +93,26 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     public var explanation: String?
 
     public enum Gauge: String, Codable, Hashable, Sendable {
+        /// One line for each y column or for each breakdown value. Use it for values across time.
+        /// A value without a value on its two sides shows as a point.
         case line
+
+        /// Vertical bars. With a breakdown, the bars are stacked.
         case bar
+
+        /// Horizontal bars. The first row of the query result is at the top.
+        /// Use it for categories with long names. In `echarts`, the axis with the categories is `yAxis`.
         case horizontalBar
+
+        /// One slice for each row. It reads the x column for the names and exactly one y column.
+        /// It has no breakdown, no stack, and no `fillZero`. These fields give the warning `unusedField`.
         case pie
+
+        /// Each column of the source query that is not hidden. It uses only `columnSettings`.
         case table
+
+        /// The value of one number column in the first row. Use a query that returns one row.
+        /// It shows the label of the column with the value.
         case bigNumber
     }
 

@@ -28,7 +28,8 @@ public extension ClusterSpec {
         /// `true` draws a line across missing values.
         public var connectNulls: Bool?
 
-        /// `true` shows a symbol at each point of a line.
+        /// `true` shows a symbol at each point of a line. The gauge shows no symbols by default.
+        /// Use it for a line with few points.
         public var showSymbol: Bool?
 
         /// The size of the symbols, in pixels.
@@ -50,7 +51,8 @@ public extension ClusterSpec {
         /// Use a second axis when the values of two series have very different sizes.
         public var yAxisIndex: Int?
 
-        /// The text at each point, bar, or slice.
+        /// The text at each point, bar, or slice. The gauge shows no labels by default, with the exception of the pie.
+        /// `{ "show": true, "position": "top" }` shows the value above each bar.
         public var label: Label?
 
         /// Lines at fixed values, for example a target.
@@ -58,6 +60,7 @@ public extension ClusterSpec {
         public var markLine: MarkLine?
 
         /// Areas between fixed values, for example a range of good values.
+        /// Set it on one series only, as a mark line.
         public var markArea: MarkArea?
 
         public enum Step: String, Codable, Hashable, Sendable {
@@ -72,6 +75,9 @@ public extension ClusterSpec {
     /// An extra series needs `type`, `encode.x`, and `encode.y`. Without `encode`, it shows no data.
     /// The x column must have the same type of values as the x axis of the gauge, for example a time column for a time axis.
     /// The web app does not add rows for missing time steps to an extra series, and it does not stack series of different queries.
+    /// For the gauge `horizontalBar`, the axes change places: `encode.x` is the value column and `encode.y` is the category column.
+    /// An extra series reads all rows of its query. It cannot filter them. Filter in the query.
+    /// An extra series without `itemStyle.color` gets the next colour of the colour scheme.
     ///
     /// This example shows the users of a second query as a line on a second y axis:
     ///
@@ -112,7 +118,10 @@ public extension ClusterSpec {
         /// Use names. A position changes when the query gets a new column.
         /// A name that the query result does not have gives the error `columnNotFound`.
         public struct Encode: Codable, Hashable, Sendable {
+            /// The column for the x axis.
             public var x: NumberOrText?
+
+            /// The column for the y axis. The tooltip shows its value with the format of the column.
             public var y: NumberOrText?
         }
 
@@ -145,6 +154,9 @@ public extension ClusterSpec {
     }
 
     /// eCharts options for the complete chart. It has no field for series or datasets.
+    ///
+    /// `xAxis`, `yAxis`, and `dataZoom` are lists. Item 0 of a list merges into item 0 of the generated list.
+    /// An axis that the gauge does not generate has no style and no column format from the gauge.
     struct ChartOptions: Codable, Hashable, Sendable {
         /// The x axes. Item 0 is the axis that the gauge generates.
         public var xAxis: [Axis]?
@@ -184,6 +196,7 @@ public extension ClusterSpec {
         /// The highest value of the axis. A time value is text without an offset, in the time zone of the gauge.
         public var max: NumberOrText?
 
+        /// The gauge sets the type from the type of the column. Set it only for a special axis, for example `log`.
         public var type: AxisType?
 
         /// The side of the chart that has the axis.
@@ -207,6 +220,7 @@ public extension ClusterSpec {
 
         public struct AxisLabel: Codable, Hashable, Sendable {
             /// A text template for the labels, for example `"{value} users"`.
+            /// A template replaces the column format on this axis. `{value}` is then the number without a format.
             public var formatter: String?
         }
     }
@@ -308,6 +322,9 @@ public extension ClusterSpec {
         public var position: String?
 
         /// A text template, for example `"{c} users"`. eCharts shows it as text, not as HTML.
+        /// `{a}` is the series name, `{b}` is the category, and `{c}` is the value.
+        /// `{@events}` is the value of the column `events` in the same row.
+        /// A template does not use the column format. Round the value in the query.
         public var formatter: String?
     }
 
@@ -321,6 +338,7 @@ public extension ClusterSpec {
 
     struct MarkArea: Codable, Hashable, Sendable {
         /// One item for each area. An item is a pair: the start corner and the end corner.
+        /// Example of a band between two y values: `[[{ "yAxis": 100 }, { "yAxis": 200 }]]`.
         public var data: [[MarkPoint]]?
         public var itemStyle: ItemStyle?
     }
