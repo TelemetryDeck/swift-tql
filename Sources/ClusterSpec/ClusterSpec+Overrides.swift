@@ -37,6 +37,7 @@ public extension ClusterSpec {
         public var lineStyle: LineStyle?
 
         /// The area below a line. An area style makes a line chart into an area chart.
+        /// Set a low `opacity`, for example 0.2. Without it, the area hides the lines behind it.
         public var areaStyle: AreaStyle?
 
         public var itemStyle: ItemStyle?
@@ -45,12 +46,15 @@ public extension ClusterSpec {
         public var barWidth: NumberOrText?
 
         /// The position of the y axis for this series in `echarts.yAxis`. `1` is the second y axis.
+        /// The axis must exist: `echarts.yAxis` must have an item at this position.
+        /// Use a second axis when the values of two series have very different sizes.
         public var yAxisIndex: Int?
 
         /// The text at each point, bar, or slice.
         public var label: Label?
 
         /// Lines at fixed values, for example a target.
+        /// Set it on one series only, in `seriesByName` or in an extra series.
         public var markLine: MarkLine?
 
         /// Areas between fixed values, for example a range of good values.
@@ -64,13 +68,32 @@ public extension ClusterSpec {
     }
 
     /// A series that the user adds after the generated series. It has all fields of `Series`.
+    ///
+    /// An extra series needs `type`, `encode.x`, and `encode.y`. Without `encode`, it shows no data.
+    /// The x column must have the same type of values as the x axis of the gauge, for example a time column for a time axis.
+    /// The web app does not add rows for missing time steps to an extra series, and it does not stack series of different queries.
+    ///
+    /// This example shows the users of a second query as a line on a second y axis:
+    ///
+    /// ```json
+    /// "queries": [
+    ///   { "name": "main", "language": "sql", "query": "SELECT ... AS \"day\", COUNT(*) AS \"events\" ..." },
+    ///   { "name": "users", "language": "sql", "query": "SELECT ... AS \"day\", ... AS \"users\" ..." }
+    /// ],
+    /// "gauge": "bar",
+    /// "extraSeries": [
+    ///   { "type": "line", "name": "Users", "datasetId": "users", "encode": { "x": "day", "y": "users" }, "yAxisIndex": 1 }
+    /// ],
+    /// "echarts": { "yAxis": [{ "name": "Events" }, { "name": "Users", "position": "left" }], "grid": { "top": 40 } }
+    /// ```
     struct ExtraSeries: Codable, Hashable, Sendable {
         public var type: SeriesType
 
-        /// The name of the series in the legend and in the tooltip.
+        /// The name of the series in the legend and in the tooltip. Always set it. Without it, the tooltip line has no text.
         public var name: String?
 
         /// The name of the query that the series reads. Without it, the series reads the source query of the gauge.
+        /// The series reads the result of the query as it is, before a breakdown.
         public var datasetId: String?
 
         /// The columns of the query that the series shows.
@@ -85,7 +108,9 @@ public extension ClusterSpec {
             case scatter
         }
 
-        /// A text is a column name. A number is the position of a column.
+        /// A text is a column name. A number is the position of a column, and 0 is the first column.
+        /// Use names. A position changes when the query gets a new column.
+        /// A name that the query result does not have gives the error `columnNotFound`.
         public struct Encode: Codable, Hashable, Sendable {
             public var x: NumberOrText?
             public var y: NumberOrText?
@@ -125,6 +150,12 @@ public extension ClusterSpec {
         public var xAxis: [Axis]?
 
         /// The y axes. Item 0 is the axis that the gauge generates. Item 1 adds a second y axis.
+        ///
+        /// Item 0 merges into the generated axis. Write `{}` to keep the generated axis as it is.
+        /// The generated axis is on the right side. Give a second axis `"position": "left"`.
+        /// A second axis shows nothing until a series has `"yAxisIndex": 1`.
+        /// A second axis has no column format. Give each axis a `name`, so that the user knows which series it measures.
+        /// An axis name is above the axis. Set `grid.top` to 40 to make space for it.
         public var yAxis: [Axis]?
 
         public var legend: Legend?
@@ -146,7 +177,8 @@ public extension ClusterSpec {
         /// The text adjacent to the axis.
         public var name: String?
 
-        /// The lowest value of the axis. A time value is text without an offset, in the time zone of the gauge.
+        /// The lowest value of the axis. A time value is text without an offset, in the time zone of the gauge,
+        /// for example `"2026-11-01T00:00:00"` or `"2026-11-01"`.
         public var min: NumberOrText?
 
         /// The highest value of the axis. A time value is text without an offset, in the time zone of the gauge.
@@ -179,7 +211,12 @@ public extension ClusterSpec {
         }
     }
 
+    /// The list of series names with their colours. The gauge shows no legend by default.
+    ///
+    /// A legend at the top is on top of the chart area. Move the chart area down with `grid.top`:
+    /// `"legend": { "show": true, "top": 0 }, "grid": { "top": 40 }`.
     struct Legend: Codable, Hashable, Sendable {
+        /// `true` shows the legend.
         public var show: Bool?
 
         /// The distance from the top edge, in pixels, as a percentage, or as a word (`"middle"`).
@@ -199,6 +236,8 @@ public extension ClusterSpec {
     }
 
     /// The margins around the chart area, in pixels or as a percentage.
+    /// The gauge generates small margins: 20 at the top and 16 at the bottom.
+    /// Set a larger margin when a legend or an axis name needs space.
     struct Grid: Codable, Hashable, Sendable {
         public var top: NumberOrText?
         public var bottom: NumberOrText?
@@ -218,6 +257,7 @@ public extension ClusterSpec {
         public var end: Double?
 
         /// The start of the visible part, as a value of the axis.
+        /// A time value is text without an offset, in the time zone of the gauge.
         public var startValue: NumberOrText?
 
         /// The end of the visible part, as a value of the axis.
@@ -272,7 +312,8 @@ public extension ClusterSpec {
     }
 
     struct MarkLine: Codable, Hashable, Sendable {
-        /// One item for each line.
+        /// One item for each line. An item with `yAxis` is a horizontal line. An item with `xAxis` is a vertical line.
+        /// Example: `[{ "yAxis": 500000, "name": "Target" }]`.
         public var data: [MarkPoint]?
         public var lineStyle: LineStyle?
         public var label: Label?

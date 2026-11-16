@@ -21,18 +21,57 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     public var encoding: Encoding?
 
     /// Settings for a column. A key is a column name. A setting applies to that column in each query.
+    ///
+    /// A key is the name that the query gives to the column, for example the alias in SQL.
+    /// Give each SQL column an alias. A name such as `EXPR$0` changes when the query changes.
+    ///
+    /// ```json
+    /// "columnSettings": { "testModeShare": { "format": "percent", "label": "Test mode share" } }
+    /// ```
     public var columnSettings: [String: ColumnSetting]?
 
     /// eCharts series options for each series that the gauge generates.
+    ///
+    /// The gauge generates one series for each y column, or one series for each breakdown value.
+    /// These options do not apply to a series of `extraSeries`.
+    /// Do not put a mark line here. Each generated series then draws the same line. Use `seriesByName`.
+    ///
+    /// ```json
+    /// "seriesDefaults": { "smooth": true, "areaStyle": { "opacity": 0.2 } }
+    /// ```
     public var seriesDefaults: Series?
 
     /// eCharts series options for one generated series. A key is a y column name or a breakdown value.
+    ///
+    /// Without a breakdown, a key is the name of a y column. It is not the label of the column.
+    /// With a breakdown, a key is a breakdown value as text, for example an app version.
+    /// A key does not match the series "Other" and the series "(no value)" of a breakdown.
+    /// These options merge on top of `seriesDefaults`.
+    /// A key without a series gives the warning `seriesNotFound`. The gauge still shows.
+    ///
+    /// ```json
+    /// "seriesByName": {
+    ///   "events": { "lineStyle": { "width": 5 }, "markLine": { "data": [{ "yAxis": 500000, "name": "Target" }] } }
+    /// }
+    /// ```
     public var seriesByName: [String: Series]?
 
     /// eCharts series that come after the generated series.
+    ///
+    /// Use an extra series to show the result of a second query in the same chart.
+    /// `seriesDefaults` and `seriesByName` do not apply to an extra series. Put the options into the series itself.
+    /// The tooltip shows an extra series below the generated series.
+    /// See ``ExtraSeries`` for an example.
     public var extraSeries: [ExtraSeries]?
 
     /// eCharts options for the complete chart.
+    ///
+    /// These options merge on top of the options that the gauge generates. A field that is not set keeps its generated value.
+    /// The names are the names of eCharts. For the gauge `horizontalBar`, the axis with the categories is `yAxis`.
+    ///
+    /// ```json
+    /// "echarts": { "legend": { "show": true, "top": 0 }, "grid": { "top": 40 } }
+    /// ```
     public var echarts: ChartOptions?
 
     /// The colours of the series. Without it, the web app uses the colour scheme of the app.
