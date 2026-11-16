@@ -94,11 +94,103 @@ private let completeSpec = """
 }
 """
 
+// Each field that the eCharts gallery examples of the SQL playground use.
+private let gallerySpec = """
+{
+    "version": 1,
+    "queries": [{ "name": "main", "language": "sql", "query": "SELECT 1" }],
+    "gauge": "custom",
+    "seriesDefaults": {
+        "type": "scatter",
+        "colorBy": "data",
+        "endLabel": { "show": true, "formatter": "{a}" },
+        "labelLayout": { "moveOverlap": "shiftY" },
+        "emphasis": { "focus": "series" }
+    },
+    "extraSeries": [
+        { "type": "heatmap", "coordinateSystem": "calendar", "encode": { "time": "day", "value": "events" } },
+        {
+            "type": "heatmap",
+            "coordinateSystem": "matrix",
+            "encode": { "x": "weekday", "y": "type", "value": 2 },
+            "label": { "show": true, "formatter": "{@events}" }
+        },
+        {
+            "type": "scatter",
+            "name": "Mon",
+            "coordinateSystem": "singleAxis",
+            "singleAxisIndex": 0,
+            "encode": { "single": "hour", "value": "events" }
+        }
+    ],
+    "echarts": {
+        "xAxis": [{ "jitter": 80, "data": ["Mon", "Tue"], "interval": 2 }],
+        "tooltip": { "trigger": "item", "order": "valueDesc" },
+        "animation": true,
+        "animationDuration": 10000,
+        "visualMap": {
+            "type": "piecewise",
+            "show": false,
+            "min": 0,
+            "max": 100,
+            "dimension": 1,
+            "calculable": true,
+            "orient": "horizontal",
+            "left": "center",
+            "top": 0,
+            "inRange": { "symbolSize": [2, 36], "color": ["#fff", "red"] }
+        },
+        "calendar": {
+            "top": 70,
+            "left": 30,
+            "right": 30,
+            "cellSize": ["auto", 20],
+            "range": ["2026-05-20", "2026-11-16"],
+            "orient": "horizontal",
+            "itemStyle": { "borderWidth": 0.5, "borderColor": "#000" },
+            "yearLabel": { "show": false },
+            "monthLabel": { "show": true },
+            "dayLabel": { "show": true }
+        },
+        "matrix": { "top": 50, "x": { "show": true, "data": [{ "value": "Mon" }] }, "y": { "data": [{ "value": "a" }] } },
+        "singleAxis": [
+            { "left": 100, "type": "value", "min": 0, "max": 23, "interval": 2, "top": "5%", "height": "4%" },
+            { "type": "category", "data": ["12a", "1a"], "bottom": 0, "right": 0 }
+        ],
+        "title": [{ "text": "Mon", "left": 0, "top": "7%", "textBaseline": "middle" }]
+    }
+}
+"""
+
 struct ClusterSpecTests {
     @Test("A spec with each field survives the decoder and the encoder") func roundTrip() throws {
         let encoded = try encode(decode(completeSpec))
 
         #expect(try value(encoded) == value(completeSpec))
+    }
+
+    @Test("A spec with each field of the eCharts gallery examples survives the decoder and the encoder") func galleryRoundTrip() throws {
+        let encoded = try encode(decode(gallerySpec))
+
+        #expect(try value(encoded) == value(gallerySpec))
+    }
+
+    @Test("The gauge custom needs an extra series") func customGauge() throws {
+        let fields = #""extraSeries": [{ "type": "heatmap", "coordinateSystem": "calendar" }]"#
+        let custom = { (fields: String) in spec(fields).replacingOccurrences(of: #""gauge": "line""#, with: #""gauge": "custom""#) }
+
+        #expect(try decode(custom(fields)).gauge == .custom)
+        #expect(throws: DecodingError.self) { try decode(custom("")) }
+        #expect(throws: DecodingError.self) { try decode(custom(#""extraSeries": []"#)) }
+    }
+
+    @Test("The type of an extra series is not in its options") func extraSeriesType() throws {
+        let decoded = try decode(spec(#""extraSeries": [{ "type": "scatter", "smooth": true }], "seriesDefaults": { "type": "scatter" }"#))
+
+        #expect(decoded.extraSeries?[0].type == .scatter)
+        #expect(decoded.extraSeries?[0].options.type == nil)
+        #expect(decoded.extraSeries?[0].options.smooth == true)
+        #expect(decoded.seriesDefaults?.type == .scatter)
     }
 
     @Test("A spec with only the necessary fields decodes") func minimalSpec() throws {
@@ -178,9 +270,16 @@ struct ClusterSpecTests {
         #""echarts": { "tooltip": { "formatter": "<img src=x onerror=alert(1)>" } }"#,
         #""echarts": { "tooltip": { "extraCssText": "x", "className": "x", "appendTo": "body" } }"#,
         #""echarts": { "graphic": { "elements": [{ "type": "image", "style": { "image": "https://example.com/x.png" } }] } }"#,
-        #""echarts": { "title": { "text": "x", "link": "javascript:alert(1)", "sublink": "javascript:alert(1)" } }"#,
+        #""echarts": { "title": [{ "text": "x", "link": "javascript:alert(1)", "sublink": "javascript:alert(1)", "target": "self" }] }"#,
+        #""echarts": { "title": [{ "subtext": "x", "textStyle": { "rich": {} }, "backgroundColor": "red" }] }"#,
+        #""echarts": { "visualMap": { "formatter": "<b>x</b>", "text": ["<b>x</b>"], "pieces": [] } }"#,
+        #""echarts": { "calendar": { "dayLabel": { "nameMap": ["<b>x</b>"] }, "itemStyle": { "shadowBlur": 3 } } }"#,
+        #""echarts": { "matrix": { "x": { "data": [{ "value": "a", "children": [] }] }, "body": {} } }"#,
+        #""echarts": { "singleAxis": [{ "name": "x", "axisPointer": {} }] }"#,
+        #""seriesDefaults": { "endLabel": { "rich": {} }, "emphasis": { "label": {} }, "labelLayout": { "hideOverlap": true } }"#,
+        #""extraSeries": [{ "type": "heatmap", "calendarIndex": 1, "encode": { "tooltip": "a", "itemName": "b" } }]"#,
         #""echarts": { "toolbox": { "feature": { "dataView": { "lang": ["<b>x</b>"] } } } }"#,
-        #""echarts": { "useUTC": false, "animation": true }"#,
+        #""echarts": { "useUTC": false, "animationEasing": "linear" }"#,
         #""seriesDefaults": { "symbol": "image://https://example.com/x.png" }"#,
         #""seriesDefaults": { "stack": "total", "data": [1, 2], "tooltip": { "formatter": "<b>x</b>" } }"#,
         #""seriesDefaults": { "markLine": { "symbol": "image://https://example.com/x.png" } }"#,
@@ -192,6 +291,8 @@ struct ClusterSpecTests {
         let allowed: Set = [
             "version", "queries", "name", "language", "query", "gauge", "encoding", "breakdown", "column",
             "echarts", "seriesDefaults", "markLine", "extraSeries", "type",
+            "tooltip", "title", "text", "visualMap", "calendar", "dayLabel", "itemStyle", "matrix", "x", "data", "value",
+            "singleAxis", "endLabel", "emphasis", "labelLayout", "encode",
         ]
         let encoded = try encode(decode(spec(fields)))
         let keys = try allKeys(JSONSerialization.jsonObject(with: Data(encoded.utf8)))
@@ -237,6 +338,27 @@ struct ClusterSpecTests {
         #""columnSettings": { "a": { "format": { "name": "duration", "unit": "days" } } }"#,
         #""columnSettings": { "a": { "format": { "name": "bytes", "base": 10 } } }"#,
         #""columnSettings": { "a": { "share": "count" } }"#,
+        // The fields for the eCharts gallery examples.
+        #""seriesDefaults": { "type": "pie" }"#,
+        #""seriesDefaults": { "colorBy": "value" }"#,
+        #""seriesDefaults": { "emphasis": { "focus": "adjacency" } }"#,
+        #""seriesDefaults": { "endLabel": { "formatter": { "x": 1 } } }"#,
+        #""extraSeries": [{ "type": "heatmap", "coordinateSystem": "geo" }]"#,
+        #""extraSeries": [{ "type": "scatter", "singleAxisIndex": "first" }]"#,
+        #""echarts": { "tooltip": { "trigger": "click" } }"#,
+        #""echarts": { "tooltip": [{ "trigger": "item" }] }"#,
+        #""echarts": { "animation": "slow" }"#,
+        #""echarts": { "visualMap": { "inRange": { "color": [{ "image": "https://example.com/x.png" }] } } }"#,
+        #""echarts": { "visualMap": { "type": "discrete" } }"#,
+        #""echarts": { "visualMap": [{ "min": 0 }] }"#,
+        #""echarts": { "calendar": { "range": "2026" } }"#,
+        #""echarts": { "calendar": { "itemStyle": { "borderColor": { "image": "x" } } } }"#,
+        #""echarts": { "matrix": { "x": { "data": ["Mon"] } } }"#,
+        #""echarts": { "singleAxis": { "type": "value" } }"#,
+        #""echarts": { "title": { "text": "x" } }"#,
+        #""echarts": { "title": [{ "text": { "x": 1 } }] }"#,
+        #""echarts": { "xAxis": [{ "jitter": "wide" }] }"#,
+        #""echarts": { "xAxis": [{ "data": [{ "value": "Mon", "textStyle": {} }] }] }"#,
         // Rules that need more than one field.
         #""encoding": { "source": "missing" }"#,
         #""extraSeries": [{ "type": "line", "datasetId": "missing" }]"#,
