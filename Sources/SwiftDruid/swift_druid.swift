@@ -18,21 +18,20 @@ public struct DruidError: Codable, Equatable, LocalizedError {
         case accessCheckResult = "Access-Check-Result"
     }
 
+    /// The text is for users of the API. It does not name Druid, a host, or a Java class.
     public var errorDescription: String? {
         let parts: [(String, String?)] = [
             ("Access denied", accessCheckResult),
-            ("Error", error),
+            ("Error", error == "druidException" ? "queryError" : error),
             ("Message", errorMessage),
             ("Code", errorCode),
-            ("Class", errorClass),
             ("Category", category),
-            ("Host", host),
             ("Persona", persona),
         ]
         let description = parts
             .compactMap { label, value in value.map { "\(label): \($0)" } }
             .joined(separator: ", ")
-        return description.isEmpty ? "Unknown Druid error" : description
+        return description.isEmpty ? "Unknown query error" : description
     }
 }
 
