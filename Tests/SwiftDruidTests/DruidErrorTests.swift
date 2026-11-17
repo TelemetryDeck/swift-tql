@@ -14,14 +14,14 @@ struct DruidErrorTests {
         #expect(error.localizedDescription == "Access denied: Unauthorized, DATASOURCE READ is not allowed")
     }
 
-    @Test("A query error body keeps its fields")
+    @Test("A query error body keeps its fields, and the text does not name Druid")
     func queryError() throws {
         let error = try decode(#"{"error":"druidException","errorMessage":"Object 'x' not found","errorCode":"invalidInput"}"#)
-        #expect(error.localizedDescription == "Error: druidException, Message: Object 'x' not found, Code: invalidInput")
+        #expect(error.localizedDescription == "Error: queryError, Message: Object 'x' not found, Code: invalidInput")
     }
 
     @Test("A body without a known field is an unknown error")
     func unknownBody() throws {
-        #expect(try decode("{}").localizedDescription == "Unknown Druid error")
+        #expect(try decode("{}").localizedDescription == "Unknown query error")
     }
 }
