@@ -210,6 +210,9 @@ public struct Druid: Sendable {
     public init(
         baseURL: String,
         client: any Client,
+        httpClient: HTTPClient? = nil,
+        maximumQueryResponseBytes: Int = Druid.defaultMaximumQueryResponseBytes,
+        maximumSQLResponseBytes: Int = Druid.defaultMaximumSQLResponseBytes,
         unavailableDuration: TimeInterval = 60,
         failureThreshold: Int = 3,
         failureWindow: TimeInterval = 30
@@ -217,6 +220,9 @@ public struct Druid: Sendable {
         self.init(
             baseURLs: [baseURL],
             client: client,
+            httpClient: httpClient,
+            maximumQueryResponseBytes: maximumQueryResponseBytes,
+            maximumSQLResponseBytes: maximumSQLResponseBytes,
             unavailableDuration: unavailableDuration,
             failureThreshold: failureThreshold,
             failureWindow: failureWindow
@@ -228,9 +234,19 @@ public struct Druid: Sendable {
     /// If a server accumulates `failureThreshold` connection failures within `failureWindow`
     /// seconds, it is taken out of rotation for `unavailableDuration` seconds and requests are
     /// retried on the remaining servers.
+    ///
+    /// - Parameters:
+    ///   - httpClient: When set, the query routes (`query`, `sql`) send their requests with this
+    ///     client and stop reading a response at the size limit. When nil, they use `client`, which
+    ///     buffers a response of up to 4 GB before the size limit is checked.
+    ///   - maximumQueryResponseBytes: The largest response body a native query can return.
+    ///   - maximumSQLResponseBytes: The largest response body a SQL query can return.
     public init(
         baseURLs: [String],
         client: any Client,
+        httpClient: HTTPClient? = nil,
+        maximumQueryResponseBytes: Int = Druid.defaultMaximumQueryResponseBytes,
+        maximumSQLResponseBytes: Int = Druid.defaultMaximumSQLResponseBytes,
         unavailableDuration: TimeInterval = 60,
         failureThreshold: Int = 3,
         failureWindow: TimeInterval = 30
@@ -238,6 +254,9 @@ public struct Druid: Sendable {
         precondition(!baseURLs.isEmpty, "At least one Druid server URL must be provided")
         self.baseURLs = baseURLs
         self.client = client
+        self.httpClient = httpClient
+        self.maximumQueryResponseBytes = maximumQueryResponseBytes
+        self.maximumSQLResponseBytes = maximumSQLResponseBytes
         self.serverPool = ServerPool(
             baseURLs: baseURLs,
             unavailableDuration: unavailableDuration,
@@ -253,6 +272,18 @@ public struct Druid: Sendable {
     public var baseURL: String { baseURLs[0] }
 
     public let client: Client
+
+    /// The client the query routes use to read a response with a size limit. See `init`.
+    public let httpClient: HTTPClient?
+
+    /// 32 MiB.
+    public static let defaultMaximumQueryResponseBytes = 32 * 1024 * 1024
+    /// 256 MiB.
+    public static let defaultMaximumSQLResponseBytes = 256 * 1024 * 1024
+
+    public let maximumQueryResponseBytes: Int
+    public let maximumSQLResponseBytes: Int
+
     let serverPool: ServerPool
 
     let logger = Logger(label: "SwiftDruid")

@@ -51,18 +51,16 @@ public struct QueryRoutes {
                 let uri = URI(string: "\(baseURL)v2/")
                 var requestBody = ByteBufferAllocator().buffer(capacity: compiledQueryData.count)
                 requestBody.writeBytes(compiledQueryData)
-                let response = try await druid.client.post(uri) { clientRequest in
-                    clientRequest.headers.contentType = .json
-                    clientRequest.headers.add(contentsOf: tenantHeaders)
-                    clientRequest.body = requestBody
-                }
-                let maxResponseSize = 32 * 1024 * 1024
-                if response.body?.readableBytes ?? 0 > maxResponseSize {
-                    druid.logger.warning("Query Result too large: \(response.body?.readableBytes ?? 0) bytes. Query was \n\(queryAsString())")
-                    throw Abort(
-                        .badRequest,
-                        reason: "Query Result too large. The result of this query is \(response.body?.readableBytes ?? 0) bytes, which is larger than the maximum of \(maxResponseSize) bytes."
-                    )
+                var clientRequest = ClientRequest(method: .POST, url: uri)
+                clientRequest.headers.contentType = .json
+                clientRequest.headers.add(contentsOf: tenantHeaders)
+                clientRequest.body = requestBody
+                let response: ClientResponse
+                do {
+                    response = try await druid.sendQuery(clientRequest, maximumResponseBytes: druid.maximumQueryResponseBytes)
+                } catch let error as Abort where error.status == .badRequest {
+                    druid.logger.warning("Query Result too large. Query was \n\(queryAsString())")
+                    throw error
                 }
 
                 // Check for errors

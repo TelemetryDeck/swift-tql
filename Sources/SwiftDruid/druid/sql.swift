@@ -76,7 +76,9 @@ public struct SQLRoutes {
             try await withSpan("Druid.Druid.SQL.Query") { _ in
                 let uri = URI(string: "\(baseURL)v2/sql")
 
-                let response = try await druid.client.post(uri, headers: headers, content: query)
+                var clientRequest = ClientRequest(method: .POST, url: uri, headers: headers)
+                try clientRequest.content.encode(query)
+                let response = try await druid.sendQuery(clientRequest, maximumResponseBytes: druid.maximumSQLResponseBytes)
                 guard response.status == .ok else {
                     if let error = try? response.content.decode(DruidError.self) {
                         throw Abort(response.status, reason: error.localizedDescription)
