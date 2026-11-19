@@ -42,6 +42,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     ///
     /// The gauge generates one series for each y column, or one series for each breakdown value.
     /// These options do not apply to a series of `extraSeries`.
+    /// `"type": "scatter"` changes each generated series of the gauge `line` into points.
     /// Do not put a mark line here. Each generated series then draws the same line. Use `seriesByName`.
     /// With a breakdown, the names of the series come from the data. `seriesDefaults` is then the only
     /// way to set an option for each series.
@@ -114,6 +115,13 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         /// The value of one number column in the first row. Use a query that returns one row.
         /// It shows the label of the column with the value.
         case bigNumber
+
+        /// A chart without generated series and without axes. The spec makes each series in `extraSeries`
+        /// and each component in `echarts`, for example a calendar, a matrix, or single axes.
+        /// It needs one or more extra series. It uses no field of `encoding`, with the exception of `source`.
+        /// The tooltip is the tooltip of eCharts. The column formats do not apply to it.
+        /// See ``ChartOptions/calendar`` for an example.
+        case custom
     }
 
     public init(from decoder: Decoder) throws {
@@ -145,6 +153,9 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         }
         if let datasetId = extraSeries?.compactMap(\.datasetId).first(where: { !names.contains($0) }) {
             throw DecodingError.dataCorruptedError(forKey: .extraSeries, in: container, debugDescription: "No query has the name \(datasetId)")
+        }
+        if gauge == .custom, (extraSeries ?? []).isEmpty {
+            throw DecodingError.dataCorruptedError(forKey: .extraSeries, in: container, debugDescription: "The gauge custom needs one or more extra series")
         }
         if encoding?.breakdown != nil, (encoding?.y ?? []).count > 1 {
             throw DecodingError.dataCorruptedError(forKey: .encoding, in: container, debugDescription: "With a breakdown, y has exactly one column")
