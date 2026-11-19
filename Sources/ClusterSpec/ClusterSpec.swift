@@ -18,6 +18,9 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     /// Each query is one request. Use as few queries as possible.
     public var queries: [Query]
 
+    /// The time between two runs of the queries, in seconds. The minimum is 60. The web app uses 3600 without it.
+    public var refreshSeconds: Int?
+
     /// The kind of gauge that the user sees.
     ///
     /// When the query result does not fit the gauge, the gauge shows the error `frameDoesNotFit`.
@@ -134,6 +137,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         }
 
         queries = try container.decode([Query].self, forKey: .queries)
+        refreshSeconds = try container.decodeIfPresent(Int.self, forKey: .refreshSeconds)
         gauge = try container.decode(Gauge.self, forKey: .gauge)
         encoding = try container.decodeIfPresent(Encoding.self, forKey: .encoding)
         columnSettings = try container.decodeIfPresent([String: ColumnSetting].self, forKey: .columnSettings)
@@ -144,6 +148,9 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         colorScheme = try container.decodeIfPresent(ColorScheme.self, forKey: .colorScheme)
         explanation = try container.decodeIfPresent(String.self, forKey: .explanation)
 
+        if let refreshSeconds, refreshSeconds < 60 {
+            throw DecodingError.dataCorruptedError(forKey: .refreshSeconds, in: container, debugDescription: "The minimum is 60 seconds")
+        }
         let names = queries.map(\.name)
         guard !names.isEmpty, Set(names).count == names.count else {
             throw DecodingError.dataCorruptedError(forKey: .queries, in: container, debugDescription: "A spec needs one or more queries with different names")
