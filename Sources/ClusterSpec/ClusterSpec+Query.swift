@@ -10,9 +10,6 @@ public extension ClusterSpec {
         /// The TQL query or the SQL text.
         public var query: Content
 
-        /// The time between two runs of the query, in seconds. The minimum is 60. The web app uses 3600 without it.
-        public var refreshSeconds: Int?
-
         public enum Content: Hashable, Sendable {
             case tql(CustomQuery)
 
@@ -29,7 +26,6 @@ public extension ClusterSpec {
             case name
             case language
             case query
-            case refreshSeconds
         }
 
         public init(from decoder: Decoder) throws {
@@ -50,11 +46,6 @@ public extension ClusterSpec {
                 }
                 query = .sql(text)
             }
-
-            refreshSeconds = try container.decodeIfPresent(Int.self, forKey: .refreshSeconds)
-            if let refreshSeconds, refreshSeconds < 60 {
-                throw DecodingError.dataCorruptedError(forKey: .refreshSeconds, in: container, debugDescription: "The minimum is 60 seconds")
-            }
         }
 
         public func encode(to encoder: Encoder) throws {
@@ -70,8 +61,6 @@ public extension ClusterSpec {
                 try container.encode(Language.sql, forKey: .language)
                 try container.encode(text, forKey: .query)
             }
-
-            try container.encodeIfPresent(refreshSeconds, forKey: .refreshSeconds)
         }
     }
 }

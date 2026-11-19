@@ -34,11 +34,11 @@ private let completeSpec = """
         {
             "name": "main",
             "language": "sql",
-            "query": "SELECT TIME_FLOOR(__time, 'P1D') AS \\"day\\", appVersion, COUNT(*) AS events FROM {{events}} GROUP BY 1, 2",
-            "refreshSeconds": 600
+            "query": "SELECT TIME_FLOOR(__time, 'P1D') AS \\"day\\", appVersion, COUNT(*) AS events FROM {{events}} GROUP BY 1, 2"
         },
         { "name": "users", "language": "sql", "query": "SELECT 1" }
     ],
+    "refreshSeconds": 600,
     "gauge": "bar",
     "encoding": {
         "source": "main",
@@ -167,6 +167,12 @@ struct ClusterSpecTests {
         #expect(try decode(encode(decoded)) == decoded)
     }
 
+    @Test("A refresh interval in a query is not in the encoded spec") func refreshSecondsInQuery() throws {
+        let old = #"{ "version": 1, "queries": [{ "name": "main", "language": "sql", "query": "SELECT 1", "refreshSeconds": 600 }], "gauge": "line" }"#
+
+        #expect(try value(encode(decode(old))) == value(spec()))
+    }
+
     // The type is the allowlist. A key that the type does not have is not in the encoded spec.
     @Test("A key that the type does not have is not in the encoded spec", arguments: [
         #""pivot": true"#,
@@ -259,7 +265,7 @@ struct ClusterSpecTests {
         #"{ "version": 1, "queries": [{ "name": "a", "language": "sql", "query": { "queryType": "timeseries" } }], "gauge": "line" }"#,
         #"{ "version": 1, "queries": [{ "name": "a", "language": "tql", "query": "SELECT 1" }], "gauge": "line" }"#,
         #"{ "version": 1, "queries": [{ "name": "a", "language": "druid", "query": "SELECT 1" }], "gauge": "line" }"#,
-        #"{ "version": 1, "queries": [{ "name": "a", "language": "sql", "query": "SELECT 1", "refreshSeconds": 5 }], "gauge": "line" }"#,
+        #"{ "version": 1, "queries": [{ "name": "a", "language": "sql", "query": "SELECT 1" }], "refreshSeconds": 5, "gauge": "line" }"#,
         """
         { "version": 1, "gauge": "line", "queries": [
             { "name": "a", "language": "sql", "query": "SELECT 1" }, { "name": "a", "language": "sql", "query": "SELECT 2" }
