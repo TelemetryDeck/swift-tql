@@ -1,0 +1,34 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Tag and release the next version
+
+    steps:
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/tags" --paginate --jq '.[].name' \
+            | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$' | sort -V | tail -1)
+          IFS=. read -r major minor _ <<< "${latest:-0.0}"
+          # A merged pull request with the label "major" starts a new major version.
+          if gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[].labels[].name' \
+            | grep -qx major; then
+            next="$((major + 1)).0.0"
+          else
+            next="$major.$((minor + 1)).0"
+          fi
+          gh release create "$next" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "Version $next" --generate-notes
