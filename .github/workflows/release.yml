@@ -8,12 +8,16 @@ permissions:
   contents: write
   pull-requests: read
 
-concurrency: release
+# A new merge cancels a release that still waits, so quick merges give one release.
+concurrency:
+  group: release
+  cancel-in-progress: true
 
 jobs:
   release:
     runs-on: ubuntu-latest
     name: Tag and release the next version
+    environment: release # has the wait timer
 
     steps:
       - name: Create release
@@ -22,10 +26,13 @@ jobs:
         run: |
           latest=$(gh api "repos/$GITHUB_REPOSITORY/tags" --paginate --jq '.[].name' \
             | grep -E '^[0-9]+\.[0-9]+(\.[0-9]+)?$' | sort -V | tail -1)
-          IFS=. read -r major minor _ <<< "${latest:-0.0}"
+          IFS=. read -r major minor _ <<< "$latest"
           # A merged pull request with the label "major" starts a new major version.
-          if gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[].labels[].name' \
-            | grep -qx major; then
+          labels=$(gh api "repos/$GITHUB_REPOSITORY/compare/$latest...$GITHUB_SHA" --jq '.commits[].sha' \
+            | while read -r sha; do
+                gh api "repos/$GITHUB_REPOSITORY/commits/$sha/pulls" --jq '.[].labels[].name'
+              done)
+          if grep -qx major <<< "$labels"; then
             next="$((major + 1)).0.0"
           else
             next="$major.$((minor + 1)).0"
