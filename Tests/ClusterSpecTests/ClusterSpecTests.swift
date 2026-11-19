@@ -155,7 +155,8 @@ struct ClusterSpecTests {
             "b": { "format": { "name": "compact" } },
             "c": { "format": { "name": "duration" } },
             "d": { "format": { "name": "bytes", "base": 1000 } },
-            "e": { "format": { "name": "intl", "options": { "style": "percent" } } }
+            "e": { "format": { "name": "intl", "options": { "style": "percent" } } },
+            "f": { "format": { "name": "duration", "unit": "hours" } }
         }
         """))
         let settings = try #require(decoded.columnSettings)
@@ -164,6 +165,7 @@ struct ClusterSpecTests {
         #expect(settings["b"]?.format == .compact)
         #expect(settings["c"]?.format == .duration(unit: nil))
         #expect(settings["d"]?.format == .bytes(base: .decimal))
+        #expect(settings["f"]?.format == .duration(unit: .hours))
         #expect(try decode(encode(decoded)) == decoded)
     }
 

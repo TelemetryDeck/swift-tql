@@ -3,8 +3,22 @@ import SwiftTQL
 
 public extension ClusterSpec {
     /// One query of a spec.
+    ///
+    /// Rules for a SQL query that a chart reads:
+    ///
+    /// - Give each column a name: `COUNT(*) AS "events"`.
+    /// - For a time axis, return a time value, not text: `TIME_FLOOR(__time, 'P1D') AS "day"`.
+    /// - For categories, return text. `TIME_FORMAT(__time, 'EEE')` gives the weekday as text.
+    /// - Return numbers for the y columns. Use `CAST` for a number that is text.
+    /// - Return few rows. A gauge reads a maximum of 10,000 rows. Group in the query, not in the gauge.
+    /// - `LIMIT` without `ORDER BY` returns rows that the database selects. For a chart of the largest values, sort first.
+    ///
+    /// ```json
+    /// { "name": "main", "language": "sql", "query": "SELECT TIME_FLOOR(__time, 'P1D') AS \"day\", COUNT(*) AS \"events\" FROM ... GROUP BY 1" }
+    /// ```
     struct Query: Codable, Hashable, Sendable {
         /// The name of the query in this spec. `encoding.source` and `datasetId` refer to it.
+        /// Use a name that tells what the query returns, for example `users`. The name `main` is usual for the first query.
         public var name: String
 
         /// The TQL query or the SQL text.
