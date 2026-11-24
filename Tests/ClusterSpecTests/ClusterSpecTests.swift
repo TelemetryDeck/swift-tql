@@ -90,7 +90,8 @@ private let completeSpec = """
         "dataZoom": [{ "type": "slider", "show": true, "start": 0, "end": 50, "startValue": 1, "endValue": "2026-11-02T00:00:00" }]
     },
     "colorScheme": ["#F78564", "rgb(0 0 0)", "rebeccapurple"],
-    "explanation": "**Events** for each day."
+    "explanation": "**Events** for each day.",
+    "title": "Events for each day"
 }
 """
 
@@ -367,6 +368,7 @@ struct ClusterSpecTests {
         #""echarts": { "title": [{ "text": { "x": 1 } }] }"#,
         #""echarts": { "xAxis": [{ "jitter": "wide" }] }"#,
         #""echarts": { "xAxis": [{ "data": [{ "value": "Mon", "textStyle": {} }] }] }"#,
+        #""title": { "text": "Events", "link": "https://example.com" }"#,
         // Rules that need more than one field.
         #""encoding": { "source": "missing" }"#,
         #""extraSeries": [{ "type": "line", "datasetId": "missing" }]"#,

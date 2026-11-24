@@ -96,6 +96,9 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     /// Markdown text that the web app shows adjacent to the gauge.
     public var explanation: String?
 
+    /// The title that the web app shows above the gauge. A caller with its own title, for example an insight, has priority.
+    public var title: String?
+
     public enum Gauge: String, Codable, Hashable, Sendable {
         /// One line for each y column or for each breakdown value. Use it for values across time.
         /// A value without a value on its two sides shows as a point.
@@ -147,6 +150,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         echarts = try container.decodeIfPresent(ChartOptions.self, forKey: .echarts)
         colorScheme = try container.decodeIfPresent(ColorScheme.self, forKey: .colorScheme)
         explanation = try container.decodeIfPresent(String.self, forKey: .explanation)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
 
         if let refreshSeconds, refreshSeconds < 60 {
             throw DecodingError.dataCorruptedError(forKey: .refreshSeconds, in: container, debugDescription: "The minimum is 60 seconds")
