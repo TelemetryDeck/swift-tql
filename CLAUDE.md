@@ -72,6 +72,7 @@ swift test --filter CustomQueryTests.testRegexQueryDecoding
    - The backend decodes a spec before it saves the spec. A key that the type does not have is not in the encoded spec, so the type is also the allowlist of the eCharts options that a user can set
    - `ClusterSpec+Overrides.swift` holds the override types and the steps to add a field. Read them before you add one: a field must not let a value become HTML, an address, an image, or code
    - `null` and an absent key mean "not set"; the encoder writes no `null`. "No limit" is the text `"all"` (`ClusterSpec.Limit`)
+   - `gauge` is optional. Without it, the display component chooses a gauge from the query
    - Separate library target that depends on SwiftTQL
 
 ### Key Design Patterns
