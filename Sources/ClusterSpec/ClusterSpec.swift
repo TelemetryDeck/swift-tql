@@ -21,12 +21,12 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     /// The time between two runs of the queries, in seconds. The minimum is 60. The web app uses 3600 without it.
     public var refreshSeconds: Int?
 
-    /// The kind of gauge that the user sees.
+    /// The kind of gauge that the user sees. Without it, the display component chooses a gauge from the query.
     ///
     /// When the query result does not fit the gauge, the gauge shows the error `frameDoesNotFit`.
     /// A chart needs one column for x and one or more number columns for y.
     /// A result with one column fits only the gauges `table` and `bigNumber`.
-    public var gauge: Gauge
+    public var gauge: Gauge?
 
     /// The source query and the columns for the chart roles. Without it, the web app uses defaults.
     public var encoding: Encoding?
@@ -138,7 +138,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
 
         queries = try container.decode([Query].self, forKey: .queries)
         refreshSeconds = try container.decodeIfPresent(Int.self, forKey: .refreshSeconds)
-        gauge = try container.decode(Gauge.self, forKey: .gauge)
+        gauge = try container.decodeIfPresent(Gauge.self, forKey: .gauge)
         encoding = try container.decodeIfPresent(Encoding.self, forKey: .encoding)
         columnSettings = try container.decodeIfPresent([String: ColumnSetting].self, forKey: .columnSettings)
         seriesDefaults = try container.decodeIfPresent(Series.self, forKey: .seriesDefaults)

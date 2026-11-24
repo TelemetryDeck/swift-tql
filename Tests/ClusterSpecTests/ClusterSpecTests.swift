@@ -15,7 +15,7 @@ private func value(_ json: String) throws -> NSObject {
     try #require(JSONSerialization.jsonObject(with: Data(json.utf8)) as? NSObject)
 }
 
-// A valid spec with `fields` after the necessary fields.
+// A valid spec with the gauge `line`, and with `fields` after it.
 private func spec(_ fields: String = "") -> String {
     """
     {
@@ -194,11 +194,13 @@ struct ClusterSpecTests {
     }
 
     @Test("A spec with only the necessary fields decodes") func minimalSpec() throws {
-        let decoded = try decode(spec())
+        let json = #"{ "version": 1, "queries": [{ "name": "main", "language": "sql", "query": "SELECT 1" }] }"#
+        let decoded = try decode(json)
 
-        #expect(decoded.gauge == .line)
+        #expect(decoded.gauge == nil)
         #expect(decoded.encoding == nil)
-        #expect(try value(encode(decoded)) == value(spec()))
+        #expect(try value(encode(decoded)) == value(json))
+        #expect(try decode(#"{ "version": 1, "queries": [{ "name": "main", "language": "sql", "query": "SELECT 1" }], "gauge": null }"#).gauge == nil)
     }
 
     @Test("A TQL query in a spec is a CustomQuery") func tqlQuery() throws {
@@ -380,7 +382,6 @@ struct ClusterSpecTests {
         #"{ "version": "1", "queries": [{ "name": "a", "language": "sql", "query": "SELECT 1" }], "gauge": "line" }"#,
         #"{ "version": 1, "queries": [{ "name": "a", "language": "sql", "query": "SELECT 1" }], "gauge": "funnel" }"#,
         #"{ "version": 1, "queries": [{ "name": "a", "language": "sql", "query": "SELECT 1" }], "gauge": { "type": "line" } }"#,
-        #"{ "version": 1, "queries": [{ "name": "a", "language": "sql", "query": "SELECT 1" }] }"#,
         #"{ "version": 1, "queries": [], "gauge": "line" }"#,
         #"{ "version": 1, "queries": { "a": { "language": "sql", "query": "SELECT 1" } }, "gauge": "line" }"#,
         #"{ "version": 1, "queries": [{ "language": "sql", "query": "SELECT 1" }], "gauge": "line" }"#,
