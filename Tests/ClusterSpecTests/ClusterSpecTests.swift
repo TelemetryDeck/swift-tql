@@ -91,7 +91,8 @@ private let completeSpec = """
     },
     "colorScheme": ["#F78564", "rgb(0 0 0)", "rebeccapurple"],
     "explanation": "**Events** for each day.",
-    "title": "Events for each day"
+    "title": "Events for each day",
+    "subtitle": "Last 30 days"
 }
 """
 
@@ -369,6 +370,7 @@ struct ClusterSpecTests {
         #""echarts": { "xAxis": [{ "jitter": "wide" }] }"#,
         #""echarts": { "xAxis": [{ "data": [{ "value": "Mon", "textStyle": {} }] }] }"#,
         #""title": { "text": "Events", "link": "https://example.com" }"#,
+        #""subtitle": ["Last 30 days"]"#,
         // Rules that need more than one field.
         #""encoding": { "source": "missing" }"#,
         #""extraSeries": [{ "type": "line", "datasetId": "missing" }]"#,
