@@ -55,8 +55,8 @@ public extension ClusterSpec {
         /// The width of a bar, in pixels or as a percentage (`"60%"`).
         public var barWidth: NumberOrText?
 
-        /// The position of the y axis for this series in `echarts.yAxis`. `1` is the second y axis.
-        /// The axis must exist: `echarts.yAxis` must have an item at this position.
+        /// The position of the y axis for this series in `chartOptions.yAxis`. `1` is the second y axis.
+        /// The axis must exist: `chartOptions.yAxis` must have an item at this position.
         /// Use a second axis when the values of two series have very different sizes.
         public var yAxisIndex: Int?
 
@@ -121,7 +121,7 @@ public extension ClusterSpec {
         case bar
         case scatter
 
-        /// Cells with a colour for each value. It needs `echarts.visualMap` and the coordinate system `calendar` or `matrix`.
+        /// Cells with a colour for each value. It needs `chartOptions.visualMap` and the coordinate system `calendar` or `matrix`.
         /// Use it in an extra series of the gauge `custom`.
         case heatmap
     }
@@ -146,16 +146,16 @@ public extension ClusterSpec {
     /// "extraSeries": [
     ///   { "type": "line", "name": "Users", "datasetId": "users", "encode": { "x": "day", "y": "users" }, "yAxisIndex": 1 }
     /// ],
-    /// "echarts": { "yAxis": [{ "name": "Events" }, { "name": "Users", "position": "left" }], "grid": { "top": 40 } }
+    /// "chartOptions": { "version": 1, "yAxis": [{ "name": "Events" }, { "name": "Users", "position": "left" }], "grid": { "top": 40 } }
     /// ```
     struct ExtraSeries: Codable, Hashable, Sendable {
         public var type: SeriesType
 
         /// The component that gives the series its positions. Without it, the series uses the x axis and the y axis.
-        /// The component must exist in `echarts`: `calendar`, `matrix`, or `singleAxis`.
+        /// The component must exist in `chartOptions`: `calendar`, `matrix`, or `singleAxis`.
         public var coordinateSystem: CoordinateSystem?
 
-        /// The position of the axis for this series in `echarts.singleAxis`. `0` is the first axis.
+        /// The position of the axis for this series in `chartOptions.singleAxis`. `0` is the first axis.
         public var singleAxisIndex: Int?
 
         /// The name of the series in the legend and in the tooltip. Always set it. Without it, the tooltip line has no text.
@@ -238,11 +238,15 @@ public extension ClusterSpec {
         }
     }
 
-    /// eCharts options for the complete chart. It has no field for series or datasets.
+    /// Options for the complete chart. It has no field for series or datasets.
     ///
+    /// Version 1 holds eCharts options with the names of eCharts. A later version can hold a different format.
     /// `xAxis`, `yAxis`, and `dataZoom` are lists. Item 0 of a list merges into item 0 of the generated list.
     /// An axis that the gauge does not generate has no style and no column format from the gauge.
     struct ChartOptions: Codable, Hashable, Sendable {
+        /// The version of the format of these options. Only version 1 exists.
+        public var version: Int
+
         /// The x axes. Item 0 is the axis that the gauge generates.
         public var xAxis: [Axis]?
 
@@ -285,7 +289,8 @@ public extension ClusterSpec {
         /// "extraSeries": [
         ///   { "type": "heatmap", "coordinateSystem": "calendar", "encode": { "time": "day", "value": "percentOfBestDay" } }
         /// ],
-        /// "echarts": {
+        /// "chartOptions": {
+        ///   "version": 1,
         ///   "visualMap": { "type": "piecewise", "min": 0, "max": 100, "orient": "horizontal", "left": "center", "top": 0 },
         ///   "calendar": { "top": 70, "left": 30, "right": 30, "cellSize": ["auto", 20], "range": ["2026-05-20", "2026-11-16"] }
         /// }
