@@ -68,8 +68,9 @@ swift test --filter CustomQueryTests.testRegexQueryDecoding
    - Separate library target from SwiftTQL with no shared dependency — SwiftTQL handles query/model building, SwiftDruid handles HTTP communication
 
 7. **ClusterSpec** (`Sources/ClusterSpec/`) - The saved format of one gauge of the web app (Cluster)
-   - `ClusterSpec` - Root type: queries (TQL as `CustomQuery`, or SQL text), the gauge, the encoding, column settings, and eCharts overrides
+   - `ClusterSpec` - Root type: queries (TQL as `CustomQuery`, or SQL text), the gauge, the encoding, column settings, and chart option overrides (`chartOptions`)
    - The backend decodes a spec before it saves the spec. A key that the type does not have is not in the encoded spec, so the type is also the allowlist of the eCharts options that a user can set
+   - `chartOptions` has its own `version`. Version 1 holds eCharts options. A different chart library gets a new version
    - `ClusterSpec+Overrides.swift` holds the override types and the steps to add a field. Read them before you add one: a field must not let a value become HTML, an address, an image, or code
    - `null` and an absent key mean "not set"; the encoder writes no `null`. "No limit" is the text `"all"` (`ClusterSpec.Limit`)
    - `gauge` is optional. Without it, the display component chooses a gauge from the query

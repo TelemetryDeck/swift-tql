@@ -4,7 +4,7 @@ import Foundation
 ///
 /// The web app shows a spec with Cluster. The backend decodes a spec before it saves the spec.
 /// A key that this type does not have is not in the encoded spec. The type is thus also the
-/// allowlist of the eCharts options that a user can set.
+/// allowlist of the chart options that a user can set.
 ///
 /// `null` and an absent key mean the same: the field is not set. The encoder writes no `null`.
 public struct ClusterSpec: Codable, Hashable, Sendable {
@@ -79,16 +79,16 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     /// See ``ExtraSeries`` for an example.
     public var extraSeries: [ExtraSeries]?
 
-    /// eCharts options for the complete chart.
+    /// Options for the complete chart. They have their own format version, so that the chart library can change.
     ///
     /// These options merge on top of the options that the gauge generates. A field that is not set keeps its generated value.
     /// The names are the names of eCharts. For the gauge `horizontalBar`, the axis with the categories is `yAxis`.
     /// The gauges `table` and `bigNumber` have no chart and do not use these options.
     ///
     /// ```json
-    /// "echarts": { "legend": { "show": true, "top": 0 }, "grid": { "top": 40 } }
+    /// "chartOptions": { "version": 1, "legend": { "show": true, "top": 0 }, "grid": { "top": 40 } }
     /// ```
-    public var echarts: ChartOptions?
+    public var chartOptions: ChartOptions?
 
     /// The colours of the series. Without it, the web app uses the colour scheme of the app.
     public var colorScheme: ColorScheme?
@@ -111,7 +111,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         case bar
 
         /// Horizontal bars. The first row of the query result is at the top.
-        /// Use it for categories with long names. In `echarts`, the axis with the categories is `yAxis`.
+        /// Use it for categories with long names. In `chartOptions`, the axis with the categories is `yAxis`.
         case horizontalBar
 
         /// One slice for each row. It reads the x column for the names and exactly one y column.
@@ -126,7 +126,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         case bigNumber
 
         /// A chart without generated series and without axes. The spec makes each series in `extraSeries`
-        /// and each component in `echarts`, for example a calendar, a matrix, or single axes.
+        /// and each component in `chartOptions`, for example a calendar, a matrix, or single axes.
         /// It needs one or more extra series. It uses no field of `encoding`, with the exception of `source`.
         /// The tooltip is the tooltip of eCharts. The column formats do not apply to it.
         /// See ``ChartOptions/calendar`` for an example.
@@ -150,7 +150,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         seriesDefaults = try container.decodeIfPresent(Series.self, forKey: .seriesDefaults)
         seriesByName = try container.decodeIfPresent([String: Series].self, forKey: .seriesByName)
         extraSeries = try container.decodeIfPresent([ExtraSeries].self, forKey: .extraSeries)
-        echarts = try container.decodeIfPresent(ChartOptions.self, forKey: .echarts)
+        chartOptions = try container.decodeIfPresent(ChartOptions.self, forKey: .chartOptions)
         colorScheme = try container.decodeIfPresent(ColorScheme.self, forKey: .colorScheme)
         explanation = try container.decodeIfPresent(String.self, forKey: .explanation)
         title = try container.decodeIfPresent(String.self, forKey: .title)
@@ -168,6 +168,9 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         }
         if let datasetId = extraSeries?.compactMap(\.datasetId).first(where: { !names.contains($0) }) {
             throw DecodingError.dataCorruptedError(forKey: .extraSeries, in: container, debugDescription: "No query has the name \(datasetId)")
+        }
+        if let chartOptions, chartOptions.version != 1 {
+            throw DecodingError.dataCorruptedError(forKey: .chartOptions, in: container, debugDescription: "Unknown chart options version \(chartOptions.version)")
         }
         if gauge == .custom, (extraSeries ?? []).isEmpty {
             throw DecodingError.dataCorruptedError(forKey: .extraSeries, in: container, debugDescription: "The gauge custom needs one or more extra series")
