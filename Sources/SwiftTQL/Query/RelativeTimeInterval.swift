@@ -65,6 +65,35 @@ public struct RelativeDate: Codable, Hashable, Equatable, Sendable {
     public let position: ComponentPosition
 }
 
+/// Moves "now" of a query by a number of calendar units. The previous run of a time comparison uses it.
+///
+/// Each relative date of the query starts from the moved "now". Each fixed interval moves by the same distance.
+public struct TimeShift: Codable, Hashable, Equatable, Sendable {
+    public init(component: RelativeDate.RelativeDateComponent, offset: Int, toDate: Bool? = nil) {
+        self.component = component
+        self.offset = offset
+        self.toDate = toDate
+    }
+
+    /// The calendar unit of the shift.
+    public let component: RelativeDate.RelativeDateComponent
+
+    /// The number of units. A negative value moves "now" into the past.
+    public let offset: Int
+
+    /// If true, no interval of the query ends after the moved "now".
+    public let toDate: Bool?
+
+    /// Adds the shift to `date`. The calendar units are units of the time zone. Without a time zone, UTC applies.
+    public func apply(to date: Date, timeZone: String? = nil) -> Date {
+        let cal = Date.calendar(for: timeZone)
+        if component == .quarter {
+            return cal.date(byAdding: .month, value: offset * 3, to: date) ?? date
+        }
+        return cal.date(byAdding: component.calendarComponent, value: offset, to: date) ?? date
+    }
+}
+
 public extension Date {
     static func from(relativeDate: RelativeDate, originDate: Date? = nil, timeZone: String? = nil) -> Date {
         let cal = Self.calendar(for: timeZone)
@@ -104,7 +133,7 @@ public extension Date {
     // MARK: - Calendar with optional timezone
 
     /// Builds an ISO8601 calendar with the given timezone, falling back to UTC.
-    private static func calendar(for timezoneIdentifier: String?) -> Calendar {
+    fileprivate static func calendar(for timezoneIdentifier: String?) -> Calendar {
         var cal = Calendar(identifier: .iso8601)
         if let timezoneIdentifier, let tz = TimeZone(identifier: timezoneIdentifier) {
             cal.timeZone = tz
@@ -220,10 +249,10 @@ public extension Date {
 }
 
 public extension QueryTimeInterval {
-    static func from(relativeTimeInterval: RelativeTimeInterval, timeZone: String? = nil) -> QueryTimeInterval {
+    static func from(relativeTimeInterval: RelativeTimeInterval, originDate: Date? = nil, timeZone: String? = nil) -> QueryTimeInterval {
         QueryTimeInterval(
-            beginningDate: Date.from(relativeDate: relativeTimeInterval.beginningDate, timeZone: timeZone),
-            endDate: Date.from(relativeDate: relativeTimeInterval.endDate, timeZone: timeZone)
+            beginningDate: Date.from(relativeDate: relativeTimeInterval.beginningDate, originDate: originDate, timeZone: timeZone),
+            endDate: Date.from(relativeDate: relativeTimeInterval.endDate, originDate: originDate, timeZone: timeZone)
         )
     }
 }

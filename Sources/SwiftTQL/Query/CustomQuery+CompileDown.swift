@@ -91,7 +91,7 @@ public extension CustomQuery {
     /// @warn Both precompile AND compileToRunnableQuery need to be run before a query can safely be handed to Druid!
     ///
     /// @see precompile
-    func compileToRunnableQuery() throws -> CustomQuery {
+    func compileToRunnableQuery(now: Date = Date()) throws -> CustomQuery {
         try withSpan("TQL.Query.compileToRunnableQuery") { span in
             span.attributes["tql.query.type"] = queryType.rawValue
 
@@ -102,10 +102,20 @@ public extension CustomQuery {
             // Make an editable copy of self
             var query = self
 
-            // Compile relative Time intervals
             let timeZone = query.context?.timezone
+            let origin = query.timeShift?.apply(to: now, timeZone: timeZone) ?? now
+
+            // Compile relative Time intervals
             if let relativeIntervals = query.relativeIntervals {
-                query.intervals = relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: timeZone) }
+                query.intervals = relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, originDate: origin, timeZone: timeZone) }
+            } else if let timeShift = query.timeShift {
+                query.intervals = query.intervals?.map {
+                    QueryTimeInterval(beginningDate: timeShift.apply(to: $0.beginningDate, timeZone: timeZone), endDate: timeShift.apply(to: $0.endDate, timeZone: timeZone))
+                }
+            }
+
+            if query.timeShift?.toDate == true {
+                query.intervals = query.intervals?.map { QueryTimeInterval(beginningDate: min($0.beginningDate, origin), endDate: min($0.endDate, origin)) }
             }
 
             guard query.intervals != nil, !query.intervals!.isEmpty else {
@@ -115,12 +125,12 @@ public extension CustomQuery {
 
             // Compile relative intervals in Relative Interval filters
             if let filter = query.filter {
-                query.filter = compileRelativeFilterInterval(filter: filter, timeZone: timeZone)
+                query.filter = compileRelativeFilterInterval(filter: filter, origin: origin, timeZone: timeZone)
             }
 
             // Comppile relative intervals in Aggregators
             if let aggregations = query.aggregations {
-                query.aggregations = aggregations.map { agg in compileRelativeIntervalFilterInAggregations(agg: agg, timeZone: timeZone) }
+                query.aggregations = aggregations.map { agg in compileRelativeIntervalFilterInAggregations(agg: agg, origin: origin, timeZone: timeZone) }
             }
 
             // Update compilationStatus so the next steps in the pipeline are sure the query has been compiled
@@ -130,7 +140,7 @@ public extension CustomQuery {
         }
     }
 
-    private func compileRelativeFilterInterval(filter: Filter, timeZone: String?) -> Filter {
+    private func compileRelativeFilterInterval(filter: Filter, origin: Date, timeZone: String?) -> Filter {
         switch filter {
         case .selector:
             return filter
@@ -141,7 +151,7 @@ public extension CustomQuery {
                 return Filter.interval(
                     .init(
                         dimension: filterInterval.dimension,
-                        intervals: relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, timeZone: timeZone) }
+                        intervals: relativeIntervals.map { QueryTimeInterval.from(relativeTimeInterval: $0, originDate: origin, timeZone: timeZone) }
                     )
                 )
             } else {
@@ -158,21 +168,21 @@ public extension CustomQuery {
         case .in:
             return filter
         case .and(let filterExpression):
-            return Filter.and(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0, timeZone: timeZone) }))
+            return Filter.and(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0, origin: origin, timeZone: timeZone) }))
         case .or(let filterExpression):
-            return Filter.or(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0, timeZone: timeZone) }))
+            return Filter.or(.init(fields: filterExpression.fields.map { compileRelativeFilterInterval(filter: $0, origin: origin, timeZone: timeZone) }))
         case .not(let filterNot):
-            return Filter.not(.init(field: compileRelativeFilterInterval(filter: filterNot.field, timeZone: timeZone)))
+            return Filter.not(.init(field: compileRelativeFilterInterval(filter: filterNot.field, origin: origin, timeZone: timeZone)))
         }
     }
 
-    private func compileRelativeIntervalFilterInAggregations(agg: Aggregator, timeZone: String?) -> Aggregator {
+    private func compileRelativeIntervalFilterInAggregations(agg: Aggregator, origin: Date, timeZone: String?) -> Aggregator {
         switch agg {
         case .filtered(let filteredAggregator):
             return Aggregator.filtered(
                 .init(
-                    filter: compileRelativeFilterInterval(filter: filteredAggregator.filter, timeZone: timeZone),
-                    aggregator: compileRelativeIntervalFilterInAggregations(agg: filteredAggregator.aggregator, timeZone: timeZone)
+                    filter: compileRelativeFilterInterval(filter: filteredAggregator.filter, origin: origin, timeZone: timeZone),
+                    aggregator: compileRelativeIntervalFilterInAggregations(agg: filteredAggregator.aggregator, origin: origin, timeZone: timeZone)
                 )
             )
         default:

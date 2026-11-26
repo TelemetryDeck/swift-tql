@@ -93,7 +93,8 @@ private let completeSpec = """
     "colorScheme": ["#F78564", "rgb(0 0 0)", "rebeccapurple"],
     "explanation": "**Events** for each day.",
     "title": "Events for each day",
-    "subtitle": "Last 30 days"
+    "subtitle": "Last 30 days",
+    "compare": { "to": "previousPeriod", "period": "toDate" }
 }
 """
 
@@ -177,6 +178,15 @@ struct ClusterSpecTests {
         let encoded = try encode(decode(gallerySpec))
 
         #expect(try value(encoded) == value(gallerySpec))
+    }
+
+    @Test("compare needs only to, and a spec without compare has no key compare") func compare() throws {
+        let fields = #""compare": { "to": "none" }"#
+        #expect(try value(encode(decode(spec(fields)))) == value(spec(fields)))
+        let compare = try #require(decode(spec(fields)).compare)
+        #expect(compare.to == ClusterSpec.Compare.To.none)
+        #expect(compare.period == nil)
+        #expect(try !encode(decode(spec())).contains("compare"))
     }
 
     @Test("The gauge custom needs an extra series") func customGauge() throws {
@@ -374,6 +384,10 @@ struct ClusterSpecTests {
         #""chartOptions": { "version": 1, "xAxis": [{ "data": [{ "value": "Mon", "textStyle": {} }] }] }"#,
         #""title": { "text": "Events", "link": "https://example.com" }"#,
         #""subtitle": ["Last 30 days"]"#,
+        #""compare": { "to": "lastWeek" }"#,
+        #""compare": { "to": "previousYear", "period": "partial" }"#,
+        #""compare": { "period": "full" }"#,
+        #""compare": "previousPeriod""#,
         // The chart options need their own version 1.
         #""chartOptions": { "legend": { "show": true } }"#,
         #""chartOptions": { "version": 2, "legend": { "show": true } }"#,

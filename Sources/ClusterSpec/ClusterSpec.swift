@@ -102,6 +102,38 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
     /// A short text that the web app shows below the title.
     public var subtitle: String?
 
+    /// A comparison with an earlier period. Without it, the gauge follows the comparison switch of the web app.
+    ///
+    /// The gauges `line`, `bar`, `horizontalBar`, `table`, and `bigNumber` use it.
+    /// Each other gauge, and a gauge with `"stack": "percent"`, gives the warning `unusedField`.
+    ///
+    /// ```json
+    /// "compare": { "to": "previousPeriod", "period": "toDate" }
+    /// ```
+    public var compare: Compare?
+
+    public struct Compare: Codable, Hashable, Sendable {
+        /// The earlier period. `none` shows no comparison, also when the switch of the web app is on.
+        public var to: To
+
+        /// The length of the earlier period. Without it, a gauge with time buckets uses `full`, and a total uses `toDate`.
+        public var period: Period?
+
+        public enum To: String, Codable, Hashable, Sendable {
+            case previousPeriod
+            case previousYear
+            case none
+        }
+
+        public enum Period: String, Codable, Hashable, Sendable {
+            /// The complete earlier period.
+            case full
+
+            /// The earlier period to the same elapsed time as the current period.
+            case toDate
+        }
+    }
+
     public enum Gauge: String, Codable, Hashable, Sendable {
         /// One line for each y column or for each breakdown value. Use it for values across time.
         /// A value without a value on its two sides shows as a point.
@@ -155,6 +187,7 @@ public struct ClusterSpec: Codable, Hashable, Sendable {
         explanation = try container.decodeIfPresent(String.self, forKey: .explanation)
         title = try container.decodeIfPresent(String.self, forKey: .title)
         subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
+        compare = try container.decodeIfPresent(Compare.self, forKey: .compare)
 
         if let refreshSeconds, refreshSeconds < 60 {
             throw DecodingError.dataCorruptedError(forKey: .refreshSeconds, in: container, debugDescription: "The minimum is 60 seconds")
