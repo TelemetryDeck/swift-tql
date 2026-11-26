@@ -38,7 +38,8 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         steps: [NamedFilter]? = nil,
         sample1: NamedFilter? = nil,
         sample2: NamedFilter? = nil,
-        successCriterion: NamedFilter? = nil
+        successCriterion: NamedFilter? = nil,
+        timeShift: TimeShift? = nil
     ) {
         self.queryType = queryType
         self.compilationStatus = compilationStatus
@@ -79,6 +80,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         self.sample1 = sample1
         self.sample2 = sample2
         self.successCriterion = successCriterion
+        self.timeShift = timeShift
     }
 
     public init(
@@ -116,7 +118,8 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         steps: [NamedFilter]? = nil,
         sample1: NamedFilter? = nil,
         sample2: NamedFilter? = nil,
-        successCriterion: NamedFilter? = nil
+        successCriterion: NamedFilter? = nil,
+        timeShift: TimeShift? = nil
     ) {
         self.queryType = queryType
         self.compilationStatus = compilationStatus
@@ -153,6 +156,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         self.sample1 = sample1
         self.sample2 = sample2
         self.successCriterion = successCriterion
+        self.timeShift = timeShift
     }
 
     public enum QueryType: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -377,6 +381,9 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
     /// Will be intersected with cohort 1 for success 1 and cohort 2 for success 2
     public var successCriterion: NamedFilter?
 
+    /// Moves "now" of the query. Each relative date and each interval moves by the shift.
+    public var timeShift: TimeShift?
+
     public var stableHashValue: String {
         // We've tried various hashing functions here and they are just not stable.
         // So instead, let's convert to JSON and hash that.
@@ -422,6 +429,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         hasher.combine(sample1)
         hasher.combine(sample2)
         hasher.combine(successCriterion)
+        hasher.combine(timeShift)
     }
 
     public static func == (lhs: CustomQuery, rhs: CustomQuery) -> Bool {
@@ -464,6 +472,7 @@ public struct CustomQuery: Codable, Hashable, Equatable, Sendable {
         sample1 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample1)
         sample2 = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.sample2)
         successCriterion = try container.decodeIfPresent(NamedFilter.self, forKey: CustomQuery.CodingKeys.successCriterion)
+        timeShift = try container.decodeIfPresent(TimeShift.self, forKey: CustomQuery.CodingKeys.timeShift)
 
         if let intervals = try? container.decode(QueryTimeIntervalsContainer.self, forKey: CustomQuery.CodingKeys.intervals) {
             self.intervals = intervals.intervals
